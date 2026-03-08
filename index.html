@@ -126,9 +126,10 @@
   .author-inner { display: flex; gap: 3rem; align-items: flex-start; }
   .author-avatar {
     width: 100px; height: 100px; border-radius: 50%; flex-shrink: 0;
-    background: var(--bg3); border: 2px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-family: sans-serif; font-size: 2rem; color: var(--accent);
+    border: 2px solid var(--border); overflow: hidden;
+  }
+  .author-avatar img {
+    width: 100%; height: 100%; object-fit: cover;
   }
   .author-text h3 { font-size: 1.3rem; color: #fff; margin-bottom: 0.25rem; font-weight: normal; }
   .author-text .author-role { font-family: sans-serif; font-size: 0.8rem; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem; }
@@ -286,10 +287,12 @@
   <div class="container">
     <div class="section-label">About the author</div>
     <div class="author-inner">
-      <div class="author-avatar">J</div>
+      <div class="author-avatar">
+        <img src="https://media.licdn.com/dms/image/v2/D4E03AQGGdzdaLGPkpg/profile-displayphoto-shrink_400_400/profile-displayphoto-shrink_400_400/0/1728136743906?e=1774483200&v=beta&t=MXiqlandu_L6g08mq-lcEfcvEzLU11Ys9aSBXrr0Kg0" alt="Johan Philippe Stam" onerror="this.parentElement.innerHTML='J'">
+      </div>
       <div class="author-text">
-        <h3>Johan Philippe Stam</h3>
-        <div class="author-role">Hardware practitioner & author</div>
+        <h3><a href="https://www.linkedin.com/in/hansstam/" target="_blank" style="color: #fff; text-decoration: none; border-bottom: 1px solid var(--accent);">Johan Philippe (Hans) Stam</a></h3>
+        <div class="author-role">Author · Hardware practitioner · Berlin</div>
         <p>Johan has spent years working across hardware development, manufacturing, and supply chain — watching the same expensive mistakes repeat across teams, companies, and industries. The pattern was always the same. The costs were always avoidable. The lessons were never written down.</p>
         <p>The Hardest Hardware Lessons is his attempt to fix that — to give hardware builders the specific, hard-won knowledge that experienced practitioners carry in their heads, before it has to be learned the expensive way.</p>
       </div>
