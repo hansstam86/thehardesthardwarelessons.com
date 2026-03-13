@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Hardest Hardware Lessons — Presentation</title>
+<style>
+  :root {
+    --bg: #0f0f0f; --bg2: #161616; --bg3: #1e1e1e;
+    --gold: #e8c547; --gold2: #c9a227;
+    --text: #e8e8e8; --muted: #888; --border: #2a2a2a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Georgia', serif; }
+
+  /* DECK */
+  .deck { width: 100%; height: 100%; position: relative; }
+  .slide {
+    position: absolute; inset: 0;
+    background: var(--bg);
+    display: flex; flex-direction: column; justify-content: center;
+    padding: clamp(2rem, 6vw, 5rem) clamp(2rem, 8vw, 8rem);
+    opacity: 0; pointer-events: none; transition: opacity 0.4s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: all; }
+
+  /* SLIDE ELEMENTS */
+  .slide-num {
+    position: absolute; bottom: 2rem; right: 2.5rem;
+    font-family: sans-serif; font-size: 0.75rem;
+    color: var(--muted); letter-spacing: 0.1em;
+  }
+  .slide-label {
+    font-family: sans-serif; font-size: 0.7rem;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 1.25rem;
+  }
+  .slide-title {
+    font-size: clamp(1.6rem, 4vw, 3rem);
+    color: #fff; line-height: 1.2; font-weight: normal;
+    margin-bottom: 1.25rem;
+  }
+  .slide-title em { font-style: italic; color: var(--gold); }
+  .slide-sub {
+    font-size: clamp(0.9rem, 1.8vw, 1.15rem);
+    color: #bbb; line-height: 1.7; max-width: 700px;
+  }
+
+  /* COST LADDER */
+  .cost-ladder { display: flex; flex-direction: column; gap: 10px; margin-top: 1.5rem; max-width: 780px; }
+  .cost-step {
+    display: flex; align-items: center; gap: 1.5rem;
+    padding: 0.75rem 1.25rem; border-radius: 4px;
+  }
+  .s1 { background: #0d1f0d; border: 1px solid #1a3a1a; }
+  .s2 { background: #1f1500; border: 1px solid #3a2800; }
+  .s3 { background: #1f0a00; border: 1px solid #3a1500; }
+  .s4 { background: #1f0000; border: 1px solid #3a0000; }
+  .cost-phase { font-family: sans-serif; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; min-width: 130px; }
+  .s1 .cost-phase { color: #4caf50; }
+  .s2 .cost-phase { color: #ff9800; }
+  .s3 .cost-phase { color: #ff6534; }
+  .s4 .cost-phase { color: #f44336; }
+  .cost-amount { font-size: clamp(0.9rem, 1.5vw, 1.1rem); font-weight: bold; min-width: 160px; }
+  .s1 .cost-amount { color: #81c784; }
+  .s2 .cost-amount { color: #ffb74d; }
+  .s3 .cost-amount { color: #ff8a65; }
+  .s4 .cost-amount { color: #ef9a9a; }
+  .cost-desc { font-family: sans-serif; font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+
+  /* DFM EXAMPLES */
+  .dfm-list { display: flex; flex-direction: column; gap: 10px; margin-top: 1.25rem; max-width: 780px; }
+  .dfm-item {
+    display: flex; gap: 1rem; align-items: flex-start;
+    padding: 0.75rem 1.25rem; background: var(--bg3);
+    border: 1px solid var(--border); border-radius: 4px;
+  }
+  .dfm-tag {
+    font-family: sans-serif; font-size: 0.65rem; text-transform: uppercase;
+    letter-spacing: 0.1em; padding: 3px 8px; border-radius: 20px;
+    white-space: nowrap; margin-top: 2px;
+  }
+  .tag-spec { background: #0d2b1e; color: #4caf50; border: 1px solid #1a4a2e; }
+  .tag-dfm { background: #1f1500; color: #ffb74d; border: 1px solid #3a2800; }
+  .dfm-item p { font-family: sans-serif; font-size: 0.88rem; color: #bbb; line-height: 1.5; }
+  .dfm-item p strong { color: var(--text); }
+
+  /* QUOTE BLOCK */
+  .quote-block {
+    border-left: 3px solid var(--gold);
+    padding: 1.25rem 1.75rem;
+    background: var(--bg2); border-radius: 0 4px 4px 0;
+    margin-top: 1.5rem; max-width: 700px;
+  }
+  .quote-block p { font-size: clamp(0.95rem, 1.8vw, 1.1rem); color: #ccc; font-style: italic; line-height: 1.7; }
+  .quote-block cite { display: block; margin-top: 0.75rem; font-family: sans-serif; font-size: 0.75rem; color: var(--muted); font-style: normal; }
+
+  /* BIG QUOTE */
+  .big-quote {
+    font-size: clamp(1.4rem, 3.5vw, 2.4rem);
+    color: #fff; line-height: 1.3; font-style: italic;
+    max-width: 800px; margin-bottom: 1.5rem;
+  }
+  .big-quote em { color: var(--gold); font-style: normal; }
+
+  /* TAKEAWAY GRID */
+  .takeaway-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 1.25rem; max-width: 780px; }
+  .takeaway-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 1rem 1.25rem; }
+  .takeaway-card h4 { font-family: sans-serif; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); margin-bottom: 0.5rem; font-weight: normal; }
+  .takeaway-card p { font-family: sans-serif; font-size: 0.85rem; color: #aaa; line-height: 1.5; }
+
+  /* CTA ROW */
+  .cta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 1.75rem; max-width: 700px; }
+  .cta-card { padding: 1.25rem 1.5rem; border-radius: 4px; }
+  .cta-book { background: #1f1500; border: 1px solid var(--gold2); }
+  .cta-sub { background: #001833; border: 1px solid #1a4a7a; }
+  .cta-card h4 { font-family: sans-serif; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.15em; margin-bottom: 0.4rem; }
+  .cta-book h4 { color: var(--gold2); }
+  .cta-sub h4 { color: #5b9bd5; }
+  .cta-card h3 { font-size: clamp(0.9rem, 1.5vw, 1rem); margin-bottom: 0.3rem; font-weight: normal; }
+  .cta-book h3 { color: #e8c547; }
+  .cta-sub h3 { color: #82b4e8; }
+  .cta-card p { font-family: sans-serif; font-size: 0.8rem; }
+  .cta-book p { color: var(--gold2); }
+  .cta-sub p { color: #5b9bd5; }
+
+  /* NAV */
+  .nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    display: flex; justify-content: center; align-items: center;
+    gap: 1rem; padding: 1rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  }
+  .nav-btn {
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text); padding: 0.5rem 1.5rem;
+    border-radius: 3px; cursor: pointer; font-family: sans-serif;
+    font-size: 0.8rem; letter-spacing: 0.05em; transition: all 0.2s;
+  }
+  .nav-btn:hover { background: var(--bg2); border-color: #444; }
+  .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .nav-progress {
+    font-family: sans-serif; font-size: 0.75rem;
+    color: var(--muted); min-width: 60px; text-align: center;
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: var(--gold); transition: width 0.4s ease;
+  }
+
+  /* LOGO */
+  .logo {
+    position: fixed; top: 1.25rem; left: 1.75rem;
+    font-family: sans-serif; font-size: 0.7rem;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* FULLSCREEN HINT */
+  .hint {
+    position: fixed; top: 1.25rem; right: 1.75rem;
+    font-family: sans-serif; font-size: 0.7rem;
+    color: var(--muted); letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+<div class="logo">The Hardest Hardware Lessons</div>
+<div class="hint">← → to navigate · F for fullscreen</div>
+
+<div class="deck">
+
+  <!-- SLIDE 1 -->
+  <div class="slide active">
+    <div class="slide-label">Slide 1 of 6 · The hook</div>
+    <h1 class="slide-title">Have you ever worked really hard on something — <em>only to find out it was wrong when it was too late</em> to fix cheaply?</h1>
+    <p class="slide-sub">That feeling has a name in hardware. It's called discovering your mistake at the wrong phase. And the cost is not 2x. It's not 10x. It's closer to 100x.</p>
+    <div class="slide-num">1 / 6</div>
+  </div>
+
+  <!-- SLIDE 2 -->
+  <div class="slide">
+    <div class="slide-label">Slide 2 of 6 · The 100x rule</div>
+    <h1 class="slide-title">The same mistake costs <em>100x more</em> to fix in production than in prototyping.</h1>
+    <div class="cost-ladder">
+      <div class="cost-step s1">
+        <span class="cost-phase">Prototyping</span>
+        <span class="cost-amount">€1,000s</span>
+        <span class="cost-desc">Board re-spin, a week of delay. Painful but manageable.</span>
+      </div>
+      <div class="cost-step s2">
+        <span class="cost-phase">After tooling</span>
+        <span class="cost-amount">€50k – €100k</span>
+        <span class="cost-desc">Tooling modification. 6–8 weeks. No schedule buffer.</span>
+      </div>
+      <div class="cost-step s3">
+        <span class="cost-phase">Mass production</span>
+        <span class="cost-amount">€100k – €1M+</span>
+        <span class="cost-desc">Line halt. Cert re-test. Potential field recall.</span>
+      </div>
+      <div class="cost-step s4">
+        <span class="cost-phase">In the field</span>
+        <span class="cost-amount">Existential</span>
+        <span class="cost-desc">Recall + press coverage + customer trust. Companies don't recover.</span>
+      </div>
+    </div>
+    <div class="slide-num">2 / 6</div>
+  </div>
+
+  <!-- SLIDE 3 -->
+  <div class="slide">
+    <div class="slide-label">Slide 3 of 6 · DFM & specification</div>
+    <h1 class="slide-title">The most expensive mistakes are decided <em>before the first prototype is built.</em></h1>
+    <p class="slide-sub">Design for Manufacturability means specifying your product with the factory in mind from day one — not as a late-stage review.</p>
+    <div class="dfm-list">
+      <div class="dfm-item">
+        <span class="dfm-tag tag-spec">Spec</span>
+        <p><strong>Tolerances set too tight in CAD</strong> — looks fine on screen, requires specialised tooling in production. Cost discovered at DVT: €40k re-work.</p>
+      </div>
+      <div class="dfm-item">
+        <span class="dfm-tag tag-spec">Spec</span>
+        <p><strong>Component chosen for prototype availability</strong> — impossible to source at volume. Single-source risk locked in before anyone noticed.</p>
+      </div>
+      <div class="dfm-item">
+        <span class="dfm-tag tag-dfm">DFM</span>
+        <p><strong>Assembly sequence not reviewed with the factory</strong> — requires manual intervention on 40% of units. Invisible on a bench. Catastrophic at 10,000 units per week.</p>
+      </div>
+      <div class="dfm-item">
+        <span class="dfm-tag tag-dfm">DFM</span>
+        <p><strong>Thermal not simulated before hard tooling</strong> — the €80,000 tooling modification that nobody planned for.</p>
+      </div>
+    </div>
+    <div class="slide-num">3 / 6</div>
+  </div>
+
+  <!-- SLIDE 4 -->
+  <div class="slide">
+    <div class="slide-label">Slide 4 of 6 · The real villain</div>
+    <h1 class="slide-title">It's not incompetence.<br>It's not bad engineering.<br>It's <em>pressure.</em></h1>
+    <div class="quote-block">
+      <p>"The team passes the DVT gate with two open hardware issues that are 'probably fine.' They don't take the two-week extension. Six weeks later, in PVT, those two issues cost five times as much to resolve — in a phase where the schedule has no buffer, because the schedule was set assuming DVT would close on time."</p>
+      <cite>— The Hardest Hardware Lessons</cite>
+    </div>
+    <div class="slide-num">4 / 6</div>
+  </div>
+
+  <!-- SLIDE 5 -->
+  <div class="slide">
+    <div class="slide-label">Slide 5 of 6 · The lesson</div>
+    <div class="big-quote">"Every shortcut you take today is a cost you pay <em>downstream</em> — at a higher rate, under worse conditions."</div>
+    <div class="takeaway-grid">
+      <div class="takeaway-card">
+        <h4>On specification</h4>
+        <p>Every deferred decision costs more to fix. Specify completely and involve manufacturing before money is committed.</p>
+      </div>
+      <div class="takeaway-card">
+        <h4>On DFM</h4>
+        <p>DFM is not a review at the end of design. It's a discipline from the first sketch. The factory should be in the room before tooling is discussed.</p>
+      </div>
+      <div class="takeaway-card">
+        <h4>On gate discipline</h4>
+        <p>Hold the gate when evidence doesn't support moving forward. That two-week extension is not failure — it's the most economically rational decision you can make.</p>
+      </div>
+      <div class="takeaway-card">
+        <h4>On pressure</h4>
+        <p>Separate "we feel behind" from "we are genuinely ready." Those are different questions with very different answers.</p>
+      </div>
+    </div>
+    <div class="slide-num">5 / 6</div>
+  </div>
+
+  <!-- SLIDE 6 -->
+  <div class="slide">
+    <div class="slide-label">Slide 6 of 6 · The close</div>
+    <h1 class="slide-title">I wrote all of this down.<br>45 copies sold in 6 days.<br><em>Hardware people recognising something true.</em></h1>
+    <div class="cta-row">
+      <div class="cta-card cta-book">
+        <h4>The book</h4>
+        <h3>The Hardest Hardware Lessons</h3>
+        <p>thehardesthardwarelessons.com/buy</p>
+      </div>
+      <div class="cta-card cta-sub">
+        <h4>Weekly lessons — free to follow</h4>
+        <h3>The Hardest Hardware Lessons on Substack</h3>
+        <p>thehardesthardwarelessons.substack.com</p>
+      </div>
+    </div>
+    <div class="slide-num">6 / 6</div>
+  </div>
+
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <button class="nav-btn" id="prev" onclick="navigate(-1)" disabled>← Prev</button>
+  <span class="nav-progress" id="prog-text">1 / 6</span>
+  <button class="nav-btn" id="next" onclick="navigate(1)">Next →</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let cur = 0;
+
+  function navigate(dir) {
+    slides[cur].classList.remove('active');
+    cur = Math.max(0, Math.min(total - 1, cur + dir));
+    slides[cur].classList.add('active');
+    document.getElementById('prev').disabled = cur === 0;
+    document.getElementById('next').disabled = cur === total - 1;
+    document.getElementById('prog-text').textContent = (cur + 1) + ' / ' + total;
+    document.getElementById('progress').style.width = ((cur + 1) / total * 100) + '%';
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') navigate(-1);
+    if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+
+  document.getElementById('progress').style.width = (1 / total * 100) + '%';
+</script>
+</body>
+</html>
