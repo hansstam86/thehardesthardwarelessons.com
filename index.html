@@ -363,5 +363,44 @@
   <p>© 2026 Johan Philippe Stam · <a href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" style="color: var(--accent); text-decoration: none;">thehardesthardwarelessons.com</a></p>
 </footer>
 
+
+<!-- HANS STAM ECOSYSTEM STRIP -->
+<div id="hs-ecosystem" style="position:fixed;bottom:52px;left:0;right:0;z-index:50;background:rgba(10,10,10,0.97);border-top:1px solid #1a1a1a;padding:10px 32px;font-family:'DM Sans',system-ui,sans-serif;display:none" id="eco-strip">
+  <div style="max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:6px">
+    <div style="font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:#444;margin-right:8px;font-family:monospace;white-space:nowrap">Hans Stam ·</div>
+    <div style="display:flex;align-items:center;gap:9px;padding:6px 12px;border-radius:6px;border:1px solid #b8940040;flex-shrink:0;background:rgba(232,164,59,0.12);color:#e8c547;cursor:default">
+      <span style="font-size:14px">📖</span><div><div style="font-size:11px;font-weight:600">The Book</div><div style="font-size:10px;opacity:.6">The Hardest Hardware Lessons</div></div>
+    </div>
+    <a href="https://www.dfminsights.com/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:9px;padding:6px 12px;border-radius:6px;text-decoration:none;border:1px solid #222;flex-shrink:0;background:rgba(255,255,255,0.03);color:#ccc">
+      <span style="font-size:14px">⚠️</span><div><div style="font-size:11px;font-weight:600">DFM Insights</div><div style="font-size:10px;opacity:.6">FMEA · Charter · Timeline</div></div>
+    </a>
+    <a href="https://www.factorytruth.com/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:9px;padding:6px 12px;border-radius:6px;text-decoration:none;border:1px solid #222;flex-shrink:0;background:rgba(255,255,255,0.03);color:#ccc">
+      <span style="font-size:14px">🏭</span><div><div style="font-size:11px;font-weight:600">Factory Truth</div><div style="font-size:10px;opacity:.6">China sourcing · vetted factories</div></div>
+    </a>
+    <a href="https://hansstam.eu/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:9px;padding:6px 12px;border-radius:6px;text-decoration:none;border:1px solid #222;flex-shrink:0;background:rgba(255,255,255,0.03);color:#ccc">
+      <span style="font-size:14px">🔧</span><div><div style="font-size:11px;font-weight:600">Consulting</div><div style="font-size:10px;opacity:.6">Get unstuck · prototype to MP</div></div>
+    </a>
+    <a href="https://troublemakershenzhen.com/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:9px;padding:6px 12px;border-radius:6px;text-decoration:none;border:1px solid #222;flex-shrink:0;background:rgba(255,255,255,0.03);color:#ccc">
+      <span style="font-size:14px">🇨🇳</span><div><div style="font-size:11px;font-weight:600">TroubleMaker</div><div style="font-size:10px;opacity:.6">Hardware hub · Shenzhen</div></div>
+    </a>
+    <a href="https://thehardesthardwarelessons.substack.com/" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:9px;padding:6px 12px;border-radius:6px;text-decoration:none;border:1px solid #222;flex-shrink:0;background:rgba(255,255,255,0.03);color:#ccc">
+      <span style="font-size:14px">✍️</span><div><div style="font-size:11px;font-weight:600">Substack</div><div style="font-size:10px;opacity:.6">The unpublished version</div></div>
+    </a>
+    <button onclick="document.getElementById('hs-ecosystem').style.display='none'" style="margin-left:auto;background:none;border:none;color:#444;cursor:pointer;font-size:16px;padding:4px 8px;flex-shrink:0" title="Close">×</button>
+  </div>
+</div>
+
+<script>
+  // Show ecosystem strip on last slide (slide 6)
+  const origNavigate = navigate;
+  function checkEcoStrip() {
+    const strip = document.getElementById('hs-ecosystem');
+    if (cur === 5) { strip.style.display = 'block'; }
+  }
+  // Patch navigate to check slide
+  document.addEventListener('keydown', () => setTimeout(checkEcoStrip, 50));
+  document.getElementById('next').addEventListener('click', () => setTimeout(checkEcoStrip, 50));
+  document.getElementById('prev').addEventListener('click', () => setTimeout(checkEcoStrip, 50));
+</script>
 </body>
 </html>
