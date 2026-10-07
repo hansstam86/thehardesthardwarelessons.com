@@ -1,0 +1,1264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Steel Safe">
+<meta name="theme-color" content="#14181c">
+<title>Steel Safe</title>
+<style>
+:root{
+  --bg:#14181c; --ink:#eef2f4; --muted:#93a1ab; --panel:#1d2329; --rule:#2d363e;
+  --acc:#ff7a45; --red:#ff3b5c; --green:#3ddc84;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);
+  overflow:hidden;overscroll-behavior:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
+canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#safe{position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+.hudbtns{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:calc(env(safe-area-inset-right,0px) + 10px);display:flex;gap:6px;z-index:5}
+.hudbtns button{width:44px;height:44px;border-radius:11px;border:1px solid var(--rule);background:rgba(29,35,41,.85);color:var(--ink);font:600 16px/1 var(--font);display:grid;place-items:center;padding:0;transition:transform .08s}
+.hudbtns button:active{transform:scale(.88)}
+#hub{position:fixed;z-index:12;top:calc(env(safe-area-inset-top,0px) + 10px);left:calc(env(safe-area-inset-left,0px) + 10px);color:var(--muted);text-decoration:none;font:700 14px/1 var(--font);padding:14px 12px;border-radius:10px;background:rgba(29,35,41,.85);border:1px solid var(--rule)}
+#hub:active{transform:scale(.94)}
+#hub[hidden]{display:none}
+#ov{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 16px) calc(env(safe-area-inset-right,0px) + 16px) calc(env(safe-area-inset-bottom,0px) + 16px) calc(env(safe-area-inset-left,0px) + 16px);background:rgba(10,13,16,.72);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);overflow-y:auto;touch-action:pan-y}
+#ov[hidden]{display:none}
+.card{width:min(440px,100%);background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:22px 20px 20px;display:grid;gap:13px;animation:pop .32s cubic-bezier(.2,1.4,.4,1) both;margin:auto}
+.card.title{margin-top:52px}
+@keyframes pop{from{transform:scale(.86);opacity:0}to{transform:none;opacity:1}}
+.card h1{margin:0;font-size:36px;line-height:1.02;letter-spacing:-.01em;font-weight:800}
+.card h1 span{color:var(--acc)}
+.card h2{margin:0;font-size:23px;font-weight:800;line-height:1.15}
+.card p{margin:0;color:var(--muted);font-size:15px;line-height:1.45}
+.card p b{color:var(--ink);font-weight:600}
+.eyebrow{font:700 11px/1.3 var(--font);letter-spacing:.14em;text-transform:uppercase;color:var(--acc)}
+.eyebrow.bad{color:var(--red)} .eyebrow.good{color:var(--green)}
+.src{font-size:13px!important;font-style:italic}
+.btn{appearance:none;border:0;border-radius:14px;padding:15px 18px;min-height:50px;font:800 17px/1 var(--font);background:var(--acc);color:#1a1210;width:100%;transition:transform .08s,filter .08s}
+.btn:active{transform:scale(.96);filter:brightness(.92)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule);font-weight:700}
+.btn[disabled]{opacity:.4}
+.row{display:flex;gap:10px}
+.row .btn{flex:1}
+.small{font-size:12.5px!important}
+.how{display:grid;gap:7px;margin:0;padding:0;list-style:none}
+.how li{display:grid;grid-template-columns:26px 1fr;gap:8px;font-size:14px;color:var(--muted);line-height:1.35}
+.how li i{font-style:normal;width:26px;height:26px;border-radius:7px;background:#161b20;color:var(--acc);display:grid;place-items:center;font-weight:800;font-size:13px}
+.how li b{color:var(--ink)}
+.stamp{justify-self:center;font:900 26px/1 var(--font);letter-spacing:.06em;padding:8px 14px;border:4px solid currentColor;border-radius:8px;transform:rotate(-6deg);animation:stamp .45s cubic-bezier(.2,1.6,.4,1) .12s both;text-align:center}
+.stamp.pass{color:var(--green)} .stamp.fail{color:var(--red)} .stamp.mid{color:var(--acc)}
+@keyframes stamp{0%{transform:scale(2.6) rotate(-14deg);opacity:0}60%{transform:scale(.9) rotate(-5deg);opacity:1}100%{transform:scale(1) rotate(-6deg);opacity:1}}
+.cost{display:flex;gap:8px;flex-wrap:wrap}
+.cost span{background:#2a1a1e;color:#ff9aa9;border-radius:8px;padding:6px 10px;font:800 15px/1 var(--font);font-variant-numeric:tabular-nums;animation:pop .3s .15s both}
+.cost span.ok{background:#15301f;color:var(--green)}
+.why{background:#161b20;border-radius:10px;padding:10px 12px;font-size:13.5px!important;color:var(--ink)!important}
+.why b{color:var(--acc)!important}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#161b20;border-radius:10px;padding:10px 6px;text-align:center;display:grid;gap:3px}
+.stat b{font-size:19px;font-variant-numeric:tabular-nums}
+.stat span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ledger{display:grid;gap:5px}
+.ledger div{display:grid;grid-template-columns:62px 1fr;gap:8px;font-size:12.5px;color:var(--muted);line-height:1.3}
+.ledger div b{color:#ff9aa9;font-variant-numeric:tabular-nums;text-align:right}
+.lesson{border-left:3px solid var(--acc);padding:6px 0 6px 12px;font-size:14px!important;color:var(--ink)!important}
+.crit{display:grid;gap:4px}
+.crit div{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--muted);background:#161b20;border-radius:8px;padding:8px 10px}
+.crit div b{color:var(--green)} .crit div b.no{color:var(--red)}
+.item{background:#161b20;border:1px solid var(--rule);border-radius:12px;padding:12px;display:grid;gap:8px}
+.item h3{margin:0;font-size:14.5px;line-height:1.3}
+.item .cat{font:700 10px/1 var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+.nums{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;color:var(--muted);line-height:1.35}
+.nums b{display:block;color:var(--ink);font-size:15px;font-variant-numeric:tabular-nums}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.choice button{appearance:none;min-height:46px;border-radius:10px;border:1px solid var(--rule);background:#1f262c;color:var(--ink);font:800 15px/1 var(--font);transition:transform .08s}
+.choice button:active{transform:scale(.95)}
+.choice button.on.h{background:var(--green);color:#0f1f16;border-color:var(--green)}
+.choice button.on.p{background:var(--red);color:#fff;border-color:var(--red)}
+.big{font:900 46px/1 var(--font);font-variant-numeric:tabular-nums;text-align:center}
+.newbest{color:var(--acc);text-align:center;font-weight:800;animation:pulse 1s ease-in-out infinite}
+.breakdown{font-size:12.5px!important;text-align:center}
+.card a{color:var(--acc)}
+@keyframes pulse{50%{transform:scale(1.08)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="safe"></div>
+<a id="hub" href="../">← Arcade</a>
+<div class="hudbtns" id="hudbtns" hidden>
+  <button id="btnMute" aria-label="Sound on or off">♪</button>
+  <button id="btnPause" aria-label="Pause">❚❚</button>
+</div>
+<div id="ov"></div>
+
+<script>
+'use strict';
+(function () {
+// ---------- utilities ----------
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('hhl.ch5.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('hhl.ch5.' + k, JSON.stringify(v)); } catch (e) {} }
+};
+const reduceMotion = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const rand = (a, b) => a + Math.random() * (b - a);
+const round3 = v => Math.round(v * 1000) / 1000;
+const easeOutBack = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+const FONT = '-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif';
+const $ = id => document.getElementById(id);
+const eur = v => (v < 0 ? '−' : '') + '€' + Math.abs(Math.round(v)).toLocaleString('en');
+const eurK = v => (v < 0 ? '−€' : '€') + Math.round(Math.abs(v) / 1000) + 'k';
+const ACC = '#ff7a45', GREEN = '#3ddc84', RED = '#ff3b5c', INK = '#eef2f4', MUTED = '#93a1ab';
+
+// ---------- crash guard ----------
+let crashed = false;
+function crash(msg) {
+  if (crashed) return; crashed = true;
+  try {
+    const ov = $('ov'); ov.hidden = false;
+    ov.innerHTML = '<div class="card"><div class="eyebrow">Spindle stopped</div><h2>Something went wrong</h2><p class="small">' +
+      String(msg).replace(/[<>&]/g, '') + '</p><button class="btn" onclick="location.reload()">Restart</button></div>';
+  } catch (e) {}
+}
+window.addEventListener('error', e => crash(e.message || 'Unknown error'));
+window.addEventListener('unhandledrejection', e => crash((e.reason && e.reason.message) || 'Unknown error'));
+
+// ---------- sound ----------
+const Sfx = {
+  ctx: null, master: null, noiseBuf: null, muted: store.get('muted', false),
+  unlock() {
+    try {
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+        this.ctx = new AC();
+        this.master = this.ctx.createGain(); this.master.gain.value = this.muted ? 0 : 0.5;
+        this.master.connect(this.ctx.destination);
+        const len = Math.floor(this.ctx.sampleRate * 0.5);
+        this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+        const d = this.noiseBuf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+        const s = this.ctx.createBufferSource(); s.buffer = this.ctx.createBuffer(1, 1, 22050); s.connect(this.ctx.destination); s.start(0);
+      }
+      if (this.ctx.state !== 'running') this.ctx.resume();
+    } catch (e) {}
+  },
+  setMuted(m) { this.muted = m; store.set('muted', m); try { if (this.master) this.master.gain.value = m ? 0 : 0.5; } catch (e) {} },
+  ok() { return this.ctx && !this.muted && this.ctx.state === 'running'; },
+  tone(f, dur, type, vol, slide, delay) {
+    if (!this.ok()) return;
+    try {
+      const t = this.ctx.currentTime + (delay || 0);
+      const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+      o.type = type || 'square'; o.frequency.setValueAtTime(f, t);
+      if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.15, t + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(this.master); o.start(t); o.stop(t + dur + 0.03);
+    } catch (e) {}
+  },
+  noise(dur, vol, freq, delay) {
+    if (!this.ok()) return;
+    try {
+      const t = this.ctx.currentTime + (delay || 0);
+      const s = this.ctx.createBufferSource(); s.buffer = this.noiseBuf;
+      const f = this.ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = freq || 1200; f.Q.value = 1.2;
+      const g = this.ctx.createGain(); g.gain.setValueAtTime(vol || 0.2, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      s.connect(f); f.connect(g); g.connect(this.master); s.start(t); s.stop(t + dur + 0.03);
+    } catch (e) {}
+  },
+  grind(v) { this.noise(0.07, 0.05 + 0.03 * v, 1800 + v * 700); this.tone(140 + v * 70, 0.06, 'sawtooth', 0.025); },
+  spinUp() { this.tone(180, 0.18, 'sawtooth', 0.05, 520); },
+  stopN() { this.tone(820, 0.05, 'square', 0.06); },
+  inTol(q) { const b = 523 * Math.pow(2, Math.round(q * 4) / 12); [b, b * 1.26, b * 1.5, b * 2].forEach((f, i) => this.tone(f, 0.18, 'triangle', 0.12, null, i * 0.05)); },
+  good() { [660, 990].forEach((f, i) => this.tone(f, 0.13, 'triangle', 0.12, null, i * 0.07)); },
+  wrong() { this.tone(170, 0.22, 'sawtooth', 0.14, 70); this.noise(0.08, 0.1, 600); },
+  crunch() { this.noise(0.4, 0.4, 700); this.tone(110, 0.45, 'sine', 0.35, 45); this.tone(300, 0.2, 'square', 0.08, 90, 0.04); },
+  ping() { this.tone(1320, 0.12, 'sine', 0.13); this.tone(1980, 0.16, 'triangle', 0.08, null, 0.05); },
+  stamp() { this.noise(0.14, 0.35, 380); this.tone(130, 0.16, 'square', 0.12, 60); },
+  cash() { this.tone(260, 0.28, 'sawtooth', 0.1, 110); this.noise(0.12, 0.08, 2500, 0.02); },
+  fix() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.22, 'triangle', 0.13, null, i * 0.07)); this.noise(0.3, 0.06, 6000, 0.25); },
+  click() { this.tone(900, 0.04, 'square', 0.05); },
+  phase() { this.tone(330, 0.18, 'square', 0.1); this.tone(494, 0.3, 'square', 0.1, null, 0.16); },
+  gate() { [392, 523, 659].forEach((f, i) => this.tone(f, 0.25, 'triangle', 0.12, null, i * 0.1)); },
+  over() { [392, 330, 262, 196].forEach((f, i) => this.tone(f, 0.3, 'square', 0.1, null, i * 0.16)); },
+  win() { [523, 659, 784, 1047, 1319].forEach((f, i) => this.tone(f, 0.3, 'triangle', 0.12, null, i * 0.09)); },
+  tick() { this.tone(1200, 0.03, 'square', 0.04); }
+};
+
+// ---------- canvas + layout ----------
+const cvs = $('game'), ctx = cvs.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+const SAFE = { t: 0, r: 0, b: 0, l: 0 };
+const L = {};
+function readSafe() {
+  try {
+    const cs = getComputedStyle($('safe'));
+    SAFE.t = parseFloat(cs.paddingTop) || 0; SAFE.r = parseFloat(cs.paddingRight) || 0;
+    SAFE.b = parseFloat(cs.paddingBottom) || 0; SAFE.l = parseFloat(cs.paddingLeft) || 0;
+  } catch (e) {}
+}
+function resize() {
+  readSafe();
+  const vv = window.visualViewport;
+  W = Math.round(vv ? vv.width : window.innerWidth); H = Math.round(vv ? vv.height : window.innerHeight);
+  if (W < 10 || H < 10) { W = window.innerWidth || 390; H = window.innerHeight || 844; }
+  DPR = Math.min(window.devicePixelRatio || 1, 2.5);
+  cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR);
+  L.wide = W > H * 1.1;
+  L.left = SAFE.l + 14; L.right = W - SAFE.r - 14; L.cx = (L.left + L.right) / 2;
+  L.top = SAFE.t + 8;
+  L.ganttY = L.top + 64; L.ganttH = 30;
+  L.stageTop = L.ganttY + L.ganttH + 24; L.stageBot = H - SAFE.b - 12;
+  L.stageH = Math.max(160, L.stageBot - L.stageTop);
+  const iw = L.right - L.left;
+  if (!L.wide) {
+    L.rowH = clamp(L.stageH * 0.058, 24, 36);
+    L.listX = L.left; L.listW = iw; L.listY = L.stageTop + 28;
+    L.colX = L.left; L.colW = iw; L.colTop = L.listY + 5 * L.rowH + 14;
+  } else {
+    L.rowH = clamp((L.stageH - 50) / 5.4, 20, 34);
+    L.listX = L.left; L.listW = iw * 0.48; L.listY = L.stageTop + 28;
+    L.colX = L.left + iw * 0.52; L.colW = iw * 0.48; L.colTop = L.stageTop + 4;
+  }
+  L.btnH = 50; L.btnY = L.stageBot - L.btnH;
+  L.gaugeH = 58;
+  L.gaugeY = clamp(L.colTop + 70, L.colTop + 40, L.btnY - L.gaugeH - 40);
+}
+let resizeTimer = 0;
+function scheduleResize() { resize(); clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 250); }
+window.addEventListener('resize', scheduleResize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 300));
+if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleResize);
+
+// ---------- game data (faithful to Chapter 5) ----------
+const WEEK_S = 11, TARGET_WK = 10, CAP_WK = 14, GATE_MIN = 8, BUDGET0 = 150000;
+const V0 = 0.25, CUT_ACC = 2.6, VMAX = 5, COAST = 28;
+const CHECKS = [
+  { id: 'thermal',  name: 'Thermal simulation',      ev: 'Output shows every part below its rated temperature' },
+  { id: 'assembly', name: 'Assembly analysis',       ev: 'A production assembler built the EVT mockup at pace' },
+  { id: 'pcb',      name: 'PCB outline signed off',  ev: 'Hardware lead signed the outline at the current rev' },
+  { id: 'dfm',      name: 'Mechanical DFM review',   ev: 'Every finding addressed or formally accepted' },
+  { id: 'drawing',  name: 'Tooling Design Drawing',  ev: 'Reviewed by hardware, manufacturing and the toolmaker' }
+];
+const ASSUME = {
+  pcb:      { p: 0.55, when: 't1', title: 'The PCB outline moved', body: 'Hardware changed the board outline at rev C. The USB-C cutout in the steel no longer lines up.', eur: 20000, wk: 2, why: 'You released tooling before the hardware lead had signed off the PCB outline.' },
+  drawing:  { p: 0.55, when: 't1', title: 'The toolmaker guessed', body: 'A tolerance was missing on the Tooling Design Drawing. The toolmaker used their own judgement and the insert must be re-cut.', eur: 10000, wk: 1, why: 'The drawing went to the toolmaker without the three-party review.' },
+  dfm:      { p: 0.55, when: 't2', title: 'Sink marks on the housing', body: 'Thick ribs leave sink marks on the visible face. The ribs have to be cored out of the steel.', eur: 15000, wk: 2, why: 'You released tooling with DFM findings still open.' },
+  assembly: { p: 0.8,  when: 'fai', title: 'The line can\'t keep pace', body: 'A production assembler can\'t reach screw 3 at line speed. The boss has to move 4 mm.', eur: 25000, wk: 2, why: 'You released tooling before a production assembler had built the mockup.' },
+  thermal:  { p: 0.8,  when: 'sample', title: 'Thermal hot spot', body: 'The charger IC runs above its rated temperature at worst case. The housing needs vents cut into the hard tool.', eur: 40000, wk: 3, why: 'You released tooling before the thermal simulation was complete.' }
+};
+const TOOLS = [
+  { id: 'T1', name: 'Top housing',    feats: [['Wall', 0.08], ['Boss', 0.06], ['Snap-fit hook', 0.04], ['Button rib', 0.05]] },
+  { id: 'T2', name: 'Bottom housing', feats: [['Screw boss', 0.06], ['Battery rib', 0.08], ['USB-C cutout', 0.05], ['Gasket groove', 0.04]] }
+];
+const DC = [
+  { id: 'DC-001', type: 'Process', defect: 'Screws strip the boss on 5 of 40 units', fix: 'Torque down to 0.45 Nm', band: 0.17 },
+  { id: 'DC-002', type: 'Test',    defect: 'Test fixture fails 3 good units',        fix: 'Re-validate on known-good and known-bad units', band: 0.15 },
+  { id: 'DC-003', type: 'Design',  defect: 'Button sticks on 2 of 40 units',         fix: 'Trim the button rib by 0.1 mm', band: 0.13 },
+  { id: 'DC-004', type: 'Doc',     defect: 'Assembly SOP misses the gasket step',    fix: 'SOP rev B approved and distributed', band: 0.12 }
+];
+const LABS = [
+  { w: 2, kind: 'emc',    name: 'EMC pre-compliance',    std: 'EN 55032 radiated emissions', peaks: 2, unit: 'dBµV/m', axis: '30 MHz to 1 GHz' },
+  { w: 3, kind: 'safety', name: 'Safety pre-compliance', std: 'EN 62368-1 temperature rise', peaks: 1, unit: '°C', axis: 'accessible surfaces, left to right' },
+  { w: 5, kind: 'submit' },
+  { w: 7, kind: 'results' }
+];
+const LESSONS = {
+  tooling: 'Releasing to hard tooling before the thermal simulation and assembly analysis are done is the single most expensive tooling decision. Together they cost under €5,000. A modification they would have caught costs €15,000 to €50,000.',
+  steel: 'A hard tool can be changed, but only by welding and re-machining: €5,000 to €50,000 and 2 to 4 weeks each time. You can always take steel off. You can\'t put it back.',
+  precomp: 'A failure found in pre-compliance in week 2 costs a design change. The same failure at formal certification costs a re-spin, a re-test and 4 to 8 weeks on the critical path.',
+  facts: 'An action item is closed when the fix is verified on hardware. Not when it is documented, planned or started. Facts close action items. Assertions defer them into PVT.',
+  gate: 'Every open item at the DVT gate has a cost to fix now and an expected cost in PVT. The PVT cost is usually 3 to 8 times higher, because PVT has no buffer. Hold the gate when the evidence doesn\'t support passing it.',
+  calendar: 'Build the certification calendar on day one of DVT. Pre-compliance in the first 3 weeks, formal submission by the midpoint, buffer for a re-test before the gate.',
+  fai: 'FAI checks every dimension on the drawing, on at least three first-off parts. A finding at FAI costs €5,000 to €15,000. The same finding in the PVT pilot run costs the pilot run.',
+  sample: 'A sample run that finds no defects isn\'t proof of a great product. It is proof of weak inspection, too few units, or both.'
+};
+
+// ---------- state ----------
+const S = { mode: 'title', paused: false, act: '', t: 0, best: store.get('best', 0), tutorial: !store.get('tutDone', false), tips: {},
+  week: 0, weekShown: 0, score: 0, shownScore: 0, budget: BUDGET0, budgetShown: BUDGET0, stats: null, feats: [], checks: [], dc: [] };
+function resetRun() {
+  Object.assign(S, {
+    act: 'check', week: 0, weekShown: 0, score: 0, shownScore: 0, scorePunch: 0, budget: BUDGET0, budgetShown: BUDGET0, budgetPunch: 0,
+    checks: CHECKS.map(c => Object.assign({}, c, { ok: false })), ci: 0, needle: { x: 0, dir: 1, sp: 1 }, band: { a: 0.4, w: 0.15 }, gaugeWob: 0,
+    assumed: [], released: false, releaseWk: -1, toolDoneWk: -1,
+    feats: [], cutList: [], fi: 0, cutPhase: 'first', holding: false, coasting: false, v: 0, holdT: 0, cutDelay: 0, grindT: 0, faiRound: 0, blockPunch: 0,
+    hits: { t1: [], t2: [], fai: [], sample: [] }, labIdx: 0, lab: null, labRes: { emc: 0, safety: 0 }, prevAct: '', certFailed: false,
+    dc: DC.map(d => Object.assign({}, d, { state: 'todo' })), di: 0,
+    pending: [], ledger: [], banner: null, anim: null, stampFx: null, gateItems: [], outcome: '', final: 0, pilotFails: 0,
+    stats: { cuts: 0, overcuts: 0, prec: 0, found: 0, missed: 0, verified: 0, paper: 0, mods: 0, checkMiss: 0, labMiss: 0 }
+  });
+  TOOLS.forEach(t => t.feats.forEach(f => S.feats.push({ tool: t.id, toolName: t.name, name: f[0], tol: f[1], target: round3(rand(3, 6.5)), depth: 0, state: 'todo', over: 0 })));
+  parts.length = 0; floats.length = 0;
+  newBand(0.17, 0.85);
+}
+
+// ---------- effects ----------
+const parts = [], floats = [];
+let shake = 0, hitstop = 0, flash = 0, flashColor = '255,59,92';
+function addShake(a) { if (!reduceMotion) shake = Math.min(18, shake + a); }
+function burst(x, y, color, n, spd, opts) {
+  opts = opts || {};
+  n = reduceMotion ? Math.ceil(n / 3) : n;
+  for (let i = 0; i < n && parts.length < 320; i++) {
+    const a = opts.up ? rand(-Math.PI * 0.9, -Math.PI * 0.1) : opts.dir != null ? opts.dir + rand(-0.6, 0.6) : rand(0, Math.PI * 2), v = rand(spd * 0.35, spd);
+    parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: rand(0.35, 0.8) * (opts.long ? 1.8 : 1),
+      size: rand(2, 5) * (opts.big ? 1.6 : opts.tiny ? 0.5 : 1), color: Array.isArray(color) ? color[(Math.random() * color.length) | 0] : color,
+      g: opts.g == null ? 520 : opts.g, rot: rand(0, 6), vr: rand(-12, 12), sq: !!opts.square });
+  }
+}
+function ring(x, y, color, r) { if (parts.length < 320) parts.push({ x, y, vx: 0, vy: 0, life: 0, max: 0.35, size: r || 26, color, ring: true, g: 0 }); }
+function floatText(x, y, text, color, size, dur) {
+  if (floats.length > 40) floats.shift();
+  floats.push({ x, y, text, color: color || '#fff', size: size || 20, life: 0, max: dur || 0.9 });
+}
+function addScore(n, x, y, label) {
+  S.score += n; S.scorePunch = 1;
+  if (x != null) floatText(x, y, (label ? label + '  ' : '') + '+' + n, ACC, 18, 1);
+}
+function spend(amount, wk, what) {
+  S.budget -= amount; S.week += wk || 0; S.budgetPunch = 1;
+  if (amount > 0 || wk) S.ledger.push({ eur: amount, wk: wk || 0, what });
+  if (amount > 0) Sfx.cash();
+}
+function confetti(y) { burst(W / 2, y == null ? H * 0.35 : y, [ACC, GREEN, '#ffffff', '#5ab0ff', '#ffd166'], 70, 600, { up: true, long: true, square: true, big: true }); }
+
+// ---------- flow ----------
+function newBand(w, sp) { S.band = { a: rand(0.1, 0.9 - w), w }; S.needle.x = Math.random() < 0.5 ? 0 : 1; S.needle.dir = S.needle.x ? -1 : 1; S.needle.sp = sp; }
+function curFeat() { return S.cutList[S.fi]; }
+function tip(k) { if (!S.tips[k]) S.tips[k] = true; }
+function setBanner(big, sub, color) { S.banner = { big, sub, t: 0, dur: 1.6, color: color || ACC }; Sfx.phase(); }
+
+function startRun() {
+  resetRun(); S.mode = 'play'; S.paused = false;
+  hideOverlay(); $('hudbtns').hidden = false; $('hub').hidden = true;
+  setBanner('DVT', 'Design Validation Test · 10 weeks to the gate');
+}
+function stopCheck() {
+  const g = gaugeRect(), n = S.needle.x, b = S.band, px = g.x + g.w * n;
+  const c = S.checks[S.ci];
+  if (n >= b.a && n <= b.a + b.w) {
+    c.ok = true; tip('check');
+    addScore(80, px, g.y - 16, 'EVIDENCE');
+    burst(px, g.y + g.h / 2, [GREEN, '#ffffff'], 16, 280);
+    ring(px, g.y + g.h / 2, GREEN, 30); Sfx.good(); hitstop = 0.05; addShake(2);
+    S.ci++;
+    if (S.ci >= CHECKS.length) releaseTooling();
+    else newBand(0.17 - S.ci * 0.015, 0.85 + S.ci * 0.17);
+  } else {
+    S.stats.checkMiss++; S.gaugeWob = 1;
+    floatText(px, g.y - 16, 'That\'s an assertion, not evidence', RED, 14, 1.1);
+    Sfx.wrong(); addShake(4); flash = Math.max(flash, 0.12); flashColor = '255,59,92';
+  }
+}
+function releaseTooling() {
+  S.released = true; S.releaseWk = S.week;
+  S.assumed = S.checks.filter(c => !c.ok).map(c => c.id);
+  S.assumed.forEach(id => { const a = ASSUME[id]; if (Math.random() < a.p) S.hits[a.when].push(id); });
+  if (!S.assumed.length) {
+    addScore(300, L.cx, L.stageTop + L.stageH * 0.4, 'RELEASED ON EVIDENCE');
+    S.stampFx = { text: 'TOOLING RELEASED', color: GREEN, t: 0 }; Sfx.fix(); confetti(L.stageTop + L.stageH * 0.45); hitstop = 0.1;
+  } else {
+    S.stampFx = { text: 'RELEASED · ' + S.assumed.length + ' ASSUMED', color: ACC, t: 0 }; Sfx.stamp(); addShake(6); hitstop = 0.08;
+  }
+  S.act = 'cut'; S.cutList = S.feats.slice(); S.fi = 0; S.cutPhase = 'first'; S.cutDelay = 1.3;
+}
+function startHold() {
+  const f = curFeat(); if (!f || S.cutDelay > 0 || S.coasting || S.holding) return;
+  S.holding = true; S.holdT = 0; S.v = V0; Sfx.spinUp();
+}
+function endHold() {
+  if (!S.holding) return;
+  S.holding = false; S.coasting = true;
+}
+function settle(f) {
+  const lo = f.target - f.tol, hi = f.target + f.tol;
+  const b = blockGeom(f);
+  if (f.depth > hi) {
+    f.state = 'over'; f.over = round3(f.depth - f.target); S.stats.overcuts++;
+    hitstop = 0.16; addShake(14); flash = 0.5; flashColor = '255,59,92'; S.blockPunch = 1;
+    floatText(b.cx, b.tipY - 40, 'OVERCUT +' + (f.depth - hi).toFixed(3) + ' mm', RED, 24, 1.5);
+    floatText(b.cx, b.tipY - 14, 'Steel can\'t go back on. FAI will find it.', '#ffb3be', 13, 1.7);
+    burst(b.cx, b.tipY, [RED, '#ffb3be', '#c9d2d8'], 34, 420, { up: true });
+    Sfx.crunch();
+    S.cutDelay = 1.3;
+  } else if (f.depth >= lo) {
+    f.state = 'ok'; tip('cut');
+    const err = Math.abs(f.depth - f.target) / f.tol, q = 1 - err;
+    const pts = Math.round(100 + 100 * q);
+    S.stats.cuts++; S.stats.prec += q;
+    addScore(pts, b.cx, b.tipY - 36, q > 0.8 ? 'DEAD ON' : 'IN TOLERANCE');
+    floatText(b.cx, b.tipY - 10, (f.depth - f.target >= 0 ? '+' : '−') + Math.abs(f.depth - f.target).toFixed(3) + ' mm', GREEN, 14, 1.2);
+    burst(b.cx, b.tipY, [GREEN, '#ffffff', ACC], 22 + Math.round(q * 18), 360, { up: true, square: true });
+    ring(b.cx, b.tipY, GREEN, 40); S.blockPunch = 0.6;
+    hitstop = q > 0.8 ? 0.1 : 0.06; addShake(3); Sfx.inTol(q);
+    if (q > 0.8) { flash = 0.18; flashColor = '61,220,132'; }
+    S.cutDelay = 0.9;
+  } else {
+    Sfx.stopN();
+  }
+}
+function advanceCut() {
+  const prev = S.cutList[S.fi];
+  S.fi++;
+  const next = S.cutList[S.fi];
+  if (S.cutPhase === 'first' && prev && (!next || next.tool !== prev.tool)) queueHits(prev.tool === 'T1' ? 't1' : 't2');
+  if (next && prev && next.tool !== prev.tool) { setBanner(next.tool, next.toolName + ' · hard tool'); }
+  if (!next) {
+    if (S.toolDoneWk < 0) S.toolDoneWk = S.week;
+    S.faiRound++; S.act = 'fai'; S.anim = { t: 0, dur: 3.0 };
+  }
+}
+function queueHits(when) {
+  S.hits[when].forEach(id => {
+    const a = ASSUME[id]; S.stats.mods++;
+    S.pending.push({ kind: 'bad', eyebrow: 'Tooling modification', title: a.title, body: a.body, why: a.why, eur: a.eur, wk: a.wk, lesson: LESSONS.tooling, what: 'Tool mod: ' + a.title.toLowerCase() });
+  });
+  S.hits[when] = [];
+}
+function faiDone() {
+  const overs = S.feats.filter(f => f.state === 'over');
+  if (overs.length) {
+    let cost = 0; overs.forEach(f => { cost += clamp(Math.round((5000 + f.over * 60000) / 500) * 500, 5000, 15000); });
+    S.pending.push({ kind: 'bad', eyebrow: 'First Article Inspection · round ' + S.faiRound, title: overs.length + ' dimension' + (overs.length > 1 ? 's' : '') + ' out of tolerance',
+      body: overs.map(f => '<b>' + f.tool + ' ' + f.name + '</b>: ' + '+' + f.over.toFixed(3) + ' mm past nominal, tolerance ±' + f.tol.toFixed(2)).join('<br>') + '<br>The toolmaker welds the steel and you re-cut it. Then FAI runs again.',
+      why: 'You cut past the tolerance band. Cut short with one long hold, then creep up with short taps.', eur: cost, wk: 2, lesson: LESSONS.steel, what: 'Weld and re-machine ' + overs.length + ' feature' + (overs.length > 1 ? 's' : '') });
+    overs.forEach(f => { f.state = 'todo'; f.depth = round3(f.target - rand(0.35, 0.7)); f.over = 0; });
+    S.cutList = overs; S.fi = 0; S.cutPhase = 'recut'; S.act = 'cut'; S.cutDelay = 0.8; S.anim = null;
+  } else {
+    addScore(200);
+    S.pending.push({ kind: 'good', eyebrow: 'First Article Inspection', title: 'Every dimension in tolerance', body: 'Every dimension on the drawing measured on three first-off parts. The Tooling FAI Report and Tooling Train Report are complete.', lesson: LESSONS.fai, pts: 200 });
+    queueHits('fai');
+    S.act = 'sample'; S.anim = { t: 0, dur: 3.4 };
+  }
+}
+function sampleDone() {
+  S.pending.push({ kind: 'info', eyebrow: 'DVT sample run · 40 units', title: '14 defects, 4 types', body: 'Every unit tracked by serial number from assembly to final inspection. The defect Pareto is your Design Correction list.', lesson: LESSONS.sample });
+  queueHits('sample');
+  S.act = 'fix'; S.di = 0; S.anim = null; newBand(DC[0].band, 1.0);
+}
+function stopFix() {
+  const g = gaugeRect(), n = S.needle.x, b = S.band, px = g.x + g.w * n;
+  const d = S.dc[S.di];
+  if (n >= b.a && n <= b.a + b.w) {
+    d.state = 'verified'; S.stats.verified++; tip('fix');
+    addScore(120, px, g.y - 16, 'VERIFIED ON HARDWARE');
+    burst(px, g.y + g.h / 2, [GREEN, '#ffffff', ACC], 20, 300, { square: true });
+    ring(px, g.y + g.h / 2, GREEN, 34); Sfx.fix(); hitstop = 0.07; addShake(3);
+    nextDC();
+  } else {
+    S.gaugeWob = 1;
+    floatText(px, g.y - 16, 'Defect still there on 2 of 20 units', RED, 14, 1.1);
+    Sfx.wrong(); addShake(4);
+  }
+}
+function paperClose() {
+  const d = S.dc[S.di]; d.state = 'paper'; S.stats.paper++;
+  floatText(L.cx, L.btnY - 20, d.id + ' closed on paper', MUTED, 15, 1.2); Sfx.stamp();
+  nextDC();
+}
+function nextDC() {
+  S.di++;
+  if (S.di >= S.dc.length) S.act = 'wait';
+  else newBand(S.dc[S.di].band, 1.0 + S.di * 0.16);
+}
+function startLab(def) {
+  S.prevAct = S.act; S.act = 'lab';
+  const n = def.peaks + (def.kind === 'safety' && S.assumed.indexOf('thermal') >= 0 ? 1 : 0);
+  const peaks = [], decoys = [];
+  for (let k = 0; k < 40 && peaks.length < n; k++) { const x = rand(0.12, 0.88); if (peaks.every(p => Math.abs(p.x - x) > 0.22)) peaks.push({ x, found: false }); }
+  for (let k = 0; k < 40 && decoys.length < 4; k++) { const x = rand(0.05, 0.95); if (peaks.every(p => Math.abs(p.x - x) > 0.08)) decoys.push(x); }
+  const tr = [], N = 160, seed = rand(0, 100);
+  for (let i = 0; i <= N; i++) {
+    const x = i / N; let v = 0.22 + 0.05 * Math.sin(x * 40 + seed) + 0.03 * Math.sin(x * 97 + seed * 2) + (def.kind === 'safety' ? 0.12 * Math.sin(x * 3.1) : -0.08 * x);
+    peaks.forEach(p => { v += 0.6 * Math.exp(-Math.pow((x - p.x) / 0.016, 2)); });
+    decoys.forEach(d => { v += 0.17 * Math.exp(-Math.pow((x - d) / 0.014, 2)); });
+    tr.push(clamp(v, 0.02, 0.98));
+  }
+  S.lab = { def, peaks, tr, x: 0, sweep: 0, sweeps: 3, speed: 1 / 2.0, endT: 0, misses: 0 };
+  setBanner('WEEK ' + def.w + ' · LAB', def.name);
+}
+function tapLab() {
+  const lab = S.lab; if (!lab || lab.endT > 0) return;
+  const r = labRect(), px = r.x + r.w * lab.x;
+  let best = null, bd = 1;
+  lab.peaks.forEach(p => { const d = Math.abs(p.x - lab.x); if (!p.found && d < bd) { bd = d; best = p; } });
+  if (best && bd < 0.04) {
+    best.found = true; S.stats.found++; tip('lab');
+    const py = r.y + r.h * (1 - 0.72);
+    addScore(150, px, py - 24, lab.def.kind === 'emc' ? 'EMISSION FOUND' : 'HOT SPOT FOUND');
+    burst(px, py, [ACC, '#ffffff', GREEN], 22, 320); ring(px, py, ACC, 34); Sfx.ping(); hitstop = 0.06; addShake(3);
+    if (lab.peaks.every(p => p.found)) lab.endT = 0.6;
+  } else {
+    lab.misses++; S.stats.labMiss++;
+    floatText(px, r.y + 18, 'Nothing over the limit here', MUTED, 13, 0.9); Sfx.stopN(); ring(px, r.y + r.h / 2, 'rgba(255,255,255,.4)', 16);
+  }
+}
+function finishLab() {
+  const lab = S.lab, def = lab.def, missed = lab.peaks.filter(p => !p.found).length, found = lab.peaks.length - missed;
+  S.labRes[def.kind] = missed; S.stats.missed += missed;
+  const fixWord = def.kind === 'emc' ? 'Ground stitching and bypass caps added, Gerber revised' : 'Thermal pad added under the hot part';
+  if (!missed) {
+    S.pending.push({ kind: 'good', eyebrow: def.name + ' · week ' + def.w, title: 'Found ' + found + ' of ' + lab.peaks.length + ' while the design can still change', body: fixWord + '. Cheap now, because the formal submission is still weeks away.', eur: 3000 * found, wk: 0, lesson: LESSONS.precomp, what: def.name + ' fixes' });
+  } else {
+    S.pending.push({ kind: 'bad', eyebrow: def.name + ' · week ' + def.w, title: 'Missed ' + missed + ' of ' + lab.peaks.length, body: (found ? fixWord + ' for the ones you found. ' : '') + 'The scan finished with ' + missed + (def.kind === 'emc' ? ' emission' : ' hot spot') + (missed > 1 ? 's' : '') + ' still over the limit. Nobody knows yet.', why: 'The marker crossed a peak over the red limit line and you didn\'t stop it there.', eur: 3000 * found, wk: 0, lesson: LESSONS.precomp, what: def.name + ' fixes' });
+  }
+  S.act = S.prevAct || 'cut'; S.lab = null;
+}
+function labResults() {
+  const missed = S.labRes.emc + S.labRes.safety;
+  if (missed) {
+    S.certFailed = true;
+    const which = [S.labRes.emc ? 'EN 55032 radiated emissions' : '', S.labRes.safety ? 'EN 62368-1 temperature rise' : ''].filter(Boolean).join(' and ');
+    S.pending.push({ kind: 'bad', eyebrow: 'Formal certification · week 7', title: 'Failed: ' + which, body: 'The accredited lab tests to the standard as written. No partial pass. The fix needs an engineering change, a Gerber revision, a board re-spin and a new lab slot. The re-test passes.', why: 'Pre-compliance in week 2 or 3 would have caught it while it was cheap.', eur: 25000, wk: 4, lesson: LESSONS.precomp, what: 'Certification fail: re-spin and re-test' });
+  } else {
+    S.pending.push({ kind: 'good', eyebrow: 'Formal certification · week 7', title: 'CE and FCC: pass', body: 'EN 55032 / EN 55035 and EN 62368-1 passed first time. The CE Declaration of Conformity is signed.', lesson: LESSONS.calendar, pts: 300 });
+  }
+}
+function safe() {
+  if (S.mode !== 'play' || S.banner || S.holding || S.coasting) return false;
+  if (S.act === 'cut') return S.cutDelay <= 0;
+  if (S.act === 'fai' || S.act === 'sample') return S.anim && S.anim.t === 0;
+  return S.act === 'check' || S.act === 'fix' || S.act === 'wait';
+}
+function pump() {
+  if (!safe()) return;
+  if (S.pending.length) { showEvent(S.pending.shift()); return; }
+  const due = LABS[S.labIdx];
+  if (due && S.week >= due.w) {
+    S.labIdx++;
+    if (due.kind === 'submit') { setBanner('WEEK 5', 'Formal submission: EN 55032 · EN 55035 · EN 62368-1', '#5ab0ff'); return; }
+    if (due.kind === 'results') { labResults(); return; }
+    startLab(due); return;
+  }
+  if (S.week >= CAP_WK) { floatText(L.cx, L.stageTop + 40, 'The PVT slot is booked. The gate meets now.', RED, 15, 2); openGate(); return; }
+  if (S.act === 'wait' && S.week >= GATE_MIN && S.labIdx >= LABS.length) openGate();
+}
+
+// ---------- events, gate, end ----------
+function showEvent(e) {
+  S.mode = 'event'; S.curEvent = e;
+  if (e.eur || e.wk) spend(e.eur || 0, e.wk || 0, e.what || e.title);
+  if (e.pts) addScore(e.pts);
+  const cls = e.kind === 'bad' ? 'bad' : e.kind === 'good' ? 'good' : '';
+  let cost = '';
+  if (e.eur || e.wk) cost = '<div class="cost">' + (e.eur ? '<span>−' + eur(e.eur).replace('−', '') + '</span>' : '') + (e.wk ? '<span>+' + e.wk + ' week' + (e.wk > 1 ? 's' : '') + '</span>' : '') + '</div>';
+  else if (e.pts) cost = '<div class="cost"><span class="ok">+' + e.pts + ' points</span></div>';
+  show('<div class="card"><div class="eyebrow ' + cls + '">' + e.eyebrow + '</div><h2>' + e.title + '</h2><p>' + e.body + '</p>' + cost +
+    (e.why ? '<p class="why"><b>What happened:</b> ' + e.why + '</p>' : '') +
+    (e.lesson ? '<p class="lesson">' + e.lesson + '</p>' : '') +
+    '<button class="btn" data-a="cont">Continue</button></div>');
+  if (e.kind === 'bad') { addShake(10); flash = 0.4; flashColor = '255,59,92'; Sfx.crunch(); }
+  else if (e.kind === 'good') { Sfx.win(); confetti(H * 0.25); }
+  else Sfx.gate();
+}
+function contEvent() {
+  hideOverlay(); S.mode = 'play'; S.curEvent = null; last = performance.now();
+  if (S.budget < 0) { S.outcome = 'broke'; finish(); }
+}
+function openGate() {
+  S.holding = false; S.coasting = false;
+  S.mode = 'gate'; Sfx.gate();
+  const items = [];
+  TOOLS.forEach(t => {
+    const bad = S.feats.filter(f => f.tool === t.id && f.state !== 'ok');
+    if (bad.length) items.push({ id: t.id, cat: 'Hard tooling', name: t.id + ' ' + t.name + ': ' + bad.length + ' dimension' + (bad.length > 1 ? 's' : '') + ' not confirmed at FAI', dvt: 6000 + 3000 * bad.length, wk: 2, p: 0.8, fail: 60000 });
+  });
+  S.dc.forEach(d => {
+    if (d.state !== 'verified') items.push({ id: d.id, cat: d.type === 'Doc' ? 'Production readiness' : 'Design correction', name: d.id + ' ' + (d.state === 'paper' ? 'closed on paper' : 'still open') + ': ' + d.defect.toLowerCase(), dvt: 6000, wk: 1, p: 0.6, fail: 40000 });
+  });
+  items.forEach(it => { it.exp = it.p * it.fail + it.dvt; it.choice = null; });
+  S.gateItems = items; showGate();
+}
+function showGate() {
+  const items = S.gateItems;
+  const toolOk = !items.some(i => i.cat === 'Hard tooling'), dcOk = !items.some(i => i.cat === 'Design correction'), prOk = !items.some(i => i.cat === 'Production readiness');
+  const row = (n, ok, txt) => '<div><span>' + n + '</span><b class="' + (ok ? '' : 'no') + '">' + txt + '</b></div>';
+  const crit = '<div class="crit">' +
+    row('Certification', true, S.certFailed ? '✓ after re-test' : '✓ CE + FCC') +
+    row('Design validation', true, S.certFailed ? '✓ after re-spin' : '✓') +
+    row('Hard tooling', toolOk, toolOk ? '✓ FAI clean' : '✗ open') +
+    row('Design correction', dcOk, dcOk ? '✓ verified' : '✗ open') +
+    row('Production readiness', prOk, prOk ? '✓ SOPs approved' : '✗ open') + '</div>';
+  const all = items.every(i => i.choice);
+  const list = items.map(i => '<div class="item"><div class="cat">' + i.cat + '</div><h3>' + i.name + '</h3>' +
+    '<div class="nums"><div>Fix in DVT<b>' + eurK(i.dvt) + ' · +' + i.wk + ' wk</b></div><div>Carry to PVT, expected<b>' + eurK(i.exp) + '</b>' + Math.round(i.p * 100) + '% × ' + eurK(i.fail) + ' pilot loss + ' + eurK(i.dvt) + '</div></div>' +
+    '<div class="choice"><button class="h' + (i.choice === 'hold' ? ' on' : '') + '" data-a="hold" data-id="' + i.id + '">Hold, fix now</button><button class="p' + (i.choice === 'pass' ? ' on' : '') + '" data-a="pass" data-id="' + i.id + '">Pass to PVT</button></div></div>').join('');
+  show('<div class="card"><div class="eyebrow">DVT Meeting · week ' + S.week.toFixed(1) + '</div><h2>The DVT gate</h2>' +
+    '<p>The last checkpoint before PVT money: a pilot run, production BOM, factory capacity.</p>' + crit +
+    (items.length ? '<p><b>' + items.length + ' open item' + (items.length > 1 ? 's' : '') + '.</b> Decide each one on the numbers.</p>' + list :
+      '<p><b>No open items.</b> The evidence supports passing.</p>') +
+    '<p class="lesson">' + LESSONS.gate + '</p>' +
+    '<button class="btn" data-a="decide"' + (all ? '' : ' disabled') + '>' + (items.length ? 'Submit gate decision' : 'Pass the gate') + '</button></div>');
+}
+function decideGate() {
+  if (!S.gateItems.every(i => i.choice)) return;
+  let anyPass = false;
+  S.gateItems.forEach(i => {
+    if (i.choice === 'hold') { spend(i.dvt, i.wk, 'Held at gate: ' + i.id); S.score += i.exp > i.dvt ? 150 : 0; }
+    else {
+      anyPass = true;
+      if (Math.random() < i.p) { S.pilotFails++; spend(i.fail + i.dvt, 3, 'PVT pilot run failed on ' + i.id); }
+      else spend(i.dvt, 0, 'Fixed in PVT anyway: ' + i.id);
+    }
+  });
+  if (!S.gateItems.length) { S.score += 500; S.outcome = 'clean'; }
+  else S.outcome = S.pilotFails ? 'pilot' : anyPass ? 'cond' : 'held';
+  if (S.budget < 0 && S.outcome !== 'pilot') S.outcome = 'broke';
+  finish();
+}
+function finish() {
+  S.mode = 'over'; S.holding = false;
+  const late = Math.max(0, Math.ceil(S.week - TARGET_WK - 1e-6));
+  S.late = late; S.budgetPts = Math.max(0, Math.floor(S.budget / 100));
+  S.final = Math.max(0, S.score + S.budgetPts - late * 150);
+  if (S.outcome === 'broke' || S.outcome === 'quit') S.final = Math.max(0, S.score - late * 150);
+  const newBest = S.final > S.best; if (newBest) { S.best = S.final; store.set('best', S.best); }
+  if (S.tutorial) { S.tutorial = false; store.set('tutDone', true); }
+  const good = S.outcome === 'clean' || S.outcome === 'held';
+  if (good) Sfx.win(); else Sfx.over();
+  showOver(newBest);
+  if (newBest || good) setTimeout(() => confetti(H * 0.3), 350);
+}
+function pause() { if (S.paused || S.mode !== 'play') return; endHold(); S.paused = true; showPause(); }
+function resume() { S.paused = false; hideOverlay(); last = performance.now(); }
+document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+window.addEventListener('pagehide', pause);
+
+// ---------- overlays ----------
+const ov = $('ov');
+function hideOverlay() { ov.hidden = true; ov.innerHTML = ''; }
+function show(html) { ov.innerHTML = html; ov.hidden = false; ov.scrollTop = 0; }
+function showTitle() {
+  S.mode = 'title'; $('hudbtns').hidden = true; $('hub').hidden = false;
+  show('<div class="card title"><div class="eyebrow">Chapter 5 · DVT: Design Validation Test</div>' +
+    '<h1>Steel <span>Safe</span></h1>' +
+    '<p class="src">From <i>The Hardest Hardware Lessons</i></p>' +
+    '<p>DVT is where the product meets the real world: hard tooling in steel, accredited labs, the first sample run. Ten weeks, €150k, then the gate.</p>' +
+    '<ul class="how">' +
+    '<li><i>1</i><span><b>Release tooling on evidence.</b> Tap when the needle is in the green.</span></li>' +
+    '<li><i>2</i><span><b>Cut the mould.</b> Hold to cut, let go to stop. Steel comes off. It never goes back on.</span></li>' +
+    '<li><i>3</i><span><b>Lab slots.</b> Stop the sweep on every peak over the limit line.</span></li>' +
+    '<li><i>4</i><span><b>Close action items on hardware</b>, then face the DVT gate.</span></li></ul>' +
+    '<button class="btn" data-a="start">Start DVT</button>' +
+    '<p class="small" style="text-align:center">Best ' + S.best.toLocaleString('en') + ' · Sound on? Check the silent switch.</p></div>');
+}
+function showOver(newBest) {
+  $('hudbtns').hidden = true;
+  const st = {
+    clean: ['pass', 'DVT PASSED'], held: ['pass', 'PASSED AFTER HOLD'], cond: ['mid', 'CONDITIONAL PASS'],
+    pilot: ['fail', 'PILOT RUN FAILED'], broke: ['fail', 'OUT OF MONEY'], quit: ['fail', 'DVT ABANDONED']
+  }[S.outcome] || ['mid', 'DONE'];
+  const sub = {
+    clean: 'Clean baseline for PVT. Known-good hardware, verified process, closed backlog.',
+    held: 'You held the gate and fixed it in DVT. PVT starts clean.',
+    cond: 'You passed open items and got lucky this time. PVT had no buffer for them.',
+    pilot: 'DVT\'s open problems became PVT\'s problems. At PVT cost, on PVT\'s schedule.',
+    broke: 'The DVT budget ran out before the gate. The programme stops here.',
+    quit: 'You left DVT before the gate.'
+  }[S.outcome] || '';
+  const led = S.ledger.slice().filter(l => l.eur > 0 || l.wk > 0).sort((a, b) => b.eur - a.eur).slice(0, 5);
+  const ledger = led.length ? '<p class="small">Where the money went</p><div class="ledger">' + led.map(l => '<div><b>' + eurK(l.eur) + '</b><span>' + l.what + (l.wk ? ' · +' + l.wk + ' wk' : '') + '</span></div>').join('') + '</div>' : '<p class="small">Where the money went: nowhere. Clean DVT.</p>';
+  const pool = [];
+  if (S.assumed && S.assumed.length) pool.push(LESSONS.tooling);
+  if (S.stats.overcuts) pool.push(LESSONS.steel);
+  if (S.stats.missed) pool.push(LESSONS.precomp);
+  if (S.stats.paper) pool.push(LESSONS.facts);
+  if (S.pilotFails || S.outcome === 'cond') pool.push(LESSONS.gate);
+  [LESSONS.facts, LESSONS.precomp, LESSONS.tooling, LESSONS.calendar].forEach(l => { if (pool.indexOf(l) < 0) pool.push(l); });
+  const avgPrec = S.stats.cuts ? Math.round(100 * S.stats.prec / S.stats.cuts) : 0;
+  show('<div class="card"><div class="eyebrow">DVT · week ' + S.week.toFixed(1) + ' of ' + TARGET_WK + '</div>' +
+    '<div class="stamp ' + st[0] + '">' + st[1] + '</div><p style="text-align:center">' + sub + '</p>' +
+    '<div class="big">' + S.final.toLocaleString('en') + '</div>' + (newBest ? '<div class="newbest">New best!</div>' : '<p class="small" style="text-align:center">Best ' + S.best.toLocaleString('en') + '</p>') +
+    '<p class="breakdown">' + S.score.toLocaleString('en') + ' points + ' + (S.outcome === 'broke' || S.outcome === 'quit' ? 0 : S.budgetPts) + ' budget left' + (S.late ? ' − ' + S.late * 150 + ' for ' + S.late + ' week' + (S.late > 1 ? 's' : '') + ' late' : '') + '</p>' +
+    '<div class="stats"><div class="stat"><b>' + eurK(S.budget) + '</b><span>Budget left</span></div><div class="stat"><b>' + S.stats.overcuts + '</b><span>Overcuts</span></div><div class="stat"><b>' + avgPrec + '%</b><span>Cut precision</span></div></div>' +
+    ledger +
+    '<p class="lesson">' + pool[0] + '</p><p class="lesson">' + pool[1] + '</p>' +
+    '<div class="row"><button class="btn" data-a="start">Run DVT again</button><button class="btn ghost" data-a="title">Menu</button></div>' +
+    '<p class="small" style="text-align:center">Read the full chapter: <a href="https://thehardesthardwarelessons.com" target="_blank" rel="noopener">thehardesthardwarelessons.com</a></p></div>');
+}
+function showPause() {
+  show('<div class="card"><div class="eyebrow">Week ' + S.week.toFixed(1) + ' · spindle stopped</div><h2>Paused</h2>' +
+    '<p>The calendar waits for you. The toolmaker does not usually.</p><button class="btn" data-a="resume">Resume</button>' +
+    '<button class="btn ghost" data-a="quit">Abandon DVT</button></div>');
+}
+ov.addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  Sfx.unlock(); Sfx.click();
+  const a = b.dataset.a;
+  if (a === 'start') startRun();
+  else if (a === 'title') showTitle();
+  else if (a === 'resume') resume();
+  else if (a === 'quit') { S.paused = false; S.outcome = 'quit'; finish(); }
+  else if (a === 'cont') contEvent();
+  else if (a === 'hold' || a === 'pass') {
+    const it = S.gateItems.find(i => i.id === b.dataset.id); if (it) { it.choice = a; const st = ov.scrollTop; showGate(); ov.scrollTop = st; }
+  }
+  else if (a === 'decide') decideGate();
+});
+$('btnPause').addEventListener('click', () => { Sfx.unlock(); Sfx.click(); pause(); });
+const muteBtn = $('btnMute');
+function paintMute() { muteBtn.textContent = Sfx.muted ? '✕' : '♪'; muteBtn.style.color = Sfx.muted ? '#93a1ab' : '#eef2f4'; }
+muteBtn.addEventListener('click', () => { Sfx.unlock(); Sfx.setMuted(!Sfx.muted); paintMute(); Sfx.click(); });
+paintMute();
+
+// ---------- geometry helpers ----------
+function gaugeRect() { const w = Math.min(L.colW, 460); return { x: L.colX + (L.colW - w) / 2, y: L.gaugeY, w, h: L.gaugeH }; }
+function btnRect() { const w = Math.min(L.colW, 320); return { x: L.colX + (L.colW - w) / 2, y: L.btnY, w, h: L.btnH }; }
+function labRect() { const y = L.stageTop + 40; return { x: L.left + 6, y, w: L.right - L.left - 12, h: Math.max(110, Math.min(L.stageBot - 60 - y, 360)) }; }
+function cutBoxes() {
+  const top = L.stageTop + 64, bot = L.stageBot - 34;
+  if (!L.wide) {
+    const bh = (bot - top) * 0.56;
+    return { block: { x: L.left, y: top, w: L.right - L.left, h: bh }, dial: { x: L.left, y: top + bh + 8, w: L.right - L.left, h: bot - top - bh - 8 } };
+  }
+  const iw = L.right - L.left;
+  return { block: { x: L.left, y: top, w: iw * 0.5, h: bot - top }, dial: { x: L.left + iw * 0.52, y: top, w: iw * 0.48, h: bot - top } };
+}
+function blockGeom(f) {
+  const box = cutBoxes().block;
+  const bw = Math.min(box.w * 0.84, 340), bh = box.h * 0.6;
+  const bx = box.x + (box.w - bw) / 2, by = box.y + box.h - bh;
+  const pxmm = bh * 0.8 / ((f ? f.target : 5) + 1);
+  const cx = bx + bw / 2, cw = bw * 0.3;
+  return { box, bx, by, bw, bh, pxmm, cx, cw, tipY: by + (f ? f.depth : 0) * pxmm };
+}
+
+// ---------- input ----------
+function hit(r, x, y, pad) { pad = pad || 0; return x >= r.x - pad && x <= r.x + r.w + pad && y >= r.y - pad && y <= r.y + r.h + pad; }
+function onPointer(e) {
+  Sfx.unlock();
+  if (crashed || S.paused || S.mode !== 'play') return;
+  e.preventDefault();
+  if (S.banner) return;
+  const r = cvs.getBoundingClientRect();
+  const x = e.clientX - r.left, y = e.clientY - r.top;
+  if (S.act === 'check') {
+    if (hit(btnRect(), x, y, 6)) { Sfx.click(); releaseTooling(); return; }
+    stopCheck();
+  } else if (S.act === 'cut') startHold();
+  else if (S.act === 'lab') tapLab();
+  else if (S.act === 'fix') {
+    if (hit(btnRect(), x, y, 6)) { paperClose(); return; }
+    stopFix();
+  } else ring(x, y, 'rgba(255,255,255,.4)', 16);
+}
+function onUp() { if (S.holding) endHold(); }
+cvs.addEventListener('pointerdown', onPointer, { passive: false });
+window.addEventListener('pointerup', onUp);
+window.addEventListener('pointercancel', onUp);
+window.addEventListener('blur', onUp);
+document.addEventListener('touchstart', () => Sfx.unlock(), { passive: true, capture: true });
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('dblclick', e => e.preventDefault());
+
+// ---------- update ----------
+function update(dt) {
+  S.t += dt;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i]; p.life += dt;
+    if (p.life >= p.max) { parts.splice(i, 1); continue; }
+    p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.985; if (p.rot != null) p.rot += (p.vr || 0) * dt;
+  }
+  for (let i = floats.length - 1; i >= 0; i--) { const f = floats[i]; f.life += dt; if (f.life >= f.max) floats.splice(i, 1); }
+  shake *= Math.pow(0.0015, dt); if (shake < 0.2) shake = 0;
+  flash = Math.max(0, flash - dt * 1.6);
+  S.scorePunch = Math.max(0, (S.scorePunch || 0) - dt * 4); S.budgetPunch = Math.max(0, (S.budgetPunch || 0) - dt * 3);
+  S.gaugeWob = Math.max(0, (S.gaugeWob || 0) - dt * 4); S.blockPunch = Math.max(0, (S.blockPunch || 0) - dt * 3);
+  S.shownScore += (S.score - S.shownScore) * Math.min(1, dt * 9); if (Math.abs(S.score - S.shownScore) < 0.5) S.shownScore = S.score;
+  S.budgetShown += (S.budget - S.budgetShown) * Math.min(1, dt * 6); if (Math.abs(S.budget - S.budgetShown) < 1) S.budgetShown = S.budget;
+  S.weekShown += (S.week - S.weekShown) * Math.min(1, dt * 5);
+  if (S.stampFx) { S.stampFx.t += dt; if (S.stampFx.t > 1.6) S.stampFx = null; }
+  if (S.mode !== 'play') return;
+  if (S.banner) { S.banner.t += dt; if (S.banner.t >= S.banner.dur) S.banner = null; return; }
+
+  // calendar
+  const prevWk = Math.floor(S.week);
+  S.week += dt * (S.act === 'wait' ? 6 : 1) / WEEK_S;
+  if (Math.floor(S.week) !== prevWk) { Sfx.tick(); }
+
+  if (S.act === 'check' || S.act === 'fix') {
+    const n = S.needle; n.x += n.dir * n.sp * dt;
+    if (n.x > 1) { n.x = 2 - n.x; n.dir = -1; } if (n.x < 0) { n.x = -n.x; n.dir = 1; }
+  } else if (S.act === 'cut') updateCut(dt);
+  else if (S.act === 'lab') {
+    const lab = S.lab;
+    if (lab.endT > 0) { lab.endT -= dt; if (lab.endT <= 0) finishLab(); }
+    else {
+      lab.x += lab.speed * dt;
+      if (lab.x >= 1) { lab.x = 0; lab.sweep++; if (lab.sweep >= lab.sweeps) finishLab(); else Sfx.tick(); }
+    }
+  } else if ((S.act === 'fai' || S.act === 'sample') && S.anim) {
+    if (!S.pending.length) {
+      S.anim.t += dt;
+      if (S.act === 'fai' && Math.floor(S.anim.t * 3) !== Math.floor((S.anim.t - dt) * 3)) Sfx.tick();
+      if (S.anim.t >= S.anim.dur) { if (S.act === 'fai') faiDone(); else sampleDone(); }
+    }
+  }
+  pump();
+}
+function updateCut(dt) {
+  const f = curFeat();
+  if (!f) return;
+  if (S.cutDelay > 0) {
+    S.cutDelay -= dt;
+    if (S.cutDelay <= 0 && f.state !== 'todo') advanceCut();
+    return;
+  }
+  const b = blockGeom(f);
+  if (S.holding) {
+    S.holdT += dt; S.v = Math.min(VMAX, V0 + CUT_ACC * S.holdT);
+    f.depth += S.v * dt;
+    S.grindT -= dt;
+    if (S.grindT <= 0) { S.grindT = 0.06; Sfx.grind(S.v); }
+    if (Math.random() < 0.3 + S.v * 0.15) burst(b.cx + rand(-b.cw * 0.4, b.cw * 0.4), b.tipY, ['#c9d2d8', '#8f9aa3', ACC, '#ffd166'], 2, 180 + S.v * 50, { up: true, tiny: true, square: true });
+    if (S.v > 2.5) addShake(0.4);
+    if (f.depth > f.target + 1) { f.depth = f.target + 1; endHold(); }
+  } else if (S.coasting) {
+    f.depth += S.v * dt; S.v *= Math.exp(-dt * COAST);
+    if (S.v < 0.01) { S.coasting = false; S.v = 0; f.depth = round3(f.depth); settle(f); }
+  }
+}
+
+// ---------- render ----------
+function rr(c, x, y, w, h, r) { r = Math.max(0, Math.min(r, w / 2, h / 2)); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function txt(s, x, y, size, color, align, weight) {
+  ctx.font = (weight || 700) + ' ' + size + 'px ' + FONT; ctx.fillStyle = color; ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle'; ctx.fillText(s, x, y);
+}
+function fitTxt(s, x, y, size, color, align, weight, maxW) {
+  ctx.font = (weight || 700) + ' ' + size + 'px ' + FONT;
+  while (size > 9 && ctx.measureText(s).width > maxW) { size -= 1; ctx.font = (weight || 700) + ' ' + size + 'px ' + FONT; }
+  ctx.fillStyle = color; ctx.textAlign = align || 'left'; ctx.textBaseline = 'middle'; ctx.fillText(s, x, y);
+}
+function render() {
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = '#14181c'; ctx.fillRect(0, 0, W, H);
+  drawFloor();
+  if (S.mode === 'title' || !S.stats) { drawTitleBg(); return; }
+  const sx = shake ? rand(-shake, shake) : 0, sy = shake ? rand(-shake, shake) : 0;
+  ctx.save(); ctx.translate(sx, sy);
+  if (S.act === 'check') drawCheck();
+  else if (S.act === 'cut') drawCut();
+  else if (S.act === 'lab') drawLab();
+  else if (S.act === 'fai') drawFai();
+  else if (S.act === 'sample') drawSample();
+  else if (S.act === 'fix') drawFix();
+  else if (S.act === 'wait') drawWait();
+  drawParticles(); drawFloats(); drawHints(); drawStamp();
+  ctx.restore();
+  drawHud();
+  if (flash > 0) {
+    const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.25, W / 2, H / 2, Math.max(W, H) * 0.75);
+    g.addColorStop(0, 'rgba(' + flashColor + ',0)'); g.addColorStop(1, 'rgba(' + flashColor + ',' + Math.min(0.7, flash) + ')');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  if (S.banner) drawBanner();
+}
+function drawFloor() {
+  ctx.strokeStyle = 'rgba(255,255,255,.03)'; ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 32) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 32) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+}
+function drawTitleBg() {
+  // a slowly turning dial behind the title card
+  const r = Math.min(W, H) * 0.42;
+  ctx.globalAlpha = 0.18; drawDialFace(W / 2, H * 0.55, r, (S.t * 0.13) % 1, 0.5, 0.05, (S.t * 0.13) % 10); ctx.globalAlpha = 1;
+}
+function stageTitle(s, sub) {
+  fitTxt(s, L.left, L.stageTop + 4, 17, INK, 'left', 800, L.right - L.left);
+  if (sub) fitTxt(sub, L.left, L.stageTop + 22, 12, MUTED, 'left', 600, L.right - L.left);
+}
+function drawGauge(label, prompt) {
+  const g = gaugeRect(), wob = Math.sin(S.gaugeWob * 22) * S.gaugeWob * 6;
+  ctx.save(); ctx.translate(wob, 0);
+  fitTxt(label, g.x, g.y - 34, 13, ACC, 'left', 800, g.w);
+  fitTxt(prompt, g.x, g.y - 16, 13, INK, 'left', 600, g.w);
+  ctx.fillStyle = '#0f1316'; rr(ctx, g.x, g.y, g.w, g.h, 12); ctx.fill();
+  ctx.strokeStyle = '#2d363e'; ctx.lineWidth = 1.5; ctx.stroke();
+  // ticks
+  ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.lineWidth = 1;
+  for (let i = 1; i < 20; i++) { const x = g.x + g.w * i / 20; ctx.beginPath(); ctx.moveTo(x, g.y + g.h - (i % 5 ? 8 : 16)); ctx.lineTo(x, g.y + g.h); ctx.stroke(); }
+  // band
+  const b = S.band, bx = g.x + g.w * b.a, bw = g.w * b.w, inBand = S.needle.x >= b.a && S.needle.x <= b.a + b.w;
+  ctx.fillStyle = inBand ? 'rgba(61,220,132,.55)' : 'rgba(61,220,132,.28)'; rr(ctx, bx, g.y + 4, bw, g.h - 8, 6); ctx.fill();
+  ctx.strokeStyle = GREEN; ctx.lineWidth = 2; ctx.stroke();
+  txt('EVIDENCE', bx + bw / 2, g.y + g.h / 2, 10, inBand ? '#0f1f16' : GREEN, 'center', 800);
+  // needle
+  const nx = g.x + g.w * S.needle.x;
+  ctx.fillStyle = inBand ? GREEN : ACC; ctx.shadowColor = ctx.fillStyle; ctx.shadowBlur = 10;
+  rr(ctx, nx - 3, g.y - 6, 6, g.h + 12, 3); ctx.fill(); ctx.shadowBlur = 0;
+  ctx.beginPath(); ctx.moveTo(nx - 8, g.y - 10); ctx.lineTo(nx + 8, g.y - 10); ctx.lineTo(nx, g.y - 1); ctx.fill();
+  ctx.restore();
+}
+function drawBtn(label, sub, color) {
+  const r = btnRect();
+  ctx.fillStyle = 'rgba(29,35,41,.95)'; rr(ctx, r.x, r.y, r.w, r.h, 14); ctx.fill();
+  ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.stroke();
+  fitTxt(label, r.x + r.w / 2, r.y + (sub ? r.h / 2 - 7 : r.h / 2), 15, color, 'center', 800, r.w - 16);
+  if (sub) fitTxt(sub, r.x + r.w / 2, r.y + r.h / 2 + 11, 11, MUTED, 'center', 600, r.w - 16);
+}
+function drawCheck() {
+  stageTitle('Hard tooling release checklist', 'Confirmed, not assumed. €30k to €300k of steel rides on it.');
+  S.checks.forEach((c, i) => {
+    const y = L.listY + i * L.rowH, cur = i === S.ci, h = L.rowH - 4;
+    ctx.fillStyle = cur ? 'rgba(255,122,69,.14)' : '#1a2026'; rr(ctx, L.listX, y, L.listW, h, 8); ctx.fill();
+    if (cur) { ctx.strokeStyle = ACC; ctx.lineWidth = 1.5; ctx.stroke(); }
+    const bx = L.listX + 8, bs = Math.min(18, h - 8), by = y + (h - bs) / 2;
+    ctx.strokeStyle = c.ok ? GREEN : cur ? ACC : '#4a555e'; ctx.lineWidth = 2; rr(ctx, bx, by, bs, bs, 4); ctx.stroke();
+    if (c.ok) { ctx.strokeStyle = GREEN; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(bx + 4, by + bs / 2); ctx.lineTo(bx + bs * 0.42, by + bs - 4); ctx.lineTo(bx + bs - 3, by + 3); ctx.stroke(); }
+    fitTxt(c.name, bx + bs + 10, y + h / 2, Math.min(14, h * 0.5), c.ok ? GREEN : cur ? INK : MUTED, 'left', 700, L.listW - bs - 30);
+  });
+  const c = S.checks[S.ci];
+  if (c) drawGauge('Item ' + (S.ci + 1) + ' of 5 · ' + c.name, c.ev);
+  const left = CHECKS.length - S.ci;
+  drawBtn('Release tooling now', left + ' item' + (left > 1 ? 's' : '') + ' still assumed', MUTED);
+  txt('Tap anywhere when the needle is in the green', L.colX + L.colW / 2, L.btnY - 18, 12, MUTED, 'center', 600);
+}
+function drawCut() {
+  const f = curFeat(); if (!f) return;
+  stageTitle(f.tool + ' · ' + f.toolName + (S.cutPhase === 'recut' ? ' · post-FAI re-cut' : ''), (S.cutPhase === 'recut' ? 'Welded and re-machined. Cut it right this time.' : 'Hard tool: P20 steel, hundreds of thousands of shots'));
+  // feature chips
+  const feats = S.cutPhase === 'recut' ? S.cutList : S.feats.filter(x => x.tool === f.tool);
+  const n = feats.length, gap = 6, cw = Math.min(110, (L.right - L.left - gap * (n - 1)) / n);
+  feats.forEach((x, i) => {
+    const cx = L.right - (n - i) * (cw + gap) + gap, cy = L.stageTop + 34, cur = x === f;
+    ctx.fillStyle = x.state === 'ok' ? '#163524' : x.state === 'over' ? '#3a1820' : cur ? 'rgba(255,122,69,.18)' : '#1a2026';
+    rr(ctx, cx, cy, cw, 22, 6); ctx.fill();
+    if (cur) { ctx.strokeStyle = ACC; ctx.lineWidth = 1.5; ctx.stroke(); }
+    fitTxt((x.state === 'ok' ? '✓ ' : x.state === 'over' ? '✗ ' : '') + x.name, cx + cw / 2, cy + 11, 10.5, x.state === 'ok' ? GREEN : x.state === 'over' ? RED : cur ? INK : MUTED, 'center', 700, cw - 6);
+  });
+  const g = blockGeom(f), box = g.box;
+  const punch = 1 + Math.sin(S.blockPunch * 9) * S.blockPunch * 0.03;
+  ctx.save(); ctx.translate(g.cx, g.by + g.bh / 2); ctx.scale(punch, 2 - punch); ctx.translate(-g.cx, -(g.by + g.bh / 2));
+  // steel block
+  const grd = ctx.createLinearGradient(g.bx, g.by, g.bx + g.bw, g.by + g.bh);
+  grd.addColorStop(0, '#8f9aa3'); grd.addColorStop(0.5, '#6d7880'); grd.addColorStop(1, '#4d575e');
+  ctx.fillStyle = grd; rr(ctx, g.bx, g.by, g.bw, g.bh, 6); ctx.fill();
+  ctx.save(); rr(ctx, g.bx, g.by, g.bw, g.bh, 6); ctx.clip();
+  ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 1;
+  for (let k = -g.bh; k < g.bw; k += 12) { ctx.beginPath(); ctx.moveTo(g.bx + k, g.by + g.bh); ctx.lineTo(g.bx + k + g.bh, g.by); ctx.stroke(); }
+  ctx.restore();
+  // cavity
+  const dpx = f.depth * g.pxmm, cx0 = g.cx - g.cw / 2;
+  ctx.fillStyle = '#101418'; ctx.fillRect(cx0, g.by - 1, g.cw, dpx + 1);
+  const tY = g.by + f.target * g.pxmm, tolPx = Math.max(3, f.tol * g.pxmm);
+  // tolerance band + target line
+  ctx.fillStyle = 'rgba(61,220,132,.35)'; ctx.fillRect(g.bx - 6, tY - tolPx, g.bw + 12, tolPx * 2);
+  ctx.strokeStyle = GREEN; ctx.setLineDash([6, 4]); ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(g.bx - 10, tY); ctx.lineTo(g.bx + g.bw + 10, tY); ctx.stroke(); ctx.setLineDash([]);
+  fitTxt(f.name + ' ' + f.target.toFixed(3), g.bx + g.bw + 4, tY - tolPx - 8, 10, GREEN, 'right', 700, g.bw);
+  if (f.depth > f.target + f.tol) { ctx.fillStyle = 'rgba(255,59,92,.75)'; ctx.fillRect(cx0, tY + tolPx, g.cw, Math.max(2, (g.by + dpx) - (tY + tolPx))); }
+  ctx.restore();
+  // spindle + cutter
+  const tipY = g.tipY, headH = Math.min(46, box.h * 0.16), headY = Math.max(box.y + 6, Math.min(g.by - headH - 30, tipY - headH - 60));
+  const shankTop = headY + headH, cutW = g.cw * 0.86;
+  ctx.fillStyle = '#3a434b'; rr(ctx, g.cx - cutW * 1.1, headY, cutW * 2.2, headH, 8); ctx.fill();
+  ctx.fillStyle = S.holding ? ACC : '#5d6a74'; rr(ctx, g.cx - cutW * 0.9, headY + headH * 0.35, cutW * 1.8, headH * 0.3, 4); ctx.fill();
+  ctx.fillStyle = '#b8c2c9'; ctx.fillRect(g.cx - cutW / 2, shankTop, cutW, tipY - shankTop);
+  ctx.save(); ctx.beginPath(); ctx.rect(g.cx - cutW / 2, shankTop, cutW, tipY - shankTop); ctx.clip();
+  const spin = (S.holding || S.coasting) ? S.t * 40 : 0;
+  ctx.strokeStyle = 'rgba(40,48,55,.55)'; ctx.lineWidth = 2;
+  for (let k = -3; k < (tipY - shankTop) / 8 + 3; k++) { const yy = shankTop + k * 8 + (spin % 8); ctx.beginPath(); ctx.moveTo(g.cx - cutW / 2, yy); ctx.lineTo(g.cx + cutW / 2, yy + 6); ctx.stroke(); }
+  ctx.restore();
+  if (S.holding) { ctx.fillStyle = 'rgba(255,209,102,' + (0.4 + 0.3 * Math.sin(S.t * 60)) + ')'; ctx.beginPath(); ctx.ellipse(g.cx, tipY, cutW * 0.7, 4, 0, 0, 7); ctx.fill(); }
+  // dial + readout
+  drawCutReadout(f, cutBoxes().dial);
+  // hold pad hint
+  const hy = L.stageBot - 14;
+  const msg = S.cutDelay > 0 ? '' : S.holding ? (inTol(f) ? 'LET GO' : 'Cutting… let go to stop') : S.coasting ? 'Spindle coasting…' : 'HOLD anywhere to cut · let go to stop';
+  if (msg) txt(msg, L.cx, hy, msg === 'LET GO' ? 18 : 13, msg === 'LET GO' ? GREEN : MUTED, 'center', 800);
+}
+function inTol(f) { return f.depth >= f.target - f.tol && f.depth <= f.target + f.tol; }
+function drawDialFace(cx, cy, r, frac, bandC, bandW, revs) {
+  ctx.fillStyle = '#2a3138'; ctx.beginPath(); ctx.arc(cx, cy, r + 7, 0, 7); ctx.fill();
+  ctx.fillStyle = '#e9edf0'; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
+  if (bandW > 0) {
+    ctx.strokeStyle = 'rgba(61,220,132,.9)'; ctx.lineWidth = r * 0.16;
+    const a0 = -Math.PI / 2 + (bandC - bandW) * Math.PI * 2, a1 = -Math.PI / 2 + (bandC + bandW) * Math.PI * 2;
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.84, a0, a1); ctx.stroke();
+  }
+  ctx.strokeStyle = '#1d2329';
+  for (let i = 0; i < 50; i++) {
+    const a = -Math.PI / 2 + i / 50 * Math.PI * 2, l = i % 5 ? r * 0.08 : r * 0.16;
+    ctx.lineWidth = i % 5 ? 1 : 2;
+    ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * (r - 3), cy + Math.sin(a) * (r - 3)); ctx.lineTo(cx + Math.cos(a) * (r - 3 - l), cy + Math.sin(a) * (r - 3 - l)); ctx.stroke();
+  }
+  ctx.fillStyle = '#1d2329'; ctx.font = '700 ' + Math.max(8, r * 0.13) + 'px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (let i = 0; i < 10; i += 2) { const a = -Math.PI / 2 + i / 10 * Math.PI * 2; ctx.fillText(String(i * 10), cx + Math.cos(a) * r * 0.62, cy + Math.sin(a) * r * 0.62); }
+  // rev counter
+  const sr = r * 0.2, sy = cy + r * 0.36;
+  ctx.strokeStyle = '#1d2329'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, sy, sr, 0, 7); ctx.stroke();
+  const ra = -Math.PI / 2 + (revs / 10) * Math.PI * 2;
+  ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx, sy); ctx.lineTo(cx + Math.cos(ra) * sr * 0.85, sy + Math.sin(ra) * sr * 0.85); ctx.stroke();
+  // needle
+  const a = -Math.PI / 2 + frac * Math.PI * 2;
+  ctx.strokeStyle = '#d6203f'; ctx.lineWidth = Math.max(2, r * 0.035); ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(cx - Math.cos(a) * r * 0.15, cy - Math.sin(a) * r * 0.15); ctx.lineTo(cx + Math.cos(a) * r * 0.9, cy + Math.sin(a) * r * 0.9); ctx.stroke(); ctx.lineCap = 'butt';
+  ctx.fillStyle = '#1d2329'; ctx.beginPath(); ctx.arc(cx, cy, r * 0.07, 0, 7); ctx.fill();
+}
+function drawCutReadout(f, box) {
+  const r = Math.max(30, Math.min(box.h * 0.42, box.w * 0.24, 92));
+  const dcx = box.x + r + 12, dcy = box.y + box.h / 2;
+  const near = Math.abs(f.depth - f.target) < 1;
+  drawDialFace(dcx, dcy, r, f.depth % 1, f.target % 1, near ? f.tol : 0, f.depth);
+  const tx = dcx + r + 22, tw = box.x + box.w - tx;
+  const tg = f.target - f.depth, it = inTol(f), over = f.depth > f.target + f.tol;
+  const col = over ? RED : it ? GREEN : INK;
+  fitTxt(f.depth.toFixed(3), tx, dcy - r * 0.45, Math.min(40, r * 0.55), col, 'left', 900, tw);
+  fitTxt('target ' + f.target.toFixed(3) + ' ±' + f.tol.toFixed(2) + ' mm', tx, dcy - r * 0.02, 12, MUTED, 'left', 600, tw);
+  fitTxt(over ? 'over by ' + (f.depth - f.target).toFixed(3) : it ? 'in tolerance' : tg.toFixed(3) + ' mm to go', tx, dcy + r * 0.32, 15, over ? RED : it ? GREEN : ACC, 'left', 800, tw);
+  // speed bar
+  const sw = Math.min(tw, 160), sy = dcy + r * 0.62;
+  ctx.fillStyle = '#262d34'; rr(ctx, tx, sy, sw, 6, 3); ctx.fill();
+  ctx.fillStyle = S.v > 3 ? RED : S.v > 1.2 ? ACC : GREEN; if (S.v > 0) { rr(ctx, tx, sy, Math.max(6, sw * S.v / VMAX), 6, 3); ctx.fill(); }
+  fitTxt('feed ' + S.v.toFixed(1) + ' mm/s', tx, sy + 16, 10, MUTED, 'left', 600, tw);
+}
+function drawLab() {
+  const lab = S.lab; if (!lab) return;
+  const def = lab.def, r = labRect();
+  stageTitle(def.name + ' · week ' + def.w, def.std + ' · sweep ' + Math.min(lab.sweep + 1, lab.sweeps) + ' of ' + lab.sweeps);
+  ctx.fillStyle = '#0c1012'; rr(ctx, r.x - 6, r.y - 6, r.w + 12, r.h + 12, 12); ctx.fill();
+  ctx.strokeStyle = '#2d363e'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.strokeStyle = 'rgba(90,176,255,.1)'; ctx.lineWidth = 1;
+  for (let i = 1; i < 10; i++) { const x = r.x + r.w * i / 10; ctx.beginPath(); ctx.moveTo(x, r.y); ctx.lineTo(x, r.y + r.h); ctx.stroke(); }
+  for (let i = 1; i < 6; i++) { const y = r.y + r.h * i / 6; ctx.beginPath(); ctx.moveTo(r.x, y); ctx.lineTo(r.x + r.w, y); ctx.stroke(); }
+  // limit line
+  const lim = 0.62, ly = r.y + r.h * (1 - lim);
+  ctx.strokeStyle = RED; ctx.lineWidth = 2; ctx.setLineDash([8, 5]); ctx.beginPath(); ctx.moveTo(r.x, ly); ctx.lineTo(r.x + r.w, ly); ctx.stroke(); ctx.setLineDash([]);
+  txt('LIMIT', r.x + r.w - 4, ly - 9, 10, RED, 'right', 800);
+  // trace
+  const isE = def.kind === 'emc', N = lab.tr.length - 1;
+  ctx.lineWidth = 2; ctx.strokeStyle = isE ? '#5ab0ff' : '#ffb347';
+  ctx.beginPath();
+  for (let i = 0; i <= N; i++) { const x = r.x + r.w * i / N, y = r.y + r.h * (1 - lab.tr[i]); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+  ctx.stroke();
+  ctx.globalAlpha = 0.12; ctx.fillStyle = ctx.strokeStyle; ctx.lineTo(r.x + r.w, r.y + r.h); ctx.lineTo(r.x, r.y + r.h); ctx.fill(); ctx.globalAlpha = 1;
+  // found markers
+  lab.peaks.forEach(p => {
+    if (!p.found) return;
+    const x = r.x + r.w * p.x, y = r.y + r.h * (1 - 0.74);
+    ctx.strokeStyle = GREEN; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y, 14, 0, 7); ctx.stroke();
+    txt('✓', x, y - 26, 16, GREEN, 'center', 900);
+  });
+  // sweep marker
+  const mx = r.x + r.w * lab.x;
+  const g = ctx.createLinearGradient(mx - 40, 0, mx, 0); g.addColorStop(0, 'rgba(255,122,69,0)'); g.addColorStop(1, 'rgba(255,122,69,.25)');
+  ctx.fillStyle = g; ctx.fillRect(Math.max(r.x, mx - 40), r.y, Math.min(40, mx - r.x), r.h);
+  ctx.fillStyle = ACC; ctx.fillRect(mx - 1.5, r.y - 8, 3, r.h + 16);
+  ctx.beginPath(); ctx.moveTo(mx - 7, r.y - 12); ctx.lineTo(mx + 7, r.y - 12); ctx.lineTo(mx, r.y - 3); ctx.fill();
+  fitTxt(isE ? '30 MHz' : 'left', r.x, r.y + r.h + 16, 10, MUTED, 'left', 600, 80);
+  fitTxt(isE ? '1 GHz' : 'right', r.x + r.w, r.y + r.h + 16, 10, MUTED, 'right', 600, 80);
+  fitTxt(def.unit, r.x + 4, r.y + 10, 10, MUTED, 'left', 600, 80);
+  const left = lab.peaks.filter(p => !p.found).length;
+  txt(left ? 'Tap when the marker is on a peak over the limit · ' + left + ' left' : 'All found', L.cx, L.stageBot - 14, 13, left ? MUTED : GREEN, 'center', 700);
+}
+function drawPart(x, y, w, h, tint) {
+  ctx.fillStyle = tint || '#c9d2d8'; rr(ctx, x - w / 2, y - h / 2, w, h, h * 0.3); ctx.fill();
+  ctx.fillStyle = 'rgba(0,0,0,.18)'; rr(ctx, x - w * 0.38, y - h * 0.28, w * 0.76, h * 0.56, h * 0.2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.arc(x + w * 0.3, y - h * 0.05, h * 0.09, 0, 7); ctx.fill();
+}
+function drawFai() {
+  const a = S.anim || { t: 0, dur: 1 }, k = clamp(a.t / a.dur, 0, 1);
+  stageTitle('First Article Inspection · round ' + S.faiRound, 'Every dimension on the drawing. Three first-off parts. Not a sample check.');
+  const top = L.stageTop + 50, pw = Math.min(110, (L.right - L.left) / 3.6), ph = pw * 0.55;
+  for (let i = 0; i < 3; i++) {
+    const x = L.left + (L.right - L.left) * (i + 0.5) / 3, pop = easeOutBack(clamp(a.t * 3 - i * 0.3, 0, 1));
+    ctx.save(); ctx.translate(x, top + ph); ctx.scale(pop, pop); drawPart(0, 0, pw, ph); ctx.restore();
+    txt('Shot ' + (i + 1), x, top + ph * 1.8 + 6, 11, MUTED, 'center', 700);
+  }
+  // CMM probe
+  const px = L.left + (L.right - L.left) * (0.15 + 0.7 * (0.5 + 0.5 * Math.sin(a.t * 5))), py = top + ph * 0.4;
+  ctx.strokeStyle = '#8f9aa3'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(px, top - 30); ctx.lineTo(px, py); ctx.stroke();
+  ctx.fillStyle = '#ff3b5c'; ctx.beginPath(); ctx.arc(px, py, 4, 0, 7); ctx.fill();
+  const feats = S.cutPhase === 'recut' && S.faiRound > 1 ? S.cutList : S.feats;
+  const ly = top + ph * 2.2 + 20, rh = Math.min(26, (L.stageBot - ly - 10) / Math.max(1, feats.length));
+  feats.forEach((f, i) => {
+    const shown = k * feats.length > i, y = ly + i * rh;
+    fitTxt(f.tool + ' ' + f.name, L.left + 4, y + rh / 2, 12.5, shown ? INK : '#4a555e', 'left', 700, (L.right - L.left) * 0.5);
+    if (shown) {
+      const okF = f.state !== 'over';
+      fitTxt((okF ? '✓ ' : '✗ ') + f.depth.toFixed(3) + ' / ' + f.target.toFixed(3) + ' ±' + f.tol.toFixed(2), L.right - 4, y + rh / 2, 12.5, okF ? GREEN : RED, 'right', 800, (L.right - L.left) * 0.48);
+    }
+  });
+}
+function drawSample() {
+  const a = S.anim || { t: 0, dur: 1 }, k = clamp(a.t / a.dur, 0, 1);
+  stageTitle('DVT sample run · 40 units on hard tooling', 'Factory team, production process, every unit tracked by serial number.');
+  const y = L.stageTop + 70, x0 = L.left, x1 = L.right;
+  ctx.fillStyle = '#262d34'; rr(ctx, x0, y - 4, x1 - x0, 34, 8); ctx.fill();
+  const built = Math.floor(k * 40);
+  for (let i = 0; i < 12; i++) {
+    const u = (a.t * 0.9 + i / 12) % 1, ux = x0 + 12 + u * (x1 - x0 - 24), bad = (i * 7) % 5 === 0;
+    drawPart(ux, y + 13, 30, 18, bad && u > 0.6 ? '#ff8a99' : '#c9d2d8');
+  }
+  txt('Units built ' + built + ' / 40', L.left, y + 50, 13, INK, 'left', 700);
+  // pareto
+  const bars = [['Screw strips boss', 5], ['SOP misses gasket', 4], ['Fixture false fail', 3], ['Button sticks', 2]];
+  const by = y + 76, bh = Math.min(30, (L.stageBot - by - 10) / 4.5), maxW = (L.right - L.left) * 0.5;
+  txt('Defect Pareto', L.left, by, 12, ACC, 'left', 800);
+  bars.forEach((b, i) => {
+    const yy = by + 16 + i * bh, w = maxW * b[1] / 5 * clamp(k * 1.6 - i * 0.15, 0, 1);
+    fitTxt(b[0], L.left, yy + bh * 0.4, 12, MUTED, 'left', 600, (L.right - L.left) * 0.42);
+    ctx.fillStyle = i === 0 ? RED : ACC; rr(ctx, L.right - maxW, yy + bh * 0.15, Math.max(2, w), bh * 0.5, 4); ctx.fill();
+    if (w > 10) txt(String(b[1]), L.right - maxW + w + 6, yy + bh * 0.4, 12, INK, 'left', 800);
+  });
+}
+function drawFix() {
+  stageTitle('Design Correction · action items', 'Closed means verified on production hardware.');
+  S.dc.forEach((d, i) => {
+    const y = L.listY + i * L.rowH, h = L.rowH - 4, cur = i === S.di;
+    ctx.fillStyle = cur ? 'rgba(255,122,69,.14)' : '#1a2026'; rr(ctx, L.listX, y, L.listW, h, 8); ctx.fill();
+    if (cur) { ctx.strokeStyle = ACC; ctx.lineWidth = 1.5; ctx.stroke(); }
+    const fs = Math.min(13, h * 0.46);
+    fitTxt(d.id, L.listX + 8, y + h / 2, fs, cur ? ACC : MUTED, 'left', 800, 60);
+    fitTxt(d.type, L.listX + 70, y + h / 2, fs - 1, MUTED, 'left', 600, 56);
+    const st = d.state === 'verified' ? '✓ verified' : d.state === 'paper' ? 'on paper' : cur ? 'now' : 'open';
+    fitTxt(st, L.listX + L.listW - 8, y + h / 2, fs, d.state === 'verified' ? GREEN : d.state === 'paper' ? '#ffb347' : MUTED, 'right', 800, 80);
+  });
+  const d = S.dc[S.di];
+  if (d) drawGauge(d.id + ' · ' + d.defect, 'Fix: ' + d.fix + '. Stop in the green to verify.');
+  drawBtn('Close on paper', 'Instant. Nobody checks it on hardware.', '#ffb347');
+  txt('Tap anywhere when the needle is in the green', L.colX + L.colW / 2, L.btnY - 18, 12, MUTED, 'center', 600);
+}
+function drawWait() {
+  stageTitle('All DVT work done', S.labIdx < LABS.length ? 'Waiting on the lab. Results due week 7.' : 'Preparing the DVT Exit Criteria Assessment.');
+  const cx = L.cx, cy = L.stageTop + L.stageH * 0.42, r = Math.min(L.stageH * 0.25, (L.right - L.left) * 0.3, 110);
+  drawDialFace(cx, cy, r, (S.week % 1), 0, 0, S.week);
+  txt('Week ' + S.week.toFixed(1), cx, cy + r + 30, 22, INK, 'center', 900);
+  txt('Gate opens week ' + GATE_MIN + ' at the earliest', cx, cy + r + 56, 12, MUTED, 'center', 600);
+}
+function drawParticles() {
+  for (const p of parts) {
+    const k = 1 - p.life / p.max;
+    if (p.ring) {
+      ctx.strokeStyle = p.color; ctx.globalAlpha = k; ctx.lineWidth = 3 * k + 1;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (1 - k * 0.6) + p.size * easeOutCubic(1 - k), 0, 7); ctx.stroke();
+      ctx.globalAlpha = 1; continue;
+    }
+    ctx.globalAlpha = Math.min(1, k * 1.6); ctx.fillStyle = p.color;
+    if (p.sq) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillRect(-p.size, -p.size * 0.5, p.size * 2, p.size); ctx.restore(); }
+    else { ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (0.4 + k * 0.6), 0, 7); ctx.fill(); }
+  }
+  ctx.globalAlpha = 1;
+}
+function drawFloats() {
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (const f of floats) {
+    const k = f.life / f.max, pop = k < 0.15 ? easeOutBack(k / 0.15) : 1;
+    ctx.globalAlpha = k > 0.7 ? (1 - k) / 0.3 : 1;
+    ctx.font = '900 ' + Math.round(f.size * (0.7 + 0.3 * pop)) + 'px ' + FONT;
+    const y = f.y - easeOutCubic(k) * 40, x = clamp(f.x, 10 + ctx.measureText(f.text).width / 2, W - 10 - ctx.measureText(f.text).width / 2);
+    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(10,12,14,.85)'; ctx.strokeText(f.text, x, y);
+    ctx.fillStyle = f.color; ctx.fillText(f.text, x, y);
+  }
+  ctx.globalAlpha = 1;
+}
+function bubble(x, y, text) {
+  ctx.font = '700 13px ' + FONT;
+  const tw = ctx.measureText(text).width, w = Math.min(tw + 20, W - 16), h = 28;
+  const bx = clamp(x - w / 2, 8, W - w - 8); let by = y - h - 10;
+  by += Math.sin(S.t * 6) * 3;
+  ctx.fillStyle = ACC; rr(ctx, bx, by, w, h, 8); ctx.fill();
+  const tx = clamp(x, bx + 12, bx + w - 12);
+  ctx.beginPath(); ctx.moveTo(tx - 7, by + h); ctx.lineTo(tx, by + h + 7); ctx.lineTo(tx + 7, by + h); ctx.fill();
+  fitTxt(text, bx + w / 2, by + h / 2 + 1, 13, '#1a1210', 'center', 800, w - 12);
+}
+function drawHints() {
+  if (!S.tutorial || S.banner) return;
+  if (S.act === 'check' && !S.tips.check) { const g = gaugeRect(); bubble(g.x + g.w * S.needle.x, g.y - 44, 'Tap when the needle is in the green'); }
+  else if (S.act === 'cut' && !S.tips.cut && S.cutDelay <= 0) { const f = curFeat(); if (f) { const g = blockGeom(f); bubble(g.cx, g.by - 4, f.target - f.depth > 0.8 ? 'Hold to cut. Let go well before the green line' : 'Short taps now. Creep up on it'); } }
+  else if (S.act === 'lab' && !S.tips.lab && S.lab) { const r = labRect(); bubble(r.x + r.w * S.lab.x, r.y - 14, 'Stop on peaks over the red line'); }
+  else if (S.act === 'fix' && !S.tips.fix) { const g = gaugeRect(); bubble(g.x + g.w * S.needle.x, g.y - 44, 'Verify it on hardware: tap in the green'); }
+}
+function drawStamp() {
+  const s = S.stampFx; if (!s) return;
+  const k = s.t / 1.6, inK = clamp(s.t / 0.3, 0, 1), sc = lerp(2.4, 1, easeOutBack(inK)), al = k > 0.75 ? (1 - k) / 0.25 : 1;
+  ctx.save(); ctx.globalAlpha = Math.max(0, al); ctx.translate(L.cx, L.stageTop + L.stageH * 0.42); ctx.rotate(-0.1); ctx.scale(sc, sc);
+  ctx.font = '900 24px ' + FONT; const tw = ctx.measureText(s.text).width;
+  ctx.fillStyle = 'rgba(20,24,28,.85)'; rr(ctx, -tw / 2 - 14, -24, tw + 28, 48, 8); ctx.fill();
+  ctx.strokeStyle = s.color; ctx.lineWidth = 4; ctx.stroke();
+  txt(s.text, 0, 1, 24, s.color, 'center', 900);
+  ctx.restore();
+}
+function drawHud() {
+  const top = L.top;
+  // budget
+  const bp = 1 + S.budgetPunch * 0.2, low = S.budget < 30000;
+  ctx.save(); ctx.translate(L.left, top + 14); ctx.scale(bp, bp);
+  txt(eur(S.budgetShown), 0, 0, 19, low ? RED : INK, 'left', 900); ctx.restore();
+  txt('DVT budget', L.left, top + 34, 10, MUTED, 'left', 600);
+  // score
+  const sp = 1 + S.scorePunch * 0.25, scx = Math.min(W / 2, W - SAFE.r - 120);
+  ctx.save(); ctx.translate(scx, top + 14); ctx.scale(sp, sp);
+  txt(Math.round(S.shownScore).toLocaleString('en'), 0, 0, 24, INK, 'center', 900); ctx.restore();
+  txt('points', scx, top + 34, 10, MUTED, 'center', 600);
+  // gantt calendar
+  const x0 = L.left, x1 = L.right, y = L.ganttY, h = L.ganttH, wx = w => x0 + (x1 - x0) * clamp(w, 0, CAP_WK) / CAP_WK;
+  ctx.fillStyle = '#1a2026'; rr(ctx, x0, y, x1 - x0, h, 6); ctx.fill();
+  ctx.fillStyle = 'rgba(255,59,92,.12)'; ctx.fillRect(wx(TARGET_WK), y, wx(CAP_WK) - wx(TARGET_WK), h);
+  for (let w = 0; w <= CAP_WK; w++) {
+    const x = wx(w); ctx.strokeStyle = 'rgba(255,255,255,' + (w % 2 ? 0.04 : 0.09) + ')'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y + h); ctx.stroke();
+    if (w % 2 === 0 && w > 0 && w < CAP_WK) txt(String(w), x, y + h + 8, 9, '#5d6a74', 'center', 700);
+  }
+  // tooling bar
+  if (S.released) {
+    const e = S.toolDoneWk >= 0 ? S.toolDoneWk : S.weekShown;
+    ctx.fillStyle = 'rgba(255,122,69,.55)'; rr(ctx, wx(S.releaseWk), y + 4, Math.max(4, wx(e) - wx(S.releaseWk)), 8, 3); ctx.fill();
+  }
+  // lab milestones
+  LABS.forEach((l, i) => {
+    const x = wx(l.w), cy = y + h - 9, done = S.labIdx > i;
+    ctx.fillStyle = done ? (l.kind === 'results' && S.certFailed ? RED : '#5ab0ff') : '#3a434b';
+    ctx.beginPath(); ctx.moveTo(x, cy - 6); ctx.lineTo(x + 6, cy); ctx.lineTo(x, cy + 6); ctx.lineTo(x - 6, cy); ctx.closePath(); ctx.fill();
+  });
+  // gate flag
+  const gx = wx(TARGET_WK);
+  ctx.strokeStyle = GREEN; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(gx, y - 4); ctx.lineTo(gx, y + h); ctx.stroke();
+  ctx.fillStyle = GREEN; ctx.beginPath(); ctx.moveTo(gx, y - 4); ctx.lineTo(gx + 12, y + 1); ctx.lineTo(gx, y + 6); ctx.fill();
+  txt('GATE', gx + 14, y + 1, 9, GREEN, 'left', 800);
+  // now marker
+  const nx = wx(S.weekShown), late = S.weekShown > TARGET_WK;
+  ctx.fillStyle = late ? RED : ACC; ctx.fillRect(nx - 1.5, y - 2, 3, h + 4);
+  const lbl = 'WK ' + S.weekShown.toFixed(1); ctx.font = '800 10px ' + FONT; const lw = ctx.measureText(lbl).width + 10;
+  const lx = clamp(nx - lw / 2, x0, x1 - lw);
+  rr(ctx, lx, y - 16, lw, 14, 4); ctx.fill();
+  txt(lbl, lx + lw / 2, y - 9, 10, '#1a1210', 'center', 800);
+}
+function drawBanner() {
+  const b = S.banner, k = b.t / b.dur;
+  const inT = clamp(k / 0.25, 0, 1), outT = clamp((k - 0.75) / 0.25, 0, 1);
+  const x = W / 2 + (1 - easeOutBack(inT)) * -W + easeOutCubic(outT) * W;
+  ctx.fillStyle = 'rgba(10,12,14,' + (0.6 * (1 - outT)) + ')'; ctx.fillRect(0, H / 2 - 62, W, 124);
+  fitTxt(b.big, x, H / 2 - 12, 56, b.color, 'center', 900, W - 20);
+  fitTxt(b.sub, x, H / 2 + 32, 15, INK, 'center', 700, W - 24);
+}
+
+// ---------- main loop ----------
+let last = performance.now();
+function frame(now) {
+  try {
+    let dt = (now - last) / 1000; last = now;
+    if (!(dt >= 0)) dt = 0; dt = Math.min(dt, 0.05);
+    if (!S.paused && !crashed) {
+      if (hitstop > 0) hitstop -= dt; else update(dt);
+    }
+    render();
+  } catch (e) { crash(e && e.message ? e.message : e); return; }
+  requestAnimationFrame(frame);
+}
+window.__ch5 = { S, L, gaugeRect, btnRect, labRect, blockGeom, curFeat }; // read-only hook for automated tests
+resize();
+showTitle();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
