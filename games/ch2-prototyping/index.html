@@ -1,0 +1,1319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Three Plates">
+<meta name="theme-color" content="#14181c">
+<title>Three Plates</title>
+<style>
+:root{
+  --bg:#14181c; --ink:#eef2f4; --muted:#93a1ab; --panel:#1d2329; --rule:#2d363e;
+  --acc:#b388ff; --red:#ff5a4e; --green:#3ddc84;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);
+  overflow:hidden;overscroll-behavior:none;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
+canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#safe{position:fixed;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px)}
+.hudbtns{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:calc(env(safe-area-inset-right,0px) + 10px);display:flex;gap:6px;z-index:5}
+.hudbtns button{width:44px;height:44px;border-radius:12px;border:1px solid var(--rule);background:rgba(29,35,41,.85);color:var(--ink);font:600 16px/1 var(--font);display:grid;place-items:center;padding:0;transition:transform .08s}
+.hudbtns button:active{transform:scale(.88)}
+#back{position:fixed;z-index:12;top:calc(env(safe-area-inset-top,0px) + 10px);left:calc(env(safe-area-inset-left,0px) + 12px);color:var(--muted);text-decoration:none;font:700 14px/1 var(--font);padding:12px 10px;border-radius:10px;background:rgba(29,35,41,.7)}
+#back:active{transform:scale(.94)}
+#ov{position:fixed;inset:0;z-index:10;display:grid;place-items:center;padding:calc(env(safe-area-inset-top,0px) + 58px) calc(env(safe-area-inset-right,0px) + 16px) calc(env(safe-area-inset-bottom,0px) + 16px) calc(env(safe-area-inset-left,0px) + 16px);background:rgba(10,13,16,.74);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);overflow-y:auto;touch-action:pan-y}
+#ov[hidden]{display:none}
+.card{width:min(460px,100%);background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:22px 20px 20px;display:grid;gap:13px;animation:pop .32s cubic-bezier(.2,1.4,.4,1) both;margin:auto}
+@keyframes pop{from{transform:scale(.86);opacity:0}to{transform:none;opacity:1}}
+.card h1{margin:0;font-size:36px;line-height:1.02;letter-spacing:-.01em;font-weight:800}
+.card h1 span{color:var(--acc)}
+.card h2{margin:0;font-size:23px;font-weight:800}
+.card p{margin:0;color:var(--muted);font-size:15px;line-height:1.45}
+.card p b{color:var(--ink);font-weight:600}
+.card a{color:var(--acc)}
+.eyebrow{font:700 11px/1.3 var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+.from{font-size:13px!important;font-style:italic}
+.preview{width:100%;height:auto;border-radius:12px;background:#161b20}
+.btn{appearance:none;border:0;border-radius:14px;padding:16px 18px;min-height:50px;font:800 17px/1 var(--font);background:var(--acc);color:#15121c;width:100%;transition:transform .08s,filter .08s}
+.btn:active{transform:scale(.96);filter:brightness(.92)}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule);font-weight:700}
+.row{display:flex;gap:10px}
+.row .btn{flex:1}
+.small{font-size:12.5px!important}
+.stamp{justify-self:center;font:900 28px/1 var(--font);letter-spacing:.06em;padding:8px 16px;border:4px solid currentColor;border-radius:8px;transform:rotate(-6deg);animation:stamp .45s cubic-bezier(.2,1.6,.4,1) .12s both}
+.stamp.pass{color:var(--green)} .stamp.fail{color:var(--red)} .stamp.warn{color:#ffb86b}
+@keyframes stamp{0%{transform:scale(2.6) rotate(-14deg);opacity:0}60%{transform:scale(.9) rotate(-5deg);opacity:1}100%{transform:scale(1) rotate(-6deg);opacity:1}}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:#161b20;border-radius:10px;padding:10px 8px;text-align:center;display:grid;gap:3px}
+.stat b{font-size:19px;font-variant-numeric:tabular-nums}
+.stat span{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lesson{border-left:3px solid var(--acc);padding:6px 0 6px 12px;font-size:14px!important;color:var(--ink)!important}
+.picks{display:grid;gap:8px}
+.pick{appearance:none;text-align:left;border:1px solid var(--rule);background:#161b20;color:var(--ink);border-radius:12px;padding:12px 14px;min-height:54px;display:grid;gap:4px;transition:transform .08s,border-color .15s;font-family:var(--font)}
+.pick:active{transform:scale(.97);border-color:var(--acc)}
+.pick b{font-size:16px}
+.pick span{font-size:13px;color:var(--muted);line-height:1.35}
+.crit{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:4px}
+.crit div{background:#1d2329;border-radius:6px;padding:5px 2px;text-align:center;font-size:9.5px;color:var(--muted);line-height:1.25}
+.crit div i{display:block;font-style:normal;color:var(--acc);font-size:11px;letter-spacing:-1px}
+.crit div.lo i{color:#ff8a80}
+.ck{display:grid;gap:3px;font-size:12.5px;line-height:1.3}
+.ck h4{margin:6px 0 2px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.ck div{display:grid;grid-template-columns:18px 1fr;gap:6px;color:#c8d2d9;animation:pop .3s ease-out both}
+.ck div.y b{color:var(--green)} .ck div.n b{color:var(--red)} .ck div.q b{color:var(--muted)}
+.lines{display:grid;gap:4px;font-size:13px}
+.lines div{display:flex;justify-content:space-between;gap:10px;color:#c8d2d9;border-bottom:1px solid #252c33;padding:3px 0}
+.lines div em{font-style:normal;font-variant-numeric:tabular-nums;font-weight:700}
+.lines .plus em{color:var(--green)} .lines .minus em{color:var(--red)}
+.blame{display:grid;gap:5px;font-size:12.5px;color:#ffb3ad;line-height:1.35}
+.blame div{background:#221a1d;border-radius:8px;padding:7px 10px}
+.blame div b{color:var(--ink)}
+.big{font:900 46px/1 var(--font);font-variant-numeric:tabular-nums;text-align:center}
+.newbest{color:var(--acc);text-align:center;font-weight:800;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.08)}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas>
+<div id="safe"></div>
+<a id="back" href="../">← Arcade</a>
+<div class="hudbtns" id="hudbtns" hidden>
+  <button id="btnMute" aria-label="Sound on or off">♪</button>
+  <button id="btnPause" aria-label="Pause">❚❚</button>
+</div>
+<div id="ov"></div>
+
+<script>
+'use strict';
+(function () {
+// ---------- utilities ----------
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('hhl.ch2.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('hhl.ch2.' + k, JSON.stringify(v)); } catch (e) {} }
+};
+const reduceMotion = (() => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) { return false; } })();
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const lerp = (a, b, t) => a + (b - a) * t;
+const rand = (a, b) => a + Math.random() * (b - a);
+const easeOutBack = t => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); };
+const easeOutCubic = t => 1 - Math.pow(1 - t, 3);
+const easeInOut = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+const FONT = '-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif';
+const ACC = '#b388ff';
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[<>&"]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]));
+const eur = k => '€' + Math.round(k).toLocaleString('en') + 'k';
+
+// ---------- crash guard ----------
+let crashed = false;
+function crash(msg) {
+  if (crashed) return; crashed = true;
+  try {
+    const ov = $('ov'); ov.hidden = false;
+    ov.innerHTML = '<div class="card"><div class="eyebrow">Bench fire</div><h2>Something went wrong</h2><p class="small">' +
+      String(msg).replace(/[<>&]/g, '') + '</p><button class="btn" onclick="location.reload()">Restart</button></div>';
+  } catch (e) {}
+}
+window.addEventListener('error', e => crash(e.message || 'Unknown error'));
+window.addEventListener('unhandledrejection', e => crash((e.reason && e.reason.message) || 'Unknown error'));
+
+// ---------- sound ----------
+const Sfx = {
+  ctx: null, master: null, noiseBuf: null, muted: store.get('muted', false),
+  unlock() {
+    try {
+      if (!this.ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+        this.ctx = new AC();
+        this.master = this.ctx.createGain(); this.master.gain.value = this.muted ? 0 : 0.5;
+        this.master.connect(this.ctx.destination);
+        const len = Math.floor(this.ctx.sampleRate * 0.6);
+        this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+        const d = this.noiseBuf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+        const s = this.ctx.createBufferSource(); s.buffer = this.ctx.createBuffer(1, 1, 22050); s.connect(this.ctx.destination); s.start(0);
+      }
+      if (this.ctx.state !== 'running') this.ctx.resume();
+    } catch (e) {}
+  },
+  setMuted(m) { this.muted = m; store.set('muted', m); try { if (this.master) this.master.gain.value = m ? 0 : 0.5; } catch (e) {} },
+  ok() { return this.ctx && !this.muted && this.ctx.state === 'running'; },
+  tone(f, dur, type, vol, slide, delay) {
+    if (!this.ok()) return;
+    try {
+      const t = this.ctx.currentTime + (delay || 0);
+      const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+      o.type = type || 'square'; o.frequency.setValueAtTime(f, t);
+      if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol || 0.15, t + 0.006);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g); g.connect(this.master); o.start(t); o.stop(t + dur + 0.03);
+    } catch (e) {}
+  },
+  noise(dur, vol, freq, delay) {
+    if (!this.ok()) return;
+    try {
+      const t = this.ctx.currentTime + (delay || 0);
+      const s = this.ctx.createBufferSource(); s.buffer = this.noiseBuf;
+      const f = this.ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = freq || 1200;
+      const g = this.ctx.createGain(); g.gain.setValueAtTime(vol || 0.2, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      s.connect(f); f.connect(g); g.connect(this.master); s.start(t); s.stop(t + dur + 0.03);
+    } catch (e) {}
+  },
+  spin(s) { this.tone(260 + s * 300, 0.14, 'triangle', 0.1, 620 + s * 600); this.noise(0.09, 0.07, 3200); },
+  waste() { this.tone(320, 0.1, 'square', 0.05, 240); },
+  retire() { [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.16, 'triangle', 0.12, null, i * 0.05)); this.noise(0.18, 0.05, 6000, 0.18); },
+  trap() { this.noise(0.4, 0.1, 2600); this.noise(0.3, 0.07, 3200, 0.12); this.tone(196, 0.45, 'sine', 0.09, 147, 0.2); },
+  miss() { this.tone(392, 0.28, 'sawtooth', 0.1, 165); },
+  stall() { this.noise(0.55, 0.4, 1400); this.tone(130, 0.45, 'sine', 0.32, 45); this.tone(1700, 0.22, 'triangle', 0.07, 600, 0.04); },
+  warn() { this.tone(880, 0.06, 'square', 0.05); this.tone(660, 0.08, 'square', 0.05, null, 0.08); },
+  clashOk() { this.tone(587, 0.12, 'triangle', 0.11); this.tone(880, 0.2, 'triangle', 0.11, null, 0.08); },
+  clashBad() { this.tone(110, 0.4, 'sawtooth', 0.13, 70); this.noise(0.2, 0.1, 500); },
+  rip() { this.noise(0.14, 0.22, 5200); this.tone(520, 0.07, 'square', 0.05, 220); },
+  build() { [392, 523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.24, 'square', 0.09, null, i * 0.09)); this.noise(0.5, 0.07, 6000, 0.45); },
+  valid() { this.tone(784, 0.12, 'triangle', 0.12); this.tone(1175, 0.22, 'triangle', 0.12, null, 0.1); },
+  alarm() { for (let i = 0; i < 3; i++) this.tone(740, 0.12, 'square', 0.09, 520, i * 0.18); },
+  click() { this.tone(900, 0.04, 'square', 0.05); },
+  phase() { this.tone(330, 0.18, 'square', 0.1); this.tone(494, 0.3, 'square', 0.1, null, 0.16); },
+  gate() { [392, 523, 659].forEach((f, i) => this.tone(f, 0.25, 'triangle', 0.12, null, i * 0.1)); },
+  win() { [523, 659, 784, 1047, 1319].forEach((f, i) => this.tone(f, 0.3, 'triangle', 0.12, null, i * 0.1)); },
+  over() { [392, 330, 262, 196].forEach((f, i) => this.tone(f, 0.3, 'square', 0.1, null, i * 0.16)); },
+  tick() { this.tone(1200, 0.03, 'square', 0.04); }
+};
+
+// ---------- canvas + layout ----------
+const cvs = $('game'), ctx = cvs.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+const SAFE = { t: 0, r: 0, b: 0, l: 0 };
+const L = {};
+function readSafe() {
+  try {
+    const cs = getComputedStyle($('safe'));
+    SAFE.t = parseFloat(cs.paddingTop) || 0; SAFE.r = parseFloat(cs.paddingRight) || 0;
+    SAFE.b = parseFloat(cs.paddingBottom) || 0; SAFE.l = parseFloat(cs.paddingLeft) || 0;
+  } catch (e) {}
+}
+function resize() {
+  readSafe();
+  const vv = window.visualViewport;
+  W = Math.round(vv ? vv.width : window.innerWidth); H = Math.round(vv ? vv.height : window.innerHeight);
+  if (W < 10 || H < 10) { W = window.innerWidth; H = window.innerHeight; }
+  DPR = Math.min(window.devicePixelRatio || 1, 2.5);
+  cvs.width = Math.round(W * DPR); cvs.height = Math.round(H * DPR);
+  L.hudTop = SAFE.t + 8; L.hudH = 56;
+  L.ganttY = L.hudTop + L.hudH; L.ganttH = 12;
+  L.regY = L.ganttY + L.ganttH + 10; L.regH = 24;
+  L.btnH = clamp(H * 0.068, 46, 58);
+  L.btnY = H - SAFE.b - 10 - L.btnH;
+  L.barsH = 44; L.barsY = L.btnY - 8 - L.barsH;
+  L.floorY = L.barsY - 6;
+  L.areaTop = L.regY + L.regH + 8;
+  const usableW = Math.min(W - SAFE.l - SAFE.r - 16, 620);
+  L.left = (W - usableW) / 2;
+  L.colW = usableW / 3;
+  const avail = Math.max(80, L.floorY - L.areaTop);
+  L.plateR = clamp(Math.min(L.colW * 0.42, avail * 0.16), 26, 62);
+  L.plateY = L.areaTop + avail * 0.56;
+  L.pillH = clamp(avail * 0.1, 36, 46);
+  L.pillW = Math.min(L.colW - 8, 150);
+}
+let resizeTimer = 0;
+function scheduleResize() { resize(); clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 250); }
+window.addEventListener('resize', scheduleResize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 300));
+if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleResize);
+
+// ---------- book data ----------
+const SPW = 2.6;            // seconds of play per programme week
+const BURN = 9;             // team burn, €k per week
+const SPIN_COST = 1;        // €k per attention spent on a stream
+const START_BUDGET = 760;   // €k prototyping budget
+const WEEK_CAP = 52, P1_DEADLINE = 36;
+const STREAMS = [
+  { key: 'looks', name: 'Looks Like', short: 'LOOKS LIKE', col: '#ffb86b', q: 'Is the form factor right?', honest: 'Mech + mfg review', trap: 'Polish for investors',
+    trapHow: 'Polished it for investors instead of a mech and mfg review' },
+  { key: 'works', name: 'Works Like', short: 'WORKS LIKE', col: '#4fc3f7', q: 'Does the technology perform?', honest: 'Test worst case', trap: 'Test room temp',
+    trapHow: 'Tested at the comfortable centre, not at the boundaries' },
+  { key: 'feels', name: 'Feels Like', short: 'FEELS LIKE', col: '#ff80c0', q: 'Is the UX right?', honest: '5 real users', trap: 'Ask the team',
+    trapHow: 'Asked the internal team instead of representative users' }
+];
+const RISK_POOL = [
+  { s: 0, name: 'PCB may not fit the enclosure', cat: 'Manufacturing', cost: 60, item: 0 },
+  { s: 0, name: 'Assembly needs special tools', cat: 'Manufacturing', cost: 35, item: 2 },
+  { s: 0, name: 'Soft-touch finish may not mould', cat: 'Manufacturing', cost: 30, item: 3 },
+  { s: 0, name: 'Logo placement blocks a vent', cat: 'Manufacturing', cost: 25, item: 4 },
+  { s: 1, name: 'Wi-Fi range in a busy home', cat: 'Technical', cost: 45, item: 7 },
+  { s: 1, name: 'Battery at 5 °C, half charged', cat: 'Technical', cost: 55, item: 8 },
+  { s: 1, name: 'Thermal under sustained load', cat: 'Technical', cost: 50, item: 9 },
+  { s: 1, name: 'Platform goes on allocation', cat: 'Supply Chain', cost: 70, item: 7, cond: p => p.sc <= 3 },
+  { s: 1, name: 'Radio fails CE and FCC', cat: 'Regulatory', cost: 65, item: 7, cond: p => p.cert <= 3 },
+  { s: 2, name: 'Users miss the power button', cat: 'User Experience', cost: 80, item: 12 },
+  { s: 2, name: 'Onboarding loses new users', cat: 'User Experience', cost: 45, item: 11 },
+  { s: 2, name: 'Error states confuse people', cat: 'User Experience', cost: 40, item: 13 }
+];
+const PLATFORMS = [
+  { name: 'Newest AI SoC', tag: 'Fastest chip on the market. Launched last month. Thin docs.', fit: 5, sc: 2, eco: 2, up: 5, cert: 1 },
+  { name: 'Proven Wi-Fi module', tag: 'Pre-certified module, big community, a bit less headroom.', fit: 3, sc: 4, eco: 5, up: 3, cert: 5 },
+  { name: 'Last year\'s MCU', tag: 'Cheap, everywhere in stock, but a dead end for version 2.', fit: 3, sc: 5, eco: 3, up: 1, cert: 3 }
+];
+const CRIT = [['fit', 'Fit', 0.30], ['sc', 'Supply', 0.25], ['eco', 'Software', 0.20], ['up', 'Upgrade', 0.15], ['cert', 'Certs', 0.10]];
+const weighted = p => CRIT.reduce((a, c) => a + p[c[0]] * c[2], 0);
+const CLASHES = [
+  { a: 0, b: 1, name: 'PCB vs enclosure' }, { a: 0, b: 1, name: 'Heat sink vs ID' },
+  { a: 1, b: 2, name: 'Display size vs UI' }, { a: 0, b: 2, name: 'Button placement vs ID' }
+];
+const CREEP = ['NFC?', 'a camera?', 'voice control?', 'a 2nd colour?', 'an app store?', 'GPS?', 'a subscription?'];
+const CHECK = [
+  ['Form', 'Form factor fits all electronics with thermal clearance'],
+  ['Form', 'External interfaces sized and placed for the target user'],
+  ['Form', 'Assembly works without special tools or force'],
+  ['Form', 'Surface finish fits the manufacturing process'],
+  ['Form', 'Brand colour, texture and markings feasible in production'],
+  ['Function', 'All functional requirements tested'],
+  ['Function', 'Performance tested at the spec boundaries, not nominal'],
+  ['Function', 'All key risks from the register tested and recorded'],
+  ['Function', 'Battery life meets needs under realistic duty cycles'],
+  ['Function', 'Thermal within limits under worst-case conditions'],
+  ['Feel', 'User testing with representative users, not the team'],
+  ['Feel', 'All primary use cases observed'],
+  ['Feel', 'Critical usability issues addressed or have a path'],
+  ['Feel', 'Error states tested with representative users'],
+  ['Integration', 'Findings documented with severity and owners'],
+  ['Integration', 'Critical findings have resolution paths before P2'],
+  ['Integration', 'Functional definition updated after P1']
+];
+const LES = {
+  platform: 'Score all five criteria out loud: functional fit, supply chain health, software ecosystem, upgrade path, certification history. The platform that solves today\'s problem can create tomorrow\'s.',
+  def: 'Teams that skip the functional definition to move faster spend more time in prototyping, not less. Without it, every "can we just add" is an argument.',
+  streams: 'Looks Like, Works Like and Feels Like are three simultaneous investigations, not three phases. Run them in parallel and their clashes show up early, while they are still cheap.',
+  worst: 'Test the Works Like prototype at the boundaries of the operating envelope, not at its comfortable centre.',
+  users: 'Five unprimed representative users are worth more than fifty rounds of internal team feedback.',
+  looks: 'A Looks Like prototype polished for investors answers the marketing questions and leaves the engineering ones open.',
+  p1: 'P1\'s job is to find problems, not to demonstrate success. A prototype that passes a demo is not ready for DFM handoff.',
+  iter: 'The number of iterations is set by the quality of the P1 review. Confidence is not validation data.',
+  dfm: 'The most damaging thing at a DFM handoff is optimism. Hidden risks do not go away. They move into a phase where they cost more.',
+  money: 'Judge every prototype activity by its return on risk reduction. Spinning a plate that is already spinning is low-return spend.',
+  final: '"Not the discipline of building an impressive prototype. The discipline of building an honest one."'
+};
+
+// ---------- state ----------
+const S = {
+  mode: 'title', paused: false, t: 0, best: store.get('best', 0), tutorial: !store.get('tutDone', false),
+  round: 'streams', roundT: 0, roundLen: 0, introT: 0, week: 0, budget: START_BUDGET,
+  score: 0, shownScore: 0, scorePunch: 0, plat: null, platIdx: -1, def: false,
+  plates: [], risks: [], issues: [], tests: [null, null, null], clash: null, clashTimer: 0, noteTimer: 0,
+  fixGap: [0, 0, 0], alloc: false, allocWeek: 14, gantt: [], hints: [], hintSeen: {}, review: '', p2review: '', handoff: '',
+  check: null, late: false, convT: 0, stats: null, endReason: '', dieT: 0, chipFlash: {}, btnPunch: 0, final: null
+};
+function newPlate(i) { return { i, s: 0.75, prog: 0, ang: rand(0, 6), drift: 1, driftT: rand(1, 3), target: 1, fallT: 0, punch: 0, note: null, low: false, valid: false, warnT: 0 }; }
+function newStats() { return { spins: 0, wasted: 0, stalls: [0, 0, 0], retired: 0, traps: [0, 0, 0], missed: 0, clashOk: 0, clashBad: 0, crept: 0, rejected: 0, fixed: 0, fixMissed: 0, applause: 0, fixScore: 0, retireScore: 0, spend: { burn: 0, spins: 0, rework: 0, builds: 0, reviews: 0, other: 0 } }; }
+function resetRun() {
+  S.round = 'streams'; S.roundT = 0; S.week = 0; S.budget = START_BUDGET; S.score = 0; S.shownScore = 0;
+  S.plat = null; S.platIdx = -1; S.def = false; S.plates = [0, 1, 2].map(newPlate); S.risks = []; S.issues = [];
+  S.tests = [null, null, null]; S.clash = null; S.clashTimer = rand(4, 6); S.noteTimer = 6; S.fixGap = [0, 0, 0];
+  S.alloc = false; S.allocWeek = Math.round(rand(11, 16)); S.gantt = []; S.hints = []; S.review = ''; S.p2review = ''; S.handoff = '';
+  S.check = null; S.late = false; S.skippedP2 = false; S.stats = newStats(); S.endReason = ''; S.chipFlash = {}; S.final = null;
+  parts.length = 0; floats.length = 0;
+}
+function spend(k, kind) { S.budget -= k; S.stats.spend[kind] = (S.stats.spend[kind] || 0) + k; }
+function addWeeks(n) { S.week += n; spend(BURN * n, 'burn'); }
+function wk() { return Math.max(1, Math.round(S.week)); }
+
+// ---------- effects ----------
+const parts = [], floats = [];
+let shake = 0, hitstop = 0, flash = 0, flashColor = '255,90,78';
+function addShake(a) { if (!reduceMotion) shake = Math.min(18, shake + a); }
+function burst(x, y, color, n, spd, opts) {
+  opts = opts || {};
+  n = reduceMotion ? Math.ceil(n / 3) : n;
+  for (let i = 0; i < n && parts.length < 300; i++) {
+    const a = opts.up ? rand(-Math.PI * 0.9, -Math.PI * 0.1) : rand(0, Math.PI * 2), v = rand(spd * 0.35, spd);
+    parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0, max: rand(0.35, 0.8) * (opts.long ? 1.8 : 1),
+      size: rand(2, 5) * (opts.big ? 1.6 : 1), color: Array.isArray(color) ? color[(Math.random() * color.length) | 0] : color,
+      g: opts.g == null ? 520 : opts.g, rot: rand(0, 6), vr: rand(-12, 12), sq: !!opts.square });
+  }
+}
+function ring(x, y, color, r) { if (parts.length < 300) parts.push({ x, y, vx: 0, vy: 0, life: 0, max: 0.35, size: r || 26, color, ring: true, g: 0 }); }
+function floatText(x, y, text, color, size, dur) {
+  if (floats.length > 40) floats.shift();
+  floats.push({ x: clamp(x, 70, Math.max(70, W - 70)), y, text, color: color || '#fff', size: size || 20, life: 0, max: dur || 0.9 });
+}
+function hint(key, text, kind, ref) {
+  if (!S.tutorial || S.hintSeen[key]) return;
+  S.hintSeen[key] = true; if (S.hints.length < 4) S.hints.push({ key, text, kind, ref, t: 0, max: 3.4 });
+}
+
+// ---------- geometry ----------
+function colX(i) { return L.left + L.colW * (i + 0.5); }
+function pillRect(i, j) {
+  const w = L.pillW, h = L.pillH;
+  const bottom = L.plateY - L.plateR * 0.3 - L.plateR * 0.62 - 12;
+  let y1 = bottom - h, y0 = y1 - h - 6;
+  const minTop = L.areaTop + 22;
+  if (y0 < minTop) { const d = minTop - y0; y0 += d; y1 += d; }
+  return { x: colX(i) - w / 2, y: j ? y1 : y0, w, h };
+}
+function noteRect(i) { const w = Math.min(L.colW - 10, 104), h = 40; return { x: colX(i) - w / 2, y: lerp(L.plateY, L.floorY, 0.66) - h / 2, w, h }; }
+function btnRect() { const m = 12 + Math.max(SAFE.l, SAFE.r); const w = Math.min(W - 2 * m, 460); return { x: (W - w) / 2, y: L.btnY, w, h: L.btnH }; }
+function canBuild() { return S.round === 'streams' && S.plates.every(p => p.prog >= 0.6); }
+
+// ---------- risks / issues ----------
+function buildRegister() {
+  const list = RISK_POOL.filter(r => !r.cond || r.cond(S.plat));
+  S.risks = list.map((r, k) => ({ id: 'R' + String(k + 1).padStart(2, '0'), name: r.name, s: r.s, cat: r.cat, cost: r.cost, item: r.item, state: 'pending', how: '' }));
+  for (let s = 0; s < 3; s++) {
+    const rs = S.risks.filter(r => r.s === s), n = rs.length;
+    rs.forEach((r, k) => { r.th = 0.06 + 0.86 * (k + 0.5) / n; });
+  }
+}
+function addIssue(o) { o.fixed = false; o.inPill = false; S.issues.push(o); return o; }
+function hideRisk(r, how) {
+  r.state = 'hidden'; r.how = how;
+  addIssue({ name: r.id + ' ' + r.name, cost: r.cost, s: r.s, src: 'risk', known: false, how, risk: r });
+}
+
+// ---------- actions ----------
+function spinPlate(i) {
+  const p = S.plates[i], x = colX(i), y = L.plateY;
+  if (p.fallT > 0) { Sfx.click(); return; }
+  spend(SPIN_COST, 'spins'); S.stats.spins++;
+  p.punch = 1;
+  if (p.s > 0.85) {
+    S.stats.wasted++; p.s = Math.min(1, p.s + 0.04);
+    floatText(x, y - L.plateR * 0.9, 'Low-return spend', '#93a1ab', 12, 0.8);
+    Sfx.waste(); hint('waste', 'Already spinning. That € bought nothing', 'plate', i);
+    return;
+  }
+  p.s = Math.min(1, p.s + 0.36);
+  burst(x, y, [STREAMS[i].col, '#ffffff'], 9, 260, { g: 300 });
+  ring(x, y, STREAMS[i].col, L.plateR * 0.9);
+  floatText(x + L.plateR * 0.6, y + 6, '−€1k', '#7f8c96', 11, 0.5);
+  Sfx.spin(p.s);
+}
+function stall(i) {
+  const p = S.plates[i], x = colX(i);
+  p.fallT = 1.3; p.s = 0; S.stats.stalls[i]++;
+  spend(8, 'rework');
+  const lost = S.round === 'streams' ? Math.min(p.prog, 0.12) : 0;
+  p.prog -= lost; if (p.prog < 1) p.valid = false;
+  addShake(12); hitstop = Math.max(hitstop, 0.1); flash = Math.max(flash, 0.4); flashColor = '255,90,78';
+  floatText(x, L.plateY - L.plateR - 20, 'STREAM STALLED', '#ff5a4e', 18, 1.3);
+  floatText(x, L.plateY - L.plateR + 2, 'Rework −€8k' + (lost > 0.01 ? ', −' + Math.round(lost * 100) + '%' : ''), '#ffb3ad', 12, 1.3);
+  Sfx.stall();
+}
+function pickPill(i, j) {
+  const t = S.tests[i]; if (!t) return;
+  const r = pillRect(i, j), cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+  if (t.fix) {
+    if (j !== 1) return;
+    const is = t.issue; is.fixed = true; is.inPill = false; is.fixedIn = S.round;
+    const pts = Math.round(is.cost * (S.round === 'P2' ? 0.45 : 0.3)); // later is worth less: every iteration adds time and cost
+    S.score += pts; S.scorePunch = 1; S.stats.fixed++; S.stats.fixScore += pts;
+    burst(cx, cy, [ACC, '#ffffff', STREAMS[i].col], 22, 360, { up: true, square: true });
+    floatText(cx, cy - 26, '+' + pts + ' FIXED', ACC, 20, 1); hitstop = Math.max(hitstop, 0.05); addShake(3);
+    Sfx.retire(); S.tests[i] = null; S.fixGap[i] = rand(0.6, 1.4);
+    return;
+  }
+  const risk = t.risk;
+  if (j === t.order) {
+    risk.state = 'retired'; S.score += risk.cost; S.scorePunch = 1; S.stats.retired++; S.stats.retireScore += risk.cost;
+    burst(cx, cy, [ACC, '#ffffff', STREAMS[i].col], 26, 380, { up: true, square: true, big: true });
+    ring(cx, cy, ACC, r.w * 0.5);
+    floatText(cx, cy - 30, '+' + risk.cost + ' RISK RETIRED', ACC, 19, 1.1);
+    hitstop = Math.max(hitstop, 0.07); addShake(4); Sfx.retire();
+    S.chipFlash[risk.id] = 1;
+  } else {
+    hideRisk(risk, STREAMS[i].trapHow + ' (week ' + wk() + ')');
+    S.score += 5; S.stats.applause += 5; S.scorePunch = 0.6; S.stats.traps[i]++;
+    burst(cx, cy, ['#93a1ab', '#c8d2d9'], 10, 200, { up: true });
+    floatText(cx, cy - 28, '+5 Applause', '#c8d2d9', 16, 1);
+    floatText(cx, cy - 8, 'Risk still unknown', '#7f8c96', 11, 1.1);
+    Sfx.trap(); S.chipFlash[risk.id] = 1;
+  }
+  S.tests[i] = null;
+}
+function ripNote(i) {
+  const p = S.plates[i], n = p.note; if (!n) return;
+  const r = noteRect(i);
+  p.note = null; S.stats.rejected++;
+  burst(r.x + r.w / 2, r.y + r.h / 2, ['#ffe36e', '#fff6b0'], 14, 300, { square: true });
+  floatText(r.x + r.w / 2, r.y - 8, 'OUT OF SCOPE', '#ffe36e', 15, 0.9);
+  addShake(2); Sfx.rip();
+}
+
+// ---------- input ----------
+function inRect(x, y, r, pad) { pad = pad || 0; return x >= r.x - pad && x <= r.x + r.w + pad && y >= r.y - pad && y <= r.y + r.h + pad; }
+function onPointer(e) {
+  Sfx.unlock();
+  if (crashed || S.paused) return;
+  if (!(S.mode === 'play' || S.mode === 'intro')) return;
+  e.preventDefault();
+  if (S.mode !== 'play') return;
+  const rc = cvs.getBoundingClientRect();
+  const x = e.clientX - rc.left, y = e.clientY - rc.top;
+  // bottom button
+  const b = btnRect();
+  if (inRect(x, y, b, 4)) {
+    S.btnPunch = 1;
+    if (S.round === 'streams') { if (canBuild()) buildP1(false); else { Sfx.click(); floatText(W / 2, b.y - 14, 'Every stream needs 60% first', '#93a1ab', 13, 1); } }
+    else endRound();
+    return;
+  }
+  // pills
+  for (let i = 0; i < 3; i++) {
+    if (!S.tests[i]) continue;
+    for (let j = 0; j < 2; j++) {
+      if (S.tests[i].fix && j === 0) continue;
+      if (inRect(x, y, pillRect(i, j), 3)) { pickPill(i, j); return; }
+    }
+  }
+  // scope creep notes
+  for (let i = 0; i < 3; i++) if (S.plates[i].note && inRect(x, y, noteRect(i), 6)) { ripNote(i); return; }
+  // plate columns
+  if (y >= L.areaTop && y <= L.barsY + L.barsH) {
+    for (let i = 0; i < 3; i++) {
+      if (Math.abs(x - colX(i)) <= L.colW / 2) { spinPlate(i); return; }
+    }
+  }
+  ring(x, y, 'rgba(255,255,255,.5)', 16);
+}
+cvs.addEventListener('pointerdown', onPointer, { passive: false });
+document.addEventListener('touchstart', () => Sfx.unlock(), { passive: true, capture: true });
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('dblclick', e => e.preventDefault());
+
+// ---------- flow ----------
+function ganttPush(label, col) {
+  const g = S.gantt[S.gantt.length - 1]; if (g) g.to = S.week;
+  if (S.gantt.length < 14) S.gantt.push({ from: S.week, to: S.week, label, col });
+}
+function startRun() {
+  resetRun(); S.mode = 'platform'; $('back').hidden = true; $('hudbtns').hidden = true; showPlatform();
+}
+function startStreams() {
+  buildRegister();
+  S.round = 'streams'; S.roundT = 0; S.mode = 'intro'; S.introT = 0;
+  ganttPush('Streams', ACC);
+  hideOverlay(); $('hudbtns').hidden = false; Sfx.phase();
+}
+function startRound(r) {
+  S.round = r; S.roundT = 0; S.roundLen = (r === 'P2' ? 10 : 6) * SPW;
+  spend(r === 'P2' ? 25 : 20, 'builds');
+  S.tests = [null, null, null]; S.fixGap = [0.6, 1.4, 2.2];
+  S.issues.forEach(is => { is.inPill = false; });
+  S.plates.forEach(p => { p.s = Math.max(p.s, 0.75); p.fallT = 0; p.note = null; });
+  S.clash = null; S.noteTimer = S.def ? rand(10, 14) : rand(5, 7);
+  S.mode = 'intro'; S.introT = 0; ganttPush(r, r === 'P2' ? '#9c7be0' : '#7f63c0');
+  hideOverlay(); $('hudbtns').hidden = false; Sfx.phase();
+  if (checkBroke()) return;
+}
+function buildP1(forced) {
+  S.mode = 'converge'; S.convT = 0; S.p1forced = forced;
+  S.tests.forEach((t, i) => { if (t && t.risk) t.risk.state = 'pending'; S.tests[i] = null; });
+  if (S.clash) { embedClash(S.clash); S.clash = null; }
+  S.plates.forEach(p => { p.note = null; });
+  Sfx.build(); flash = 0.3; flashColor = '179,136,255';
+  if (forced) floatText(W / 2, L.areaTop + 30, 'WEEK ' + P1_DEADLINE + ': BOARD WANTS P1 NOW', '#ffb86b', 15, 1.6);
+}
+function computeP1() {
+  ganttPush('P1', '#ffffff'); spend(40, 'builds'); addWeeks(2);
+  S.risks.forEach(r => { if (r.state === 'pending' || r.state === 'active') hideRisk(r, 'Never tested before P1 was built (stream at ' + Math.round(S.plates[r.s].prog * 100) + '%)'); });
+  S.plates.forEach((p, i) => {
+    if (p.prog < 0.995) addIssue({ name: STREAMS[i].name + ' stream unfinished (' + Math.round(p.prog * 100) + '%)', cost: Math.round(20 + 50 * (1 - p.prog)), s: i, src: 'immature', known: true, how: 'P1 built before the ' + STREAMS[i].name + ' stream was finished' });
+  });
+  if (!S.def) addIssue({ name: 'No functional definition to test against', cost: 50, s: 1, src: 'nodef', known: true, how: 'Skipped the functional definition in week 0' });
+  S.issues.forEach(is => { if (is.src === 'clash') is.known = true; });
+  const riskOk = k => S.risks.filter(r => r.item === k).every(r => r.state === 'retired');
+  const emb = (a, b) => S.issues.some(is => is.src === 'clash' && ((is.a === a && is.b === b)));
+  const c = [];
+  c[0] = riskOk(0) && !emb(0, 1) && S.plates[0].prog >= 0.995;
+  c[1] = !emb(0, 2) && !emb(1, 2);
+  c[2] = riskOk(2); c[3] = riskOk(3); c[4] = riskOk(4);
+  c[5] = S.def && S.plates[1].prog >= 0.995;
+  c[6] = S.stats.traps[1] === 0 && S.risks.filter(r => r.s === 1).every(r => r.state !== 'hidden' || !/Never/.test(r.how));
+  c[7] = S.risks.filter(r => r.s === 1).every(r => r.state === 'retired');
+  c[8] = riskOk(8); c[9] = riskOk(9);
+  c[10] = S.stats.traps[2] === 0;
+  c[11] = S.plates[2].prog >= 0.995 && riskOk(11);
+  c[12] = riskOk(12); c[13] = riskOk(13);
+  S.check = c;
+}
+function reviewChoice(kind) {
+  S.review = kind; ganttPush('Review', '#5d6a74');
+  if (kind === 'full') { addWeeks(3); spend(15, 'reviews'); S.issues.forEach(is => { is.known = true; }); }
+  else { addWeeks(1); spend(3, 'reviews'); }
+  if (checkBroke()) return;
+  if (S.week >= WEEK_CAP) { S.late = true; showHandoff(); return; }
+  if (kind === 'full' && !S.issues.some(is => !is.fixed)) { S.skippedP2 = true; showHandoff(); return; } // honest P1 with nothing left: straight to DFM
+  startRound('P2');
+}
+function endRound() {
+  S.tests.forEach((t, i) => { if (t && t.issue) t.issue.inPill = false; S.tests[i] = null; });
+  ganttPush('Review', '#5d6a74');
+  if (S.round === 'P2') { S.mode = 'p2review'; Sfx.gate(); finishTutorial(); showP2Review(); }
+  else showHandoff();
+}
+function p2Choice(kind) {
+  S.p2review = kind;
+  if (kind === 'formal') {
+    addWeeks(2); spend(8, 'reviews');
+    const hidden = S.issues.filter(is => !is.known && !is.fixed);
+    hidden.forEach(is => { is.known = true; is.foundP2 = true; });
+    S.revealedP2 = hidden.length;
+    if (checkBroke()) return;
+    const open = S.issues.filter(is => is.known && !is.fixed).length;
+    if (open > 0 && S.week < WEEK_CAP) { startRound('P3'); return; }
+  }
+  if (checkBroke()) return;
+  showHandoff();
+}
+function showHandoff() {
+  S.mode = 'handoff'; $('hudbtns').hidden = true; Sfx.gate(); finishTutorial();
+  if (S.week >= WEEK_CAP) S.late = true;
+  const g = S.gantt[S.gantt.length - 1]; if (g) g.to = S.week;
+  // anything still untested in the register is hidden
+  S.risks.forEach(r => { if (r.state === 'pending' || r.state === 'active') hideRisk(r, 'Never tested: prototyping ran out of time'); });
+  renderHandoff();
+}
+function handoffChoice(kind) {
+  S.handoff = kind; addWeeks(1);
+  if (kind === 'highlights') { S.score += 40; S.stats.applause += 40; }
+  finish();
+}
+function finishTutorial() { if (S.tutorial) { S.tutorial = false; store.set('tutDone', true); } }
+function checkBroke() {
+  if (S.budget <= 0) { S.budget = 0; S.endReason = 'cash'; gameOver(); return true; }
+  return false;
+}
+function finish() {
+  const st = S.stats, F = { lines: [] };
+  const known = S.issues.filter(is => is.known && !is.fixed), hidden = S.issues.filter(is => !is.known && !is.fixed);
+  const kMul = S.handoff === 'everything' ? 0.5 : 3;
+  const pKnown = known.reduce((a, is) => a + is.cost * kMul, 0), pHidden = hidden.reduce((a, is) => a + is.cost * 3, 0);
+  const bBudget = Math.max(0, S.budget) * 0.2, bWeeks = Math.max(0, WEEK_CAP - S.week) * 4, bUp = S.plat.up * 10;
+  F.lines.push(['Risks retired at prototype cost', st.retireScore, 1]);
+  if (st.fixScore) F.lines.push(['Findings fixed in P2 and P3', st.fixScore, 1]);
+  if (st.applause) F.lines.push(['Demo applause', st.applause, 1]);
+  if (st.clashOk) F.lines.push(['Clashes found early', st.clashOk * 20, 1]);
+  F.lines.push(['Budget left (' + eur(S.budget) + ')', Math.round(bBudget), 1]);
+  if (bWeeks) F.lines.push(['Weeks under 52', Math.round(bWeeks), 1]);
+  F.lines.push(['Upgrade path of ' + S.plat.name, bUp, 1]);
+  if (known.length) F.lines.push([known.length + ' open issue' + (known.length > 1 ? 's' : '') + (S.handoff === 'everything' ? ', planned into EVT' : ', hidden by optimism'), -Math.round(pKnown), 0]);
+  if (hidden.length) F.lines.push([hidden.length + ' unknown risk' + (hidden.length > 1 ? 's' : '') + ', found at DVT or by customers', -Math.round(pHidden), 0]);
+  F.score = Math.max(0, Math.round(S.score + bBudget + bWeeks + bUp - pKnown - pHidden));
+  F.known = known; F.hidden = hidden;
+  S.final = F; S.mode = 'results';
+  const newBest = F.score > S.best; if (newBest) { S.best = F.score; store.set('best', S.best); }
+  Sfx.win(); showResults(newBest);
+  if (newBest) setTimeout(() => burst(W / 2, H * 0.3, [ACC, '#ffb86b', '#4fc3f7', '#ff80c0', '#ffffff'], 80, 600, { up: true, long: true, square: true, big: true }), 350);
+}
+function gameOver() {
+  S.mode = 'over'; Sfx.over(); finishTutorial();
+  const sc = Math.round(S.score);
+  const newBest = sc > S.best; if (newBest) { S.best = sc; store.set('best', S.best); }
+  showOver(newBest);
+}
+function pause() { if (S.paused || !(S.mode === 'play' || S.mode === 'intro' || S.mode === 'converge')) return; S.paused = true; showPause(); }
+function resume() { S.paused = false; hideOverlay(); last = performance.now(); }
+document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+window.addEventListener('pagehide', pause);
+
+// ---------- overlays ----------
+const ov = $('ov');
+function hideOverlay() { ov.hidden = true; ov.innerHTML = ''; }
+function show(html) { ov.innerHTML = html; ov.hidden = false; ov.scrollTop = 0; }
+const READ = '<p class="small" style="text-align:center"><a href="https://thehardesthardwarelessons.com" target="_blank" rel="noopener">Read the full chapter: thehardesthardwarelessons.com</a></p>';
+function previewCanvas() {
+  const c = document.createElement('canvas'); const w = 300, h = 120, d = 2;
+  c.width = w * d; c.height = h * d; c.className = 'preview';
+  const x = c.getContext('2d'); x.scale(d, d);
+  for (let i = 0; i < 3; i++) {
+    const cx = 50 + i * 100;
+    x.strokeStyle = '#59646e'; x.lineWidth = 3; x.beginPath(); x.moveTo(cx, 62); x.lineTo(cx, 112); x.stroke();
+    drawPlate(x, cx, 60, 34, i, i * 1.3, (i - 1) * 0.08, 0, 1);
+  }
+  return c;
+}
+function showTitle() {
+  S.mode = 'title'; $('hudbtns').hidden = true; $('back').hidden = false;
+  show('<div class="card"><div class="eyebrow">Chapter 2 · Prototyping: Proving the Concept</div>' +
+    '<h1>Three <span>Plates</span></h1>' +
+    '<p class="from">From <i>The Hardest Hardware Lessons</i></p>' +
+    '<div id="pv"></div>' +
+    '<p>Keep the <b>Looks Like</b>, <b>Works Like</b> and <b>Feels Like</b> prototypes spinning at the same time. <b>Tap a plate</b> to put attention on it. Neglect one and it stalls.</p>' +
+    '<p class="small">Risks from the register pop up for testing. Pick the honest test, not the flattering one. Converge into P1, review it properly and hand a clean design to DFM before week 52 or the money runs out.</p>' +
+    '<button class="btn" data-a="start">Start prototyping</button>' +
+    '<p class="small" style="text-align:center">Best ' + S.best + ' · Sound on? Check the silent switch.</p></div>');
+  try { $('pv').appendChild(previewCanvas()); } catch (e) {}
+}
+function dots(n) { return '●'.repeat(n) + '○'.repeat(5 - n); }
+function showPlatform() {
+  show('<div class="card"><div class="eyebrow">Week 0 · The hardware platform decision</div>' +
+    '<h2>Pick your platform</h2>' +
+    '<p class="small">The first big technical commitment, and very expensive to change later. Here is the scorecard.</p>' +
+    '<div class="picks">' + PLATFORMS.map((p, i) => '<button class="pick" data-a="plat" data-id="' + i + '"><b>' + esc(p.name) + '</b><span>' + esc(p.tag) + '</span>' +
+      '<div class="crit">' + CRIT.map(c => '<div class="' + (p[c[0]] <= 2 ? 'lo' : '') + '"><i>' + dots(p[c[0]]) + '</i>' + c[1] + ' ' + Math.round(c[2] * 100) + '%</div>').join('') + '</div>' +
+      '<span>Weighted total <b style="color:#eef2f4">' + weighted(p).toFixed(2) + '</b></span></button>').join('') + '</div>' +
+    '<p class="lesson">' + LES.platform + '</p></div>');
+}
+function showDef() {
+  S.mode = 'definition';
+  show('<div class="card"><div class="eyebrow">Before the streams start</div><h2>The functional definition</h2>' +
+    '<p>What the product does, how well, within which constraints and for which use cases. It feels premature. Write it anyway?</p>' +
+    '<div class="picks">' +
+    '<button class="pick" data-a="def" data-id="yes"><b>Write it down</b><span>2 weeks, €15k. A shared reference. Scope creep is rarer and easy to refuse.</span></button>' +
+    '<button class="pick" data-a="def" data-id="no"><b>Skip it, start building</b><span>Save two weeks. Everyone works from their own assumptions.</span></button>' +
+    '</div><p class="lesson">' + LES.def + '</p></div>');
+}
+function showP1Review() {
+  S.mode = 'p1review'; $('hudbtns').hidden = true; Sfx.gate();
+  const c = S.check; let pass = 0, html = '', sec = '';
+  for (let k = 0; k < CHECK.length; k++) {
+    if (CHECK[k][0] !== sec) { sec = CHECK[k][0]; html += '<h4>' + sec + '</h4>'; }
+    const v = k < 14 ? c[k] : null; if (v) pass++;
+    html += '<div class="' + (v === null ? 'q' : v ? 'y' : 'n') + '" style="animation-delay:' + (k * 0.03) + 's"><b>' + (v === null ? '?' : v ? '✓' : '✗') + '</b><span>' + CHECK[k][1] + '</span></div>';
+  }
+  const known = S.issues.filter(is => is.known).length;
+  show('<div class="card"><div class="eyebrow">Week ' + wk() + ' · P1, the first integrated prototype</div>' +
+    '<h2>P1 review checklist</h2>' +
+    '<div class="stats"><div class="stat"><b>' + pass + '/14</b><span>Checks pass</span></div><div class="stat"><b>' + S.stats.retired + '/' + S.risks.length + '</b><span>Risks retired</span></div><div class="stat"><b>' + known + '</b><span>Obvious findings</span></div></div>' +
+    '<div class="ck">' + html + '</div>' +
+    '<p class="lesson">' + LES.p1 + '</p>' +
+    '<p class="small">How do you review P1?</p><div class="picks">' +
+    '<button class="pick" data-a="review" data-id="full"><b>Full review, all teams together</b><span>3 weeks, €15k. Every finding logged with a severity and an owner.</span></button>' +
+    '<button class="pick" data-a="review" data-id="demo"><b>Demo it, it works!</b><span>1 week, €3k. Only the obvious problems get written down.</span></button>' +
+    '</div></div>');
+}
+function showP2Review() {
+  $('hudbtns').hidden = true;
+  const fixed = S.issues.filter(is => is.fixed).length, open = S.issues.filter(is => is.known && !is.fixed).length;
+  show('<div class="card"><div class="eyebrow">Week ' + wk() + ' · P2 built</div><h2>P2 review</h2>' +
+    '<div class="stats"><div class="stat"><b>' + fixed + '</b><span>Fixed</span></div><div class="stat"><b>' + open + '</b><span>Known open</span></div><div class="stat"><b>' + eur(S.budget) + '</b><span>Budget left</span></div></div>' +
+    '<p>The team feels confident. Run P2 through the same formal review as P1?</p>' +
+    '<div class="picks">' +
+    '<button class="pick" data-a="p2" data-id="formal"><b>Formal review against the definition</b><span>2 weeks, €8k. Anything it finds goes into a P3.</span></button>' +
+    '<button class="pick" data-a="p2" data-id="quick"><b>Quick check, we fixed P1\'s list</b><span>No time lost. Straight to the DFM handoff.</span></button>' +
+    '</div><p class="lesson">' + LES.iter + '</p></div>');
+}
+function renderHandoff() {
+  const known = S.issues.filter(is => is.known && !is.fixed);
+  show('<div class="card"><div class="eyebrow">Week ' + wk() + ' · The DFM handoff' + (S.late ? ' · out of time' : '') + '</div>' +
+    (S.late ? '<div class="stamp warn">WEEK 52</div>' : '') + (S.skippedP2 ? '<div class="stamp pass">P1 WAS HONEST</div><p class="small">A thorough P1 review found nothing left to fix, so you skip P2 entirely. That is what honest prototyping buys.</p>' : '') +
+    '<h2>Hand it over</h2>' +
+    '<p class="small">Three things transfer: design files released to a defined revision, the knowledge of why the design is the way it is, and the open issues log.</p>' +
+    '<div class="blame">' + (known.length ? known.map(is => '<div><b>' + esc(is.name) + '</b><br>Cost if unresolved: ' + eur(is.cost) + '</div>').join('') : '<div style="background:#1a2420;color:#9be3b3"><b>Open issues log: empty.</b> Nothing you know of is unresolved.</div>') + '</div>' +
+    '<div class="picks">' +
+    '<button class="pick" data-a="handoff" data-id="everything"><b>Walk DFM through the whole log</b><span>EVT gets planned around the real risks.</span></button>' +
+    '<button class="pick" data-a="handoff" data-id="highlights"><b>Present the highlights</b><span>Make a strong impression. The room loves it.</span></button>' +
+    '</div></div>');
+}
+function pickLesson() {
+  const st = S.stats;
+  if (S.handoff === 'highlights' && S.final.known.length) return LES.dfm;
+  if (st.traps[1]) return LES.worst;
+  if (st.traps[2]) return LES.users;
+  if (st.traps[0]) return LES.looks;
+  if (S.review === 'demo') return LES.p1;
+  if (S.p2review === 'quick' && S.final.hidden.length) return LES.iter;
+  if (st.clashBad >= 2) return LES.streams;
+  if (!S.def) return LES.def;
+  if (st.wasted >= 8) return LES.money;
+  return LES.streams;
+}
+function blameHtml(list) {
+  if (!list.length) return '';
+  return '<p class="small">What you carried into EVT:</p><div class="blame">' + list.slice(0, 6).map(is => '<div><b>' + esc(is.name) + '</b><br>' + esc(is.how || '') + '</div>').join('') +
+    (list.length > 6 ? '<div>…and ' + (list.length - 6) + ' more</div>' : '') + '</div>';
+}
+function showResults(newBest) {
+  const F = S.final, st = S.stats;
+  const clean = !F.known.length && !F.hidden.length;
+  show('<div class="card"><div class="eyebrow">Handed to DFM in week ' + wk() + ' · ' + esc(S.plat.name) + '</div>' +
+    '<div class="stamp ' + (clean ? 'pass' : F.hidden.length ? 'fail' : 'warn') + '">' + (clean ? 'CLEAN HANDOFF' : F.hidden.length ? 'HIDDEN RISKS' : 'HANDED OFF') + '</div>' +
+    '<div class="big">' + F.score + '</div>' + (newBest ? '<div class="newbest">New best!</div>' : '<p class="small" style="text-align:center">Best ' + S.best + '</p>') +
+    '<div class="lines">' + F.lines.map(l => '<div class="' + (l[2] ? 'plus' : 'minus') + '"><span>' + esc(l[0]) + '</span><em>' + (l[1] >= 0 ? '+' : '') + l[1] + '</em></div>').join('') + '</div>' +
+    '<div class="stats"><div class="stat"><b>' + st.retired + '/' + S.risks.length + '</b><span>Risks retired</span></div><div class="stat"><b>' + (st.stalls[0] + st.stalls[1] + st.stalls[2]) + '</b><span>Stalls</span></div><div class="stat"><b>' + st.clashOk + '/' + (st.clashOk + st.clashBad) + '</b><span>Clashes caught</span></div></div>' +
+    blameHtml(F.hidden.concat(S.handoff === 'highlights' ? F.known : [])) +
+    '<p class="lesson">' + pickLesson() + '</p><p class="lesson">' + LES.final + '</p>' +
+    '<div class="row"><button class="btn" data-a="start">Prototype again</button><button class="btn ghost" data-a="title">Menu</button></div>' + READ + '</div>');
+}
+function showOver(newBest) {
+  $('hudbtns').hidden = true;
+  const sp = S.stats.spend;
+  const rows = [['Team burn (' + wk() + ' weeks)', sp.burn], ['Attention on streams', sp.spins], ['…of which low-return spins', S.stats.wasted * SPIN_COST], ['Rework after stalls', sp.rework], ['Prototype builds', sp.builds], ['Reviews and definition', (sp.reviews || 0) + (sp.other || 0)]];
+  show('<div class="card"><div class="eyebrow">Week ' + wk() + ' · ' + (S.round === 'streams' ? 'three streams' : S.round) + '</div>' +
+    '<div class="stamp fail">OUT OF CASH</div>' +
+    '<p>The prototyping budget ran dry before DFM handoff. Here is where the money went.</p>' +
+    '<div class="lines">' + rows.map(r => '<div class="minus"><span>' + r[0] + '</span><em>' + eur(r[1]) + '</em></div>').join('') + '</div>' +
+    '<div class="big">' + Math.round(S.score) + '</div>' + (newBest ? '<div class="newbest">New best!</div>' : '<p class="small" style="text-align:center">Best ' + S.best + '</p>') +
+    '<p class="lesson">' + LES.money + '</p>' +
+    '<div class="row"><button class="btn" data-a="start">Try again</button><button class="btn ghost" data-a="title">Menu</button></div>' + READ + '</div>');
+}
+function showPause() {
+  show('<div class="card"><div class="eyebrow">Week ' + wk() + ' · bench paused</div><h2>Paused</h2>' +
+    '<p>The plates hold still for you.</p><button class="btn" data-a="resume">Resume</button>' +
+    '<button class="btn ghost" data-a="quit">Abandon the programme</button></div>');
+}
+ov.addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  Sfx.unlock(); Sfx.click();
+  const a = b.dataset.a, id = b.dataset.id;
+  if (a === 'start') startRun();
+  else if (a === 'title') showTitle();
+  else if (a === 'resume') resume();
+  else if (a === 'quit') { S.paused = false; S.endReason = 'quit'; gameOver(); }
+  else if (a === 'plat' && S.mode === 'platform') {
+    S.platIdx = +id || 0; S.plat = PLATFORMS[S.platIdx];
+    if (S.plat.sc <= 2) S.alloc = false;
+    showDef();
+  } else if (a === 'def' && S.mode === 'definition') {
+    S.def = id === 'yes';
+    if (S.def) { S.week = 0; ganttPush('Definition', '#5d6a74'); addWeeks(2); spend(15, 'other'); }
+    S.noteTimer = S.def ? rand(12, 18) : rand(4, 6);
+    startStreams();
+  } else if (a === 'review' && S.mode === 'p1review') reviewChoice(id);
+  else if (a === 'p2' && S.mode === 'p2review') p2Choice(id);
+  else if (a === 'handoff' && S.mode === 'handoff') handoffChoice(id);
+});
+$('btnPause').addEventListener('click', () => { Sfx.unlock(); Sfx.click(); pause(); });
+const muteBtn = $('btnMute');
+function paintMute() { muteBtn.textContent = Sfx.muted ? '✕' : '♪'; muteBtn.style.color = Sfx.muted ? '#93a1ab' : '#eef2f4'; }
+muteBtn.addEventListener('click', () => { Sfx.unlock(); Sfx.setMuted(!Sfx.muted); paintMute(); Sfx.click(); });
+paintMute();
+
+// ---------- update ----------
+function embedClash(c) {
+  S.stats.clashBad++;
+  addIssue({ name: 'Clash: ' + c.name, cost: 45, s: c.a, a: c.a, b: c.b, src: 'clash', known: false,
+    how: STREAMS[c.a].name + ' and ' + STREAMS[c.b].name + ' were not developed together in week ' + wk() + ', so the clash got built in' });
+}
+function update(dt) {
+  S.t += dt;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i]; p.life += dt;
+    if (p.life >= p.max) { parts.splice(i, 1); continue; }
+    p.vy += p.g * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.985; if (p.rot != null) p.rot += (p.vr || 0) * dt;
+  }
+  for (let i = floats.length - 1; i >= 0; i--) { const f = floats[i]; f.life += dt; if (f.life >= f.max) floats.splice(i, 1); }
+  shake *= Math.pow(0.0015, dt); if (shake < 0.2) shake = 0;
+  flash = Math.max(0, flash - dt * 1.6);
+  S.scorePunch = Math.max(0, S.scorePunch - dt * 4); S.btnPunch = Math.max(0, S.btnPunch - dt * 5);
+  S.shownScore += (S.score - S.shownScore) * Math.min(1, dt * 9); if (Math.abs(S.score - S.shownScore) < 0.5) S.shownScore = S.score;
+  for (const k in S.chipFlash) { S.chipFlash[k] -= dt * 2; if (S.chipFlash[k] <= 0) delete S.chipFlash[k]; }
+  if (S.hints.length && S.mode === 'play') { S.hints[0].t += dt; if (S.hints[0].t > S.hints[0].max) S.hints.shift(); }
+  for (const p of S.plates) { p.punch = Math.max(0, p.punch - dt * 4); p.ang += (1 + p.s * 12) * dt; }
+
+  if (S.mode === 'dying') { S.dieT += dt; if (S.dieT > 1.0) gameOver(); return; }
+  if (S.mode === 'converge') { S.convT += dt; if (S.convT > 1.7) { computeP1(); if (!checkBroke()) showP1Review(); } return; }
+  if (S.mode === 'intro') { S.introT += dt; if (S.introT > 1.6) { S.mode = 'play'; hint('spin', 'Tap a plate to keep it spinning', 'plate', 2); } return; }
+  if (S.mode !== 'play') return;
+
+  S.roundT += dt;
+  const prevWeek = S.week;
+  S.week += dt / SPW; spend(BURN * dt / SPW, 'burn');
+  if (Math.floor(S.week) !== Math.floor(prevWeek) && S.round !== 'streams' && S.roundLen - S.roundT < 4 * SPW) Sfx.tick();
+  const streams = S.round === 'streams';
+  for (let i = 0; i < 3; i++) {
+    const p = S.plates[i];
+    if (p.fallT > 0) { p.fallT -= dt; if (p.fallT <= 0) { p.fallT = 0; p.s = 0.6; burst(colX(i), L.plateY, [STREAMS[i].col], 10, 200, { up: true }); } continue; }
+    p.driftT -= dt; if (p.driftT <= 0) { p.driftT = rand(1.5, 3.5); p.target = rand(0.75, 1.4); }
+    p.drift += (p.target - p.drift) * Math.min(1, dt * 0.8);
+    const avg = (S.plates[0].prog + S.plates[1].prog + S.plates[2].prog) / 3;
+    let decay = 0.08 * (1 + 0.35 * (streams ? avg : 1)) * p.drift * (S.def ? 1 : 1.15);
+    if (i === 1) decay *= 1.3 - 0.08 * S.plat.eco;
+    if (p.note) decay *= 1.7;
+    if (!streams) decay *= 0.9;
+    const prev = p.s; p.s -= decay * dt;
+    if (p.s < 0.25 && prev >= 0.25) { Sfx.warn(); hint('low' + i, STREAMS[i].name + ' is wobbling! Tap it', 'plate', i); }
+    if (p.s <= 0) { stall(i); continue; }
+    if (streams && p.prog < 1 && p.s > 0.3) {
+      let rate = 0.0145 * (0.5 + p.s);
+      if (i === 1) rate *= 0.75 + 0.08 * S.plat.fit;
+      p.prog = Math.min(1, p.prog + rate * dt);
+      if (p.prog >= 1 && !p.valid) {
+        p.valid = true; Sfx.valid();
+        floatText(colX(i), L.plateY + L.plateR * 0.7, 'STREAM VALIDATED', STREAMS[i].col, 14, 1.4);
+        burst(colX(i), L.plateY, [STREAMS[i].col, '#ffffff'], 20, 320, { up: true, square: true });
+      }
+    }
+  }
+  // tests / fixes
+  for (let i = 0; i < 3; i++) {
+    const t = S.tests[i];
+    if (t) {
+      t.t += dt;
+      if (t.t >= t.max) {
+        const r = pillRect(i, 1);
+        if (t.fix) { t.issue.inPill = false; S.stats.fixMissed++; floatText(r.x + r.w / 2, r.y, 'Fix slipped', '#ffb3ad', 13, 0.9); Sfx.miss(); S.fixGap[i] = rand(1.5, 2.5); }
+        else {
+          hideRisk(t.risk, 'Never tested: the test window passed while you were busy (week ' + wk() + ')');
+          S.stats.missed++; S.chipFlash[t.risk.id] = 1;
+          floatText(r.x + r.w / 2, r.y, t.risk.id + ' UNTESTED', '#ff5a4e', 15, 1.1); addShake(4); Sfx.miss();
+        }
+        S.tests[i] = null;
+      }
+      continue;
+    }
+    if (streams) {
+      const nx = S.risks.find(r => r.s === i && r.state === 'pending' && S.plates[i].prog >= r.th);
+      if (nx) {
+        nx.state = 'active';
+        S.tests[i] = { risk: nx, t: 0, max: S.tutorial ? 9 : 7, order: Math.random() < 0.5 ? 0 : 1 };
+        hint('test', 'Risk up for test. Pick the honest test', 'pill', i);
+      }
+    } else {
+      S.fixGap[i] -= dt;
+      if (S.fixGap[i] <= 0 && S.roundLen - S.roundT > 2.5) {
+        const is = S.issues.find(x => x.known && !x.fixed && !x.inPill && x.s === i);
+        if (is) { is.inPill = true; S.tests[i] = { fix: true, issue: is, t: 0, max: 6.5, order: 1 }; hint('fix', 'Tap to fix a P1 finding', 'pillfix', i); }
+        else S.fixGap[i] = 0.5;
+      }
+    }
+  }
+  // integration clashes (only while the streams run in parallel)
+  if (streams) {
+    if (!S.clash && S.week >= 4) {
+      S.clashTimer -= dt;
+      if (S.clashTimer <= 0) { const c = CLASHES[(Math.random() * CLASHES.length) | 0]; S.clash = { a: c.a, b: c.b, name: c.name, t: 0, max: 9, res: 0, need: 2.6 }; Sfx.warn(); hint('clash', 'Clash! Keep both plates spinning', 'clash'); }
+    } else if (S.clash) {
+      const c = S.clash, pa = S.plates[c.a], pb = S.plates[c.b];
+      c.t += dt;
+      if (pa.s >= 0.5 && pb.s >= 0.5 && !pa.fallT && !pb.fallT) c.res += dt;
+      const mx = (colX(c.a) + colX(c.b)) / 2, my = lerp(L.plateY, L.floorY, 0.36);
+      if (c.res >= c.need) {
+        S.stats.clashOk++; S.score += 20; S.scorePunch = 1;
+        floatText(mx, my - 24, 'CLASH FOUND EARLY +20', '#3ddc84', 15, 1.2);
+        burst(mx, my, ['#3ddc84', '#ffffff'], 20, 300, { up: true }); Sfx.clashOk(); hitstop = Math.max(hitstop, 0.05);
+        S.clash = null; S.clashTimer = rand(7, 11);
+      } else if (c.t >= c.max) {
+        embedClash(c);
+        floatText(mx, my - 24, 'CLASH EMBEDDED', '#ff5a4e', 16, 1.3);
+        addShake(7); flash = Math.max(flash, 0.2); flashColor = '255,90,78'; Sfx.clashBad();
+        S.clash = null; S.clashTimer = rand(7, 11);
+      }
+    }
+    // supply chain allocation event for a platform with weak supply health
+    if (S.plat.sc <= 2 && !S.alloc && S.week >= S.allocWeek) {
+      S.alloc = true; spend(30, 'other'); S.plates[1].prog = Math.max(0, S.plates[1].prog - 0.2); S.plates[1].valid = S.plates[1].prog >= 1;
+      floatText(W / 2, L.areaTop + 40, 'SoC ON ALLOCATION', '#ff5a4e', 22, 2); floatText(W / 2, L.areaTop + 64, 'Broker parts −€30k, Works Like −20%', '#ffb3ad', 13, 2);
+      addShake(10); flash = 0.4; flashColor = '255,90,78'; hitstop = 0.12; Sfx.alarm();
+    }
+  }
+  // scope creep
+  S.noteTimer -= dt;
+  if (S.noteTimer <= 0) {
+    S.noteTimer = S.def ? rand(14, 20) : rand(5, 8);
+    const free = [0, 1, 2].filter(i => !S.plates[i].note && !S.plates[i].fallT);
+    if (free.length) { const i = free[(Math.random() * free.length) | 0]; S.plates[i].note = { text: CREEP[(Math.random() * CREEP.length) | 0], t: 0 }; hint('note', 'Scope creep! Tap the note to refuse', 'note', i); }
+  }
+  for (let i = 0; i < 3; i++) {
+    const p = S.plates[i], n = p.note; if (!n) continue;
+    n.t += dt;
+    if (n.t >= (S.def ? 8 : 11)) {
+      p.note = null; S.stats.crept++;
+      if (streams) { p.prog = Math.max(0, p.prog - 0.08); if (p.prog < 1) p.valid = false; }
+      spend(10, 'other');
+      const r = noteRect(i); floatText(r.x + r.w / 2, r.y - 6, 'SCOPE CREPT IN −€10k', '#ffe36e', 13, 1.2); Sfx.clashBad(); addShake(4);
+    }
+  }
+  if (S.round === 'streams' && canBuild()) hint('build', 'Ready when you are: build P1', 'btn');
+
+  // end conditions
+  if (S.budget <= 0) { S.budget = 0; S.endReason = 'cash'; S.mode = 'dying'; S.dieT = 0; addShake(14); flash = 0.6; Sfx.stall(); return; }
+  if (S.week >= WEEK_CAP) { S.late = true; endRoundForced(); return; }
+  if (streams && S.week >= P1_DEADLINE) { buildP1(true); return; }
+  if (!streams && S.roundT >= S.roundLen) endRound();
+}
+function endRoundForced() {
+  S.tests.forEach((t, i) => { if (t && t.issue) t.issue.inPill = false; if (t && t.risk) t.risk.state = 'pending'; S.tests[i] = null; });
+  if (S.round === 'streams') { if (S.clash) { embedClash(S.clash); S.clash = null; } }
+  showHandoff();
+}
+
+// ---------- drawing ----------
+function rr(c, x, y, w, h, r) { r = Math.min(r, w / 2, h / 2); c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function drawGlyph(c, i, r) {
+  // the prototype balanced on each plate
+  const w = r * 0.95, h = r * 0.55;
+  if (i === 0) { // 3D-printed enclosure
+    c.fillStyle = '#c9d1d8'; rr(c, -w / 2, -h, w, h, h * 0.35); c.fill();
+    c.fillStyle = '#e8edf1'; rr(c, -w / 2, -h, w, h * 0.42, h * 0.3); c.fill();
+    c.strokeStyle = '#8f9aa3'; c.lineWidth = 1; c.beginPath(); c.moveTo(-w / 2 + 3, -h * 0.5); c.lineTo(w / 2 - 3, -h * 0.5); c.stroke();
+    c.fillStyle = '#ffb86b'; c.beginPath(); c.arc(w * 0.25, -h * 0.72, h * 0.12, 0, 7); c.fill();
+    c.strokeStyle = 'rgba(0,0,0,.18)'; for (let k = 1; k < 4; k++) { c.beginPath(); c.moveTo(-w / 2 + 2, -h + k * h * 0.22); c.lineTo(-w * 0.1, -h + k * h * 0.22); c.stroke(); }
+  } else if (i === 1) { // dev board with wires
+    c.fillStyle = '#1d6b45'; rr(c, -w / 2, -h * 0.7, w, h * 0.7, 3); c.fill();
+    c.fillStyle = '#1a1c21'; c.fillRect(-w * 0.18, -h * 0.58, w * 0.3, h * 0.42);
+    c.fillStyle = '#d6c27a'; for (let k = 0; k < 6; k++) c.fillRect(-w / 2 + 4 + k * w * 0.15, -h * 0.68, w * 0.06, h * 0.08);
+    c.strokeStyle = '#ff7043'; c.lineWidth = 2; c.beginPath(); c.moveTo(w * 0.3, -h * 0.5); c.bezierCurveTo(w * 0.6, -h * 1.4, w * 0.9, -h * 0.6, w * 0.7, -h * 0.1); c.stroke();
+    c.strokeStyle = '#4fc3f7'; c.beginPath(); c.moveTo(-w * 0.35, -h * 0.5); c.bezierCurveTo(-w * 0.6, -h * 1.3, -w * 0.9, -h * 0.7, -w * 0.62, -h * 0.05); c.stroke();
+  } else { // feels like: puck with a big button
+    c.fillStyle = '#e9e3f5'; c.beginPath(); c.ellipse(0, -h * 0.35, w * 0.48, h * 0.35, 0, 0, 7); c.fill();
+    c.fillStyle = '#d4cce8'; c.fillRect(-w * 0.48, -h * 0.35, w * 0.96, h * 0.3); c.beginPath(); c.ellipse(0, -h * 0.05, w * 0.48, h * 0.3, 0, 0, Math.PI); c.fill();
+    c.fillStyle = '#e9e3f5'; c.beginPath(); c.ellipse(0, -h * 0.35, w * 0.48, h * 0.3, 0, 0, 7); c.fill();
+    c.fillStyle = '#ff80c0'; c.beginPath(); c.ellipse(0, -h * 0.4, w * 0.2, h * 0.13, 0, 0, 7); c.fill();
+    c.strokeStyle = 'rgba(255,128,192,.6)'; c.lineWidth = 1.5; c.beginPath(); c.ellipse(0, -h * 0.4, w * 0.32, h * 0.2, 0, 0, 7); c.stroke();
+  }
+}
+function drawPlate(c, cx, cy, r, i, ang, tilt, squash, alpha) {
+  const col = STREAMS[i].col, ry = r * 0.3;
+  c.save(); c.globalAlpha = alpha == null ? 1 : alpha;
+  c.translate(cx, cy); c.rotate(tilt); c.scale(1 + squash * 0.12, 1 - squash * 0.18);
+  // shadow underside
+  c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(0, ry * 0.45, r * 0.98, ry, 0, 0, 7); c.fill();
+  c.fillStyle = col; c.beginPath(); c.ellipse(0, ry * 0.25, r, ry, 0, 0, 7); c.fill();
+  c.fillStyle = '#f4f1fa'; c.beginPath(); c.ellipse(0, 0, r, ry, 0, 0, 7); c.fill();
+  c.strokeStyle = col; c.lineWidth = Math.max(2, r * 0.07); c.beginPath(); c.ellipse(0, 0, r * 0.92, ry * 0.88, 0, 0, 7); c.stroke();
+  // spin markers
+  for (let k = 0; k < 6; k++) {
+    const a = ang + k * Math.PI / 3, front = Math.sin(a);
+    c.fillStyle = front > 0 ? col : 'rgba(0,0,0,.18)';
+    c.beginPath(); c.ellipse(Math.cos(a) * r * 0.7, Math.sin(a) * ry * 0.7, r * 0.07, ry * 0.18, 0, 0, 7); c.fill();
+  }
+  drawGlyph(c, i, r);
+  c.restore();
+}
+function render() {
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = '#14181c'; ctx.fillRect(0, 0, W, H);
+  if (S.mode === 'title' || !S.plates.length || !S.plat) { drawIdle(); return; }
+  const sx = shake ? rand(-shake, shake) : 0, sy = shake ? rand(-shake, shake) : 0;
+  ctx.save(); ctx.translate(sx, sy);
+  drawBench(); drawClash(); drawPlates(); drawNotes(); drawPills(); drawBars();
+  drawParticles(); drawFloats(); drawHints();
+  ctx.restore();
+  drawHud(); drawGantt(); drawRegister(); drawButton();
+  if (flash > 0) {
+    const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.25, W / 2, H / 2, Math.max(W, H) * 0.75);
+    g.addColorStop(0, 'rgba(' + flashColor + ',0)'); g.addColorStop(1, 'rgba(' + flashColor + ',' + Math.min(0.7, flash) + ')');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  if (S.mode === 'intro') drawBanner();
+}
+function drawIdle() {
+  ctx.strokeStyle = 'rgba(179,136,255,.05)'; ctx.lineWidth = 1;
+  for (let x = (S.t * 6) % 32; x < W; x += 32) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 32) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  drawParticles();
+}
+function drawBench() {
+  // engineering grid paper + workbench
+  ctx.strokeStyle = 'rgba(179,136,255,.045)'; ctx.lineWidth = 1;
+  for (let x = L.left % 24; x < W; x += 24) { ctx.beginPath(); ctx.moveTo(x, L.areaTop); ctx.lineTo(x, L.floorY); ctx.stroke(); }
+  for (let y = L.areaTop; y < L.floorY; y += 24) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  ctx.fillStyle = '#262d34'; ctx.fillRect(0, L.floorY, W, 6);
+  ctx.fillStyle = '#1b2025'; ctx.fillRect(0, L.floorY + 6, W, L.barsH + 2);
+  // stream column tints
+  for (let i = 0; i < 3; i++) {
+    const p = S.plates[i];
+    const low = p.s < 0.25 && !p.fallT ? 0.08 + 0.06 * Math.sin(S.t * 14) : 0;
+    ctx.fillStyle = low ? 'rgba(255,90,78,' + low + ')' : 'rgba(255,255,255,.012)';
+    ctx.fillRect(colX(i) - L.colW / 2 + 3, L.areaTop, L.colW - 6, L.floorY - L.areaTop);
+  }
+}
+function plateTilt(p) { return Math.sin(S.t * (5 + p.i) + p.i) * Math.max(0, 0.42 - p.s) * 0.9; }
+function drawPlates() {
+  const conv = S.mode === 'converge' ? clamp(S.convT / 1.2, 0, 1) : 0;
+  for (let i = 0; i < 3; i++) {
+    const p = S.plates[i], x = colX(i);
+    // pole + stand
+    ctx.strokeStyle = '#59646e'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(x, L.plateY + 4); ctx.lineTo(x, L.floorY - 2); ctx.stroke(); ctx.lineCap = 'butt';
+    ctx.fillStyle = '#3a434b'; rr(ctx, x - 18, L.floorY - 6, 36, 8, 3); ctx.fill();
+    if (p.fallT > 0) {
+      const k = 1 - p.fallT / 1.3, y = lerp(L.plateY, L.floorY - 8, easeOutCubic(clamp(k * 1.6, 0, 1)));
+      if (k < 0.62) drawPlate(ctx, x + k * 30 * (i - 1 || 1), y, L.plateR, i, p.ang, k * 2.6 * (i === 2 ? -1 : 1), 0, 1 - k * 0.4);
+      else if (!p.shattered) { p.shattered = true; burst(x, L.floorY - 6, [STREAMS[i].col, '#f4f1fa', '#ffffff'], 26, 360, { up: true, square: true }); }
+      continue;
+    }
+    p.shattered = false;
+    let px = x, py = L.plateY, a = 1;
+    if (conv > 0) { const e = easeInOut(conv); px = lerp(x, W / 2, e); py = L.plateY - e * 30; a = 1 - clamp((conv - 0.85) / 0.15, 0, 1); }
+    if (p.s < 0.25) { ctx.strokeStyle = 'rgba(255,90,78,' + (0.5 + 0.5 * Math.sin(S.t * 14)) + ')'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(px, py, L.plateR * 1.2, L.plateR * 0.42, 0, 0, 7); ctx.stroke(); }
+    drawPlate(ctx, px, py, L.plateR, i, p.ang, conv ? 0 : plateTilt(p), p.punch, a);
+    if (p.valid && S.round === 'streams' && !conv) {
+      ctx.fillStyle = STREAMS[i].col; ctx.font = '900 12px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('✓', px + L.plateR + 4, py - 4);
+    }
+  }
+  if (S.mode === 'converge' && S.convT > 1.0) {
+    const k = clamp((S.convT - 1.0) / 0.7, 0, 1), s = easeOutBack(k);
+    ctx.save(); ctx.translate(W / 2, L.plateY - 30); ctx.scale(s, s);
+    ctx.fillStyle = ACC; ctx.shadowColor = ACC; ctx.shadowBlur = 30;
+    rr(ctx, -L.plateR, -L.plateR * 0.5, L.plateR * 2, L.plateR, L.plateR * 0.3); ctx.fill(); ctx.shadowBlur = 0;
+    ctx.fillStyle = '#15121c'; ctx.font = '900 ' + Math.round(L.plateR * 0.6) + 'px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('P1', 0, 2); ctx.restore();
+    if (!S.p1burst) { S.p1burst = true; burst(W / 2, L.plateY - 30, [ACC, '#ffb86b', '#4fc3f7', '#ff80c0'], 60, 520, { square: true, long: true }); addShake(8); hitstop = 0.12; }
+  } else if (S.mode !== 'converge') S.p1burst = false;
+}
+function drawClash() {
+  const c = S.clash; if (!c) return;
+  const x0 = colX(c.a), x1 = colX(c.b), y = lerp(L.plateY, L.floorY, 0.36), k = c.res / c.need, left = 1 - c.t / c.max;
+  ctx.strokeStyle = 'rgba(255,90,78,' + (0.55 + 0.4 * Math.sin(S.t * 18)) + ')'; ctx.lineWidth = 3;
+  ctx.beginPath();
+  const n = 16;
+  for (let s = 0; s <= n; s++) {
+    const xx = lerp(x0, x1, s / n), yy = y + (s % 2 ? -7 : 7) * (s && s < n ? 1 : 0) * (1 - k * 0.8);
+    s ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy);
+  }
+  ctx.stroke();
+  const mx = (x0 + x1) / 2, w = Math.min(Math.abs(x1 - x0) - 20, 170);
+  ctx.fillStyle = '#2a1d22'; rr(ctx, mx - w / 2, y - 28, w, 24, 7); ctx.fill();
+  ctx.strokeStyle = '#ff5a4e'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.fillStyle = '#3ddc84'; rr(ctx, mx - w / 2 + 3, y - 9, Math.max(2, (w - 6) * k), 3, 1.5); ctx.fill();
+  ctx.fillStyle = '#ff8a80'; rr(ctx, mx - w / 2 + 3, y - 26, Math.max(2, (w - 6) * left), 2, 1); ctx.fill();
+  ctx.fillStyle = '#ffd7d3'; ctx.font = '800 11px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(fitText(c.name, w - 8, 11), mx, y - 17);
+}
+function fitText(t, w, size) {
+  ctx.font = '800 ' + size + 'px ' + FONT;
+  if (ctx.measureText(t).width <= w) return t;
+  while (t.length > 3 && ctx.measureText(t + '…').width > w) t = t.slice(0, -1);
+  return t + '…';
+}
+function wrap2(t, w) {
+  const words = t.split(' '); const lines = [''];
+  for (const wd of words) {
+    const cur = lines[lines.length - 1], test = cur ? cur + ' ' + wd : wd;
+    if (ctx.measureText(test).width <= w || !cur) lines[lines.length - 1] = test;
+    else if (lines.length < 2) lines.push(wd); else { lines[1] += ' ' + wd; }
+  }
+  return lines;
+}
+function drawNotes() {
+  for (let i = 0; i < 3; i++) {
+    const n = S.plates[i].note; if (!n) continue;
+    const r = noteRect(i), pop = n.t < 0.3 ? easeOutBack(n.t / 0.3) : 1, lim = S.def ? 8 : 11;
+    ctx.save(); ctx.translate(r.x + r.w / 2, r.y + r.h / 2); ctx.rotate(-0.06 + Math.sin(S.t * 3 + i) * 0.03); ctx.scale(pop, pop);
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.fillRect(-r.w / 2 + 3, -r.h / 2 + 4, r.w, r.h);
+    ctx.fillStyle = '#ffe36e'; ctx.fillRect(-r.w / 2, -r.h / 2, r.w, r.h);
+    ctx.fillStyle = 'rgba(0,0,0,.08)'; ctx.fillRect(-r.w / 2, -r.h / 2, r.w, 7);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#8a7200'; ctx.font = '700 9.5px ' + FONT; ctx.fillText('Can we just add', 0, -7);
+    const nt = fitText(n.text, r.w - 8, 12.5); ctx.fillStyle = '#4a3b00'; ctx.fillText(nt, 0, 8);
+    ctx.fillStyle = '#c0392b'; ctx.fillRect(-r.w / 2, r.h / 2 - 3, r.w * (1 - n.t / lim), 3);
+    ctx.restore();
+  }
+}
+function drawPills() {
+  for (let i = 0; i < 3; i++) {
+    const t = S.tests[i]; if (!t) continue;
+    const pop = t.t < 0.28 ? easeOutBack(t.t / 0.28) : 1, left = 1 - t.t / t.max, urgent = left < 0.3;
+    const col = STREAMS[i].col;
+    const top = pillRect(i, t.fix ? 1 : 0);
+    // label
+    ctx.fillStyle = urgent ? '#ff8a80' : '#c8d2d9'; ctx.font = '700 10px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const label = t.fix ? 'P1 finding' : t.risk.id + ' · ' + t.risk.name;
+    const lines = wrap2(label, L.colW - 6);
+    lines.forEach((ln, k) => ctx.fillText(ln, colX(i), top.y - 10 - (lines.length - 1 - k) * 12));
+    for (let j = 0; j < 2; j++) {
+      if (t.fix && j === 0) continue;
+      const r = pillRect(i, j);
+      const text = t.fix ? 'Fix: ' + t.issue.name.replace(/^R\d+ /, '') : (j === t.order ? STREAMS[i].honest : STREAMS[i].trap);
+      ctx.save(); ctx.translate(r.x + r.w / 2, r.y + r.h / 2 + (1 - pop) * 30); ctx.scale(pop, pop);
+      if (urgent) ctx.translate(Math.sin(S.t * 40) * 1.5, 0);
+      ctx.fillStyle = t.fix ? '#2a2140' : '#20262d'; rr(ctx, -r.w / 2, -r.h / 2, r.w, r.h, r.h / 2); ctx.fill();
+      ctx.strokeStyle = t.fix ? ACC : col; ctx.lineWidth = 2; ctx.stroke();
+      // timer sweep along bottom
+      ctx.fillStyle = urgent ? '#ff5a4e' : (t.fix ? ACC : col);
+      ctx.globalAlpha = 0.7; rr(ctx, -r.w / 2 + r.h * 0.4, r.h / 2 - 5, Math.max(2, (r.w - r.h * 0.8) * left), 3, 1.5); ctx.fill(); ctx.globalAlpha = 1;
+      ctx.fillStyle = '#eef2f4'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const fs = r.w < 110 ? 11 : 12.5;
+      ctx.fillText(fitText(text, r.w - 14, fs), 0, -1);
+      ctx.restore();
+    }
+  }
+}
+function drawBars() {
+  for (let i = 0; i < 3; i++) {
+    const p = S.plates[i], x = colX(i), w = L.colW - 18, x0 = x - w / 2, y = L.barsY + 4;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = STREAMS[i].col; ctx.font = '900 ' + (L.colW < 110 ? 10 : 11.5) + 'px ' + FONT;
+    ctx.fillText(STREAMS[i].short, x, y + 6);
+    // spin meter
+    ctx.fillStyle = '#2d363e'; rr(ctx, x0, y + 16, w, 6, 3); ctx.fill();
+    ctx.fillStyle = p.s < 0.25 ? '#ff5a4e' : p.s > 0.85 ? '#93a1ab' : STREAMS[i].col;
+    if (p.s > 0) { rr(ctx, x0, y + 16, Math.max(4, w * p.s), 6, 3); ctx.fill(); }
+    // progress (streams) or open findings (P2/P3)
+    if (S.round === 'streams' || S.mode === 'converge') {
+      ctx.fillStyle = '#2d363e'; rr(ctx, x0, y + 28, w, 8, 4); ctx.fill();
+      ctx.fillStyle = p.prog >= 1 ? '#3ddc84' : ACC; if (p.prog > 0) { rr(ctx, x0, y + 28, Math.max(4, w * p.prog), 8, 4); ctx.fill(); }
+      ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x0 + w * 0.6, y + 26); ctx.lineTo(x0 + w * 0.6, y + 38); ctx.stroke();
+      ctx.fillStyle = '#c8d2d9'; ctx.font = '700 9px ' + FONT; ctx.fillText(Math.floor(p.prog * 100) + '%', x, y + 32.5);
+    } else {
+      const open = S.issues.filter(is => is.known && !is.fixed && is.s === i).length;
+      ctx.fillStyle = open ? '#ffb3ad' : '#3ddc84'; ctx.font = '700 10px ' + FONT;
+      ctx.fillText(open ? open + ' open finding' + (open > 1 ? 's' : '') : 'no open findings', x, y + 32);
+    }
+  }
+}
+function drawParticles() {
+  for (const p of parts) {
+    const k = 1 - p.life / p.max;
+    if (p.ring) {
+      ctx.strokeStyle = p.color; ctx.globalAlpha = k; ctx.lineWidth = 3 * k + 1;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (1 - k * 0.6) + p.size * easeOutCubic(1 - k), 0, 7); ctx.stroke();
+      ctx.globalAlpha = 1; continue;
+    }
+    ctx.globalAlpha = Math.min(1, k * 1.6); ctx.fillStyle = p.color;
+    if (p.sq) { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.fillRect(-p.size, -p.size * 0.5, p.size * 2, p.size); ctx.restore(); }
+    else { ctx.beginPath(); ctx.arc(p.x, p.y, p.size * (0.4 + k * 0.6), 0, 7); ctx.fill(); }
+  }
+  ctx.globalAlpha = 1;
+}
+function drawFloats() {
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  for (const f of floats) {
+    const k = f.life / f.max, pop = k < 0.15 ? easeOutBack(k / 0.15) : 1;
+    ctx.globalAlpha = k > 0.7 ? (1 - k) / 0.3 : 1;
+    ctx.font = '900 ' + Math.round(f.size * (0.7 + 0.3 * pop)) + 'px ' + FONT;
+    const y = f.y - easeOutCubic(k) * 40;
+    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(10,12,14,.85)'; ctx.strokeText(f.text, f.x, y);
+    ctx.fillStyle = f.color; ctx.fillText(f.text, f.x, y);
+  }
+  ctx.globalAlpha = 1;
+}
+function bubble(x, y, text, below) {
+  ctx.font = '700 13px ' + FONT;
+  const tw = ctx.measureText(text).width, w = tw + 20, h = 28;
+  let bx = clamp(x - w / 2, 8, Math.max(8, W - w - 8)), by = below ? y + 10 : y - h - 10;
+  by += Math.sin(S.t * 6) * 3;
+  ctx.fillStyle = ACC; rr(ctx, bx, by, w, h, 8); ctx.fill();
+  ctx.beginPath(); const tx = clamp(x, bx + 12, bx + w - 12);
+  if (below) { ctx.moveTo(tx - 7, by); ctx.lineTo(tx, by - 7); ctx.lineTo(tx + 7, by); } else { ctx.moveTo(tx - 7, by + h); ctx.lineTo(tx, by + h + 7); ctx.lineTo(tx + 7, by + h); }
+  ctx.fill();
+  ctx.fillStyle = '#15121c'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(text, bx + w / 2, by + h / 2 + 1);
+}
+function drawHints() {
+  if (S.mode !== 'play') return;
+  const h = S.hints[0]; if (!h) return;
+  if (h.kind === 'plate') bubble(colX(h.ref), L.plateY + L.plateR * 0.5, h.text, true);
+  else if (h.kind === 'pill' || h.kind === 'pillfix') { const r = pillRect(h.ref, 1); bubble(colX(h.ref), r.y + r.h, h.text, true); }
+  else if (h.kind === 'note') { const r = noteRect(h.ref); bubble(r.x + r.w / 2, r.y + r.h, h.text, true); }
+  else if (h.kind === 'clash' && S.clash) bubble((colX(S.clash.a) + colX(S.clash.b)) / 2, lerp(L.plateY, L.floorY, 0.36) + 4, h.text, true);
+  else if (h.kind === 'btn') { const b = btnRect(); bubble(b.x + b.w / 2, b.y, h.text, false); }
+}
+function drawHud() {
+  const top = L.hudTop, x = SAFE.l + 12;
+  ctx.textBaseline = 'middle'; ctx.textAlign = 'left';
+  ctx.fillStyle = ACC; ctx.font = '900 11px ' + FONT; ctx.fillText(S.round === 'streams' ? 'THREE STREAMS' : S.round + ' BUILD', x, top + 9);
+  ctx.fillStyle = '#eef2f4'; ctx.font = '900 20px ' + FONT; ctx.fillText('Week ' + Math.floor(S.week), x, top + 28);
+  const low = S.budget < 120;
+  ctx.fillStyle = low ? (Math.sin(S.t * 10) > 0 ? '#ff5a4e' : '#ffb3ad') : '#93a1ab'; ctx.font = '800 13px ' + FONT;
+  ctx.fillText(eur(Math.max(0, S.budget)) + ' left', x, top + 47);
+  // score
+  const sp = 1 + S.scorePunch * 0.25, cx = W / 2 + 10;
+  ctx.save(); ctx.translate(cx, top + 22); ctx.scale(sp, sp);
+  ctx.fillStyle = '#eef2f4'; ctx.font = '900 26px ' + FONT; ctx.textAlign = 'center';
+  ctx.fillText(Math.round(S.shownScore).toLocaleString('en'), 0, 0); ctx.restore();
+  ctx.fillStyle = '#93a1ab'; ctx.font = '700 9.5px ' + FONT; ctx.textAlign = 'center';
+  ctx.fillText('RISK RETIRED €k', cx, top + 44);
+}
+function drawGantt() {
+  const x0 = SAFE.l + 12, x1 = W - SAFE.r - 12, y = L.ganttY, h = L.ganttH, ww = x1 - x0;
+  const X = w => x0 + ww * clamp(w / WEEK_CAP, 0, 1);
+  ctx.fillStyle = '#20262d'; rr(ctx, x0, y, ww, h, 4); ctx.fill();
+  // 26 to 52 week band from the book
+  ctx.fillStyle = 'rgba(179,136,255,.08)'; ctx.fillRect(X(26), y, X(52) - X(26), h);
+  for (const g of S.gantt) {
+    const to = g === S.gantt[S.gantt.length - 1] ? S.week : g.to;
+    if (to <= g.from) continue;
+    ctx.fillStyle = g.col; ctx.globalAlpha = 0.85; ctx.fillRect(X(g.from), y + 2, Math.max(1, X(to) - X(g.from)), h - 4); ctx.globalAlpha = 1;
+  }
+  ctx.fillStyle = '#7f8c96'; ctx.font = '700 8.5px ' + FONT; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  [26, 36, 52].forEach(w => { ctx.fillRect(X(w) - 0.5, y - 2, 1, h + 4); });
+  ctx.fillText('26', X(26), y + h + 2); ctx.fillText(S.round === 'streams' ? 'P1 due' : '36', X(36), y + h + 2);
+  ctx.textAlign = 'right'; ctx.fillText('52 wk', x1, y + h + 2);
+  const cx = X(S.week);
+  ctx.fillStyle = '#eef2f4'; ctx.beginPath(); ctx.moveTo(cx, y + h); ctx.lineTo(cx - 5, y + h + 7); ctx.lineTo(cx + 5, y + h + 7); ctx.fill();
+}
+function drawRegister() {
+  const list = S.round === 'streams' ? S.risks : S.issues.filter(is => is.known || is.fixed);
+  if (!list.length) return;
+  const x0 = SAFE.l + 12, x1 = W - SAFE.r - 12, y = L.regY + 4, h = L.regH - 4;
+  ctx.fillStyle = '#7f8c96'; ctx.font = '800 9px ' + FONT; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  const label = S.round === 'streams' ? 'RISK REGISTER' : 'P1 FINDINGS';
+  ctx.fillText(label, x0, y + h / 2);
+  const lx = x0 + 74, n = list.length, cw = Math.min(34, (x1 - lx) / n - 3);
+  for (let k = 0; k < n; k++) {
+    const it = list[k], cx = lx + k * (cw + 3);
+    let fill = '#20262d', stroke = '#3a434b', txt = '#7f8c96', t = S.round === 'streams' ? it.id.slice(1) : String(k + 1);
+    if (S.round === 'streams') {
+      if (it.state === 'active') { stroke = STREAMS[it.s].col; txt = '#eef2f4'; }
+      else if (it.state === 'retired') { fill = ACC; stroke = ACC; txt = '#15121c'; t = '✓'; }
+      else if (it.state === 'hidden') { fill = '#2a1d22'; stroke = '#6b3a3a'; txt = '#ff8a80'; t = '?'; }
+    } else if (it.fixed) { fill = ACC; stroke = ACC; txt = '#15121c'; t = '✓'; }
+    else { stroke = STREAMS[it.s].col; txt = '#eef2f4'; }
+    const fl = S.chipFlash[it.id] || 0;
+    ctx.save(); ctx.translate(cx + cw / 2, y + h / 2); ctx.scale(1 + fl * 0.4, 1 + fl * 0.4);
+    ctx.fillStyle = fill; rr(ctx, -cw / 2, -h / 2, cw, h, 5); ctx.fill(); ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.fillStyle = txt; ctx.font = '800 ' + (cw < 22 ? 8 : 10) + 'px ' + FONT; ctx.textAlign = 'center'; ctx.fillText(t, 0, 0.5);
+    ctx.restore();
+  }
+}
+function drawButton() {
+  const b = btnRect(), s = 1 - S.btnPunch * 0.06;
+  const streams = S.round === 'streams';
+  const on = streams ? canBuild() : true;
+  ctx.save(); ctx.translate(b.x + b.w / 2, b.y + b.h / 2); ctx.scale(s, s);
+  if (on && streams) { ctx.shadowColor = ACC; ctx.shadowBlur = 14 + Math.sin(S.t * 6) * 6; }
+  ctx.fillStyle = on ? (streams ? ACC : '#2a2140') : '#20262d'; rr(ctx, -b.w / 2, -b.h / 2, b.w, b.h, 14); ctx.fill(); ctx.shadowBlur = 0;
+  ctx.strokeStyle = on ? ACC : '#2d363e'; ctx.lineWidth = 1.5; ctx.stroke();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  if (streams) {
+    const mn = Math.min(...S.plates.map(p => p.prog));
+    ctx.fillStyle = on ? '#15121c' : '#7f8c96'; ctx.font = '900 17px ' + FONT;
+    ctx.fillText(on ? 'BUILD P1' : 'BUILD P1 at 60% each', 0, -7);
+    ctx.font = '700 10.5px ' + FONT;
+    ctx.fillText(on ? (mn >= 1 ? 'All three streams validated' : 'Unfinished streams become P1 findings') : 'Weakest stream ' + Math.floor(mn * 100) + '%', 0, 12);
+  } else {
+    const left = Math.max(0, Math.ceil((S.roundLen - S.roundT) / SPW));
+    if (!S.issues.some(is => is.known && !is.fixed)) { ctx.save(); ctx.globalAlpha = 0.35 + 0.25 * Math.sin(S.t * 6); ctx.fillStyle = ACC; rr(ctx, -b.w / 2, -b.h / 2, b.w, b.h, 14); ctx.fill(); ctx.restore(); }
+    ctx.fillStyle = '#eef2f4'; ctx.font = '900 16px ' + FONT;
+    ctx.fillText('REVIEW ' + S.round + ' NOW', 0, -7);
+    ctx.fillStyle = '#c8d2d9'; ctx.font = '700 10.5px ' + FONT;
+    ctx.fillText(left + ' week' + (left === 1 ? '' : 's') + ' of build left', 0, 12);
+    // progress of the round
+    const k = clamp(S.roundT / Math.max(1, S.roundLen), 0, 1);
+    ctx.fillStyle = ACC; rr(ctx, -b.w / 2 + 10, b.h / 2 - 6, (b.w - 20) * (1 - k), 3, 1.5); ctx.fill();
+  }
+  ctx.restore();
+}
+function drawBanner() {
+  const k = S.introT / 1.6;
+  const inT = clamp(k / 0.25, 0, 1), outT = clamp((k - 0.75) / 0.25, 0, 1);
+  const x = W / 2 + (1 - easeOutBack(inT)) * -W + easeOutCubic(outT) * W;
+  const big = S.round === 'streams' ? 'LOOKS · WORKS · FEELS' : S.round;
+  const sub = S.round === 'streams' ? 'Three streams, all at once' : S.round === 'P2' ? 'Fix every P1 finding you wrote down' : 'Fix what the P2 review found';
+  ctx.fillStyle = 'rgba(10,12,14,' + (0.6 * (1 - outT)) + ')'; ctx.fillRect(0, H / 2 - 62, W, 124);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = ACC; ctx.font = '900 ' + (S.round === 'streams' ? Math.min(34, W / 12) : 64) + 'px ' + FONT; ctx.fillText(big, x, H / 2 - 12);
+  ctx.fillStyle = '#eef2f4'; ctx.font = '700 15px ' + FONT; ctx.fillText(sub, x, H / 2 + 32);
+}
+
+// ---------- main loop ----------
+let last = performance.now();
+function frame(now) {
+  try {
+    let dt = (now - last) / 1000; last = now;
+    if (!(dt >= 0)) dt = 0; dt = Math.min(dt, 0.05);
+    if (!S.paused && !crashed) {
+      if (hitstop > 0) hitstop -= dt; else update(dt);
+    }
+    render();
+  } catch (e) { crash(e && e.message ? e.message : e); return; }
+  requestAnimationFrame(frame);
+}
+window.__hhl2 = { S, L, colX, pillRect, noteRect, btnRect, canBuild }; // read-only hook for automated tests
+resize();
+showTitle();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
