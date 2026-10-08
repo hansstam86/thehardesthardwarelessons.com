@@ -95,6 +95,6 @@
       '<div style="opacity:.85;margin-top:4px">Free: <a href="/templates/' + L[2][0] + '/" ' + A + '>' + L[2][1] + '</a> (print or PDF)</div>' +
       (up ? '<div style="margin-top:10px"><a href="../' + nx[2] + '/" style="color:#e8c547;font-weight:700">Next: Chapter ' + (ch + 1) + ', ' + nx[0] + ' →</a></div>'
           : '<div style="margin-top:10px"><a href="../leaderboard/" style="color:#e8c547;font-weight:700">See your scorecard and the leaderboard →</a></div>') +
-      '<div style="margin-top:6px;opacity:.85">Want the full chapter? <a href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" ' + A + '>Get the book</a></div></div>';
+      '<div style="margin-top:6px;opacity:.85">One lesson a week, free: <a href="/subscribe/" ' + A + '>subscribe by email</a> · <a href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" ' + A + '>Get the book</a></div></div>';
   };
 })();
