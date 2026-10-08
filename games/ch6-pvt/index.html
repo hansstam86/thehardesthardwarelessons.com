@@ -141,7 +141,7 @@ a{color:var(--acc)}
 <canvas id="fx"></canvas>
 <div id="ov"></div>
 
-<script src="../hhl.js?v=4"></script>
+<script src="../hhl.js?v=5"></script>
 <script>
 'use strict';
 (function () {
@@ -899,7 +899,7 @@ function showResults(score, nb) {
     '<p class="small">Where the money went</p><div class="why">' + why + '</div>' +
     lessonsFor().map(l => '<p class="lesson">' + esc(l) + '</p>').join('') +
     '<p class="lesson">' + esc(LES.gate) + '</p>' +
-    '<p class="small center">Read the full chapter: <a href="https://thehardesthardwarelessons.com" target="_blank" rel="noopener">thehardesthardwarelessons.com</a></p>' +
+    '' + HHL.next(6) + '' +
     '<div class="row"><button class="btn" data-a="start">Run again</button><button class="btn ghost" data-a="title">Menu</button></div></div>');
 }
 function showPause() {

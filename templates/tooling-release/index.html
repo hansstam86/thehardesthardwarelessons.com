@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tooling release checklist: free printable template · The Hardest Hardware Lessons</title>
+<meta name="description" content="The questions to answer before you cut steel. After release, a change is measured in weeks and tens of thousands of euros.">
+<meta name="author" content="Hans Stam">
+<link rel="canonical" href="https://thehardesthardwarelessons.com/templates/tooling-release/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tooling release checklist: free printable template · The Hardest Hardware Lessons">
+<meta property="og:description" content="The questions to answer before you cut steel. After release, a change is measured in weeks and tens of thousands of euros.">
+<meta property="og:url" content="https://thehardesthardwarelessons.com/templates/tooling-release/">
+<meta property="og:site_name" content="The Hardest Hardware Lessons">
+<meta name="theme-color" content="#0f0f0f">
+<link rel="stylesheet" href="/assets/learn.css">
+<style>
+.sheet { background:#fff; color:#111; border-radius:4px; padding:1.6rem 1.8rem; margin:1.5rem 0; font-family:Georgia,serif; line-height:1.5; }
+.sheet h2 { color:#111; font-size:1.25rem; margin:1.4rem 0 .5rem; border-bottom:2px solid #111; padding-bottom:.2rem; }
+.sheet h2:first-child { margin-top:0; }
+.sheet p, .sheet li { color:#222; font-size:.95rem; }
+.sheet .why { font-family:sans-serif; font-size:.82rem; color:#555; font-style:italic; }
+.sheet ul.box { list-style:none; padding:0; }
+.sheet ul.box li { display:flex; gap:.6rem; padding:.35rem 0; border-bottom:1px solid #ddd; page-break-inside:avoid; }
+.sheet ul.box li::before { content:""; flex:0 0 14px; height:14px; margin-top:.3rem; border:1.5px solid #111; border-radius:2px; }
+.sheet table { width:100%; border-collapse:collapse; font-family:sans-serif; font-size:.78rem; margin:.5rem 0; }
+.sheet th, .sheet td { border:1px solid #888; padding:.35rem .4rem; text-align:left; vertical-align:top; color:#111; }
+.sheet th { background:#eee; }
+.sheet td.blank { height:2.2rem; }
+.sheet .ex td { color:#555; font-style:italic; background:#fafafa; }
+.sheet .src { font-family:sans-serif; font-size:.72rem; color:#666; margin-top:1.2rem; border-top:1px solid #ccc; padding-top:.5rem; }
+.sheet .bad { color:#a00; } .sheet .good { color:#060; }
+.printtitle { display:none; } .tools { display:flex; gap:.6rem; flex-wrap:wrap; }
+@media print {
+  @page { size:A4; margin:14mm; }
+  body { background:#fff; } nav, .hero, .tools, .cta, footer, .noprint { display:none !important; } .printtitle { display:block !important; font-size:1.7rem; margin:0 0 .2rem; color:#111; } .printsub { display:block !important; font-family:sans-serif; font-size:.8rem; color:#555; margin:0 0 1rem; }
+  main { padding:0; max-width:none; } .sheet { margin:0; padding:0; border-radius:0; }
+}
+</style></head>
+<body>
+<nav>
+  <a class="logo" href="/">The Hardest Hardware Lessons</a>
+  <div class="nav-links">
+    <a class="nav-link" href="/games/">Games</a>
+    <a class="nav-link" href="/glossary/">Glossary</a>
+    <a class="nav-link on" href="/templates/">Templates</a>
+    <a class="nav-link" href="/slides" target="_blank">Slides</a>
+    <a class="cta-nav" href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" target="_blank" rel="noopener">Get the Book</a>
+  </div>
+</nav>
+<header class="hero"><div class="hero-inner"><div class="eyebrow">Free template</div><h1>Tooling release checklist</h1><p class="sub">The questions to answer before you cut steel. After release, a change is measured in weeks and tens of thousands of euros.</p></div></header>
+<main>
+<div class="tools"><a class="btn" href="/templates/pdf/tooling-release.pdf" download>Download PDF</a><a class="btn ghost" href="javascript:window.print()">Print this page</a><a class="btn ghost" href="/templates/">All templates</a></div>
+<div class="sheet">
+<h1 class="printtitle">Tooling release checklist</h1><p class="printsub" style="display:none">The questions to answer before you cut steel. After release, a change is measured in weeks and tens of thousands of euros.</p>
+<h2>Before you release hard tooling</h2>
+<ul class="box"><li><span><b>Thermal</b> has been simulated and then measured on real hardware under worst-case conditions.</span></li><li><span><b>Tolerances</b> in the drawings can be held by a real production process (checked with the mould maker).</span></li><li><span>The <b>assembly sequence</b> was walked through with the factory, step by step, with no manual rescue steps.</span></li><li><span>Every <b>component</b> in the design can be sourced at volume, not just for prototypes.</span></li><li><span><b>EMC</b> pre-scan has been done on hardware that matches the final layout.</span></li><li><span>Fit and function are proven on <b>production-intent</b> parts, not hand-made ones.</span></li><li><span>The design is <b>frozen</b>: changes after this point need written approval and a cost estimate.</span></li><li><span>The <b>cost of a change</b> after release is written down and signed off by the person paying.</span></li><li><span>A named person has signed: "I would stake my own budget on this release."</span></li></ul>
+<h2>Examples from the book</h2>
+<table><tr><th>What was skipped</th><th>What it cost</th></tr>
+<tr><td>Thermal was not resolved before committing to hard tooling.</td><td>A €80,000 tooling modification nobody had planned for.</td></tr>
+<tr><td>Tolerances were set too tight in CAD, which looked fine on screen.</td><td>Specialised tooling in production; about €40k of re-work found at DVT.</td></tr>
+<tr><td>Assembly sequence was not reviewed with the factory.</td><td>Manual intervention on 40% of units, invisible on a bench, a crisis at 10,000 units per week.</td></tr>
+<tr><td>Component chosen because it was available for prototypes.</td><td>Single-source risk, locked in before anyone noticed.</td></tr></table>
+<h2>Decision</h2>
+<table><tr><th>Released?</th><th>Date</th><th>Approved by</th><th>Open issues accepted (with cost of leaving them)</th></tr><tr><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr></table>
+<p class="why">Why: steel can be cut away but never put back. Releasing tooling because the schedule says so, instead of because the evidence says so, is the most expensive habit in hardware.</p>
+<p class="src">From <i>The Hardest Hardware Lessons</i> · thehardesthardwarelessons.com · Free to use and share with attribution.</p>
+</div>
+<div class="cta"><h2>Want the reasoning behind every line?</h2><p class="muted">The book explains each phase, each gate and the mistakes these checklists are built to catch.</p><a class="btn" href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" target="_blank" rel="noopener">Get the book →</a><a class="btn ghost" href="/games/">Play the games</a></div>
+</main>
+<footer><p>© 2026 Johan Philippe Stam · <a href="/">thehardesthardwarelessons.com</a></p></footer>
+</body></html>

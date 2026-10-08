@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototype risk register: free printable template · The Hardest Hardware Lessons</title>
+<meta name="description" content="List what could go wrong while it is still cheap to find out, and name the cheapest test for each.">
+<meta name="author" content="Hans Stam">
+<link rel="canonical" href="https://thehardesthardwarelessons.com/templates/risk-register/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Prototype risk register: free printable template · The Hardest Hardware Lessons">
+<meta property="og:description" content="List what could go wrong while it is still cheap to find out, and name the cheapest test for each.">
+<meta property="og:url" content="https://thehardesthardwarelessons.com/templates/risk-register/">
+<meta property="og:site_name" content="The Hardest Hardware Lessons">
+<meta name="theme-color" content="#0f0f0f">
+<link rel="stylesheet" href="/assets/learn.css">
+<style>
+.sheet { background:#fff; color:#111; border-radius:4px; padding:1.6rem 1.8rem; margin:1.5rem 0; font-family:Georgia,serif; line-height:1.5; }
+.sheet h2 { color:#111; font-size:1.25rem; margin:1.4rem 0 .5rem; border-bottom:2px solid #111; padding-bottom:.2rem; }
+.sheet h2:first-child { margin-top:0; }
+.sheet p, .sheet li { color:#222; font-size:.95rem; }
+.sheet .why { font-family:sans-serif; font-size:.82rem; color:#555; font-style:italic; }
+.sheet ul.box { list-style:none; padding:0; }
+.sheet ul.box li { display:flex; gap:.6rem; padding:.35rem 0; border-bottom:1px solid #ddd; page-break-inside:avoid; }
+.sheet ul.box li::before { content:""; flex:0 0 14px; height:14px; margin-top:.3rem; border:1.5px solid #111; border-radius:2px; }
+.sheet table { width:100%; border-collapse:collapse; font-family:sans-serif; font-size:.78rem; margin:.5rem 0; }
+.sheet th, .sheet td { border:1px solid #888; padding:.35rem .4rem; text-align:left; vertical-align:top; color:#111; }
+.sheet th { background:#eee; }
+.sheet td.blank { height:2.2rem; }
+.sheet .ex td { color:#555; font-style:italic; background:#fafafa; }
+.sheet .src { font-family:sans-serif; font-size:.72rem; color:#666; margin-top:1.2rem; border-top:1px solid #ccc; padding-top:.5rem; }
+.sheet .bad { color:#a00; } .sheet .good { color:#060; }
+.printtitle { display:none; } .tools { display:flex; gap:.6rem; flex-wrap:wrap; }
+@media print {
+  @page { size:A4; margin:14mm; }
+  body { background:#fff; } nav, .hero, .tools, .cta, footer, .noprint { display:none !important; } .printtitle { display:block !important; font-size:1.7rem; margin:0 0 .2rem; color:#111; } .printsub { display:block !important; font-family:sans-serif; font-size:.8rem; color:#555; margin:0 0 1rem; }
+  main { padding:0; max-width:none; } .sheet { margin:0; padding:0; border-radius:0; }
+}
+</style></head>
+<body>
+<nav>
+  <a class="logo" href="/">The Hardest Hardware Lessons</a>
+  <div class="nav-links">
+    <a class="nav-link" href="/games/">Games</a>
+    <a class="nav-link" href="/glossary/">Glossary</a>
+    <a class="nav-link on" href="/templates/">Templates</a>
+    <a class="nav-link" href="/slides" target="_blank">Slides</a>
+    <a class="cta-nav" href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" target="_blank" rel="noopener">Get the Book</a>
+  </div>
+</nav>
+<header class="hero"><div class="hero-inner"><div class="eyebrow">Free template</div><h1>Prototype risk register</h1><p class="sub">List what could go wrong while it is still cheap to find out, and name the cheapest test for each.</p></div></header>
+<main>
+<div class="tools"><a class="btn" href="/templates/pdf/risk-register.pdf" download>Download PDF</a><a class="btn ghost" href="javascript:window.print()">Print this page</a><a class="btn ghost" href="/templates/">All templates</a></div>
+<div class="sheet">
+<h1 class="printtitle">Prototype risk register</h1><p class="printsub" style="display:none">List what could go wrong while it is still cheap to find out, and name the cheapest test for each.</p>
+<h2>How to use it</h2>
+<ul class="box"><li><span>List every risk you can think of in the first week, including the unglamorous ones: thermal, EMC, sourcing, assembly, certification.</span></li><li><span>For each risk, name the <b>cheapest honest test</b> that would reveal it, not the test most likely to flatter you.</span></li><li><span>Give every risk one owner and a "test by" date earlier than the next spend commitment (tooling, PO, build).</span></li><li><span>Review the register at every prototype round. Retire a risk only when a test result says so.</span></li><li><span>Anything still open at hand-off goes into the next phase as a written, owned, dated open issue, never as "probably fine".</span></li></ul>
+<h2>Register</h2>
+<table>
+<tr><th>#</th><th>Risk</th><th>Phase it would hurt</th><th>Likelihood<br>L / M / H</th><th>Impact<br>L / M / H</th><th>Cheapest honest test</th><th>Owner</th><th>Test by</th><th>Result / status</th></tr>
+<tr class="ex"><td>ex.</td><td>Enclosure overheats in a warm room</td><td>DVT</td><td>M</td><td>H</td><td>Run P1 in a closed box at 35 °C for 4 h, log hot spots</td><td>Mech lead</td><td>Before tooling release</td><td>Open</td></tr>
+<tr class="ex"><td>ex.</td><td>Key chip is single-source and short</td><td>PVT</td><td>M</td><td>H</td><td>Quote 10k units from 2 distributors; find a pin-compatible alternative</td><td>Sourcing</td><td>Before P2</td><td>Open</td></tr>
+<tr><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr><tr><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr><tr><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr><tr><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr><tr><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr><tr><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr><tr><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr><tr><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr><tr><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr><tr><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td><td class="blank"></td></tr>
+</table>
+<h2>Check before hand-off</h2>
+<ul class="box"><li><span>Every risk has an owner and a date.</span></li><li><span>Every "retired" risk has a test result behind it.</span></li><li><span>Every open risk is written down with the cost of leaving it open.</span></li><li><span>Nothing is listed as "probably fine".</span></li></ul>
+<p class="why">Why: in the book, hidden risks are the ones that get found at DVT or by customers, at a much higher price. A risk written down can be planned for. A risk nobody wrote down is a surprise.</p>
+<p class="src">From <i>The Hardest Hardware Lessons</i> · thehardesthardwarelessons.com · Free to use and share with attribution.</p>
+</div>
+<div class="cta"><h2>Want the reasoning behind every line?</h2><p class="muted">The book explains each phase, each gate and the mistakes these checklists are built to catch.</p><a class="btn" href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" target="_blank" rel="noopener">Get the book →</a><a class="btn ghost" href="/games/">Play the games</a></div>
+</main>
+<footer><p>© 2026 Johan Philippe Stam · <a href="/">thehardesthardwarelessons.com</a></p></footer>
+</body></html>

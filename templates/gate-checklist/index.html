@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gate readiness checklist (EVT, DVT, PVT): free printable template · The Hardest Hardware Lessons</title>
+<meta name="description" content="The questions to answer before you pass a gate, with a section for each phase.">
+<meta name="author" content="Hans Stam">
+<link rel="canonical" href="https://thehardesthardwarelessons.com/templates/gate-checklist/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Gate readiness checklist (EVT, DVT, PVT): free printable template · The Hardest Hardware Lessons">
+<meta property="og:description" content="The questions to answer before you pass a gate, with a section for each phase.">
+<meta property="og:url" content="https://thehardesthardwarelessons.com/templates/gate-checklist/">
+<meta property="og:site_name" content="The Hardest Hardware Lessons">
+<meta name="theme-color" content="#0f0f0f">
+<link rel="stylesheet" href="/assets/learn.css">
+<style>
+.sheet { background:#fff; color:#111; border-radius:4px; padding:1.6rem 1.8rem; margin:1.5rem 0; font-family:Georgia,serif; line-height:1.5; }
+.sheet h2 { color:#111; font-size:1.25rem; margin:1.4rem 0 .5rem; border-bottom:2px solid #111; padding-bottom:.2rem; }
+.sheet h2:first-child { margin-top:0; }
+.sheet p, .sheet li { color:#222; font-size:.95rem; }
+.sheet .why { font-family:sans-serif; font-size:.82rem; color:#555; font-style:italic; }
+.sheet ul.box { list-style:none; padding:0; }
+.sheet ul.box li { display:flex; gap:.6rem; padding:.35rem 0; border-bottom:1px solid #ddd; page-break-inside:avoid; }
+.sheet ul.box li::before { content:""; flex:0 0 14px; height:14px; margin-top:.3rem; border:1.5px solid #111; border-radius:2px; }
+.sheet table { width:100%; border-collapse:collapse; font-family:sans-serif; font-size:.78rem; margin:.5rem 0; }
+.sheet th, .sheet td { border:1px solid #888; padding:.35rem .4rem; text-align:left; vertical-align:top; color:#111; }
+.sheet th { background:#eee; }
+.sheet td.blank { height:2.2rem; }
+.sheet .ex td { color:#555; font-style:italic; background:#fafafa; }
+.sheet .src { font-family:sans-serif; font-size:.72rem; color:#666; margin-top:1.2rem; border-top:1px solid #ccc; padding-top:.5rem; }
+.sheet .bad { color:#a00; } .sheet .good { color:#060; }
+.printtitle { display:none; } .tools { display:flex; gap:.6rem; flex-wrap:wrap; }
+@media print {
+  @page { size:A4; margin:14mm; }
+  body { background:#fff; } nav, .hero, .tools, .cta, footer, .noprint { display:none !important; } .printtitle { display:block !important; font-size:1.7rem; margin:0 0 .2rem; color:#111; } .printsub { display:block !important; font-family:sans-serif; font-size:.8rem; color:#555; margin:0 0 1rem; }
+  main { padding:0; max-width:none; } .sheet { margin:0; padding:0; border-radius:0; }
+}
+</style></head>
+<body>
+<nav>
+  <a class="logo" href="/">The Hardest Hardware Lessons</a>
+  <div class="nav-links">
+    <a class="nav-link" href="/games/">Games</a>
+    <a class="nav-link" href="/glossary/">Glossary</a>
+    <a class="nav-link on" href="/templates/">Templates</a>
+    <a class="nav-link" href="/slides" target="_blank">Slides</a>
+    <a class="cta-nav" href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" target="_blank" rel="noopener">Get the Book</a>
+  </div>
+</nav>
+<header class="hero"><div class="hero-inner"><div class="eyebrow">Free template</div><h1>Gate readiness checklist (EVT, DVT, PVT)</h1><p class="sub">The questions to answer before you pass a gate, with a section for each phase.</p></div></header>
+<main>
+<div class="tools"><a class="btn" href="/templates/pdf/gate-checklist.pdf" download>Download PDF</a><a class="btn ghost" href="javascript:window.print()">Print this page</a><a class="btn ghost" href="/templates/">All templates</a></div>
+<div class="sheet">
+<h1 class="printtitle">Gate readiness checklist (EVT, DVT, PVT)</h1><p class="printsub" style="display:none">The questions to answer before you pass a gate, with a section for each phase.</p>
+<h2>For every gate</h2>
+<ul class="box"><li><span>The decision is based on <b>evidence</b> (test results, measurements), not opinion.</span></li><li><span>Every open issue has an <b>owner, a plan, a date</b> and an estimate of what it costs if deferred to the next phase.</span></li><li><span>No critical issue is open.</span></li><li><span>"We feel behind" and "we are genuinely ready" have been discussed as <b>separate questions</b>.</span></li><li><span>The cost and schedule of <b>holding the gate</b> (for example a two-week extension) is written next to the cost of passing it.</span></li><li><span>The decision, who made it and why is recorded.</span></li></ul>
+<h2>EVT gate · does the design work?</h2>
+<ul class="box"><li><span>Every issue found has been triaged to the team that owns it.</span></li><li><span>Interface issues (problems between two teams) are identified and have both owners.</span></li><li><span>A cross-team review has been held to surface the "that is not my problem" issues.</span></li><li><span>Critical issues are fixed and re-tested on hardware.</span></li><li><span>High issues have a plan that an owner stands behind.</span></li><li><span>Requirements are verified or have a dated plan to be verified.</span></li></ul>
+<h2>DVT gate · does it pass?</h2>
+<ul class="box"><li><span>Tooling was released on evidence and the evidence is on file.</span></li><li><span>Certification and reliability tests are complete, or their remaining slots are booked and the risk is stated.</span></li><li><span>Action items are closed <b>on hardware</b>, not just in the tracker.</span></li><li><span>The sample run was built with production-intent parts and process.</span></li><li><span>Any change since certification has been checked for a re-test.</span></li><li><span>Sourcing is confirmed for volume, with single-source parts listed and mitigated.</span></li></ul>
+<h2>PVT gate · can we build it?</h2>
+<ul class="box"><li><span>The readiness check (line, fixtures, parts, trained operators) was passed before the pilot started.</span></li><li><span>The pilot run met target yield, with defects and rework recorded.</span></li><li><span>Stress testing (such as HALT) has shown where the weak points are, and the limits are understood.</span></li><li><span>Process validation is done for every critical step, not just the ones that were easy to measure.</span></li><li><span>Open issues are quantified in euros and weeks at production prices.</span></li><li><span>The factory has signed off its own process, in writing.</span></li></ul>
+<p class="why">Why: the book's worked example is a team that passes the DVT gate with two open issues that are "probably fine", declines a two-week extension, and pays five times as much in PVT, where there is no buffer left. The extension is the economically rational choice.</p>
+<p class="src">From <i>The Hardest Hardware Lessons</i> · thehardesthardwarelessons.com · Free to use and share with attribution.</p>
+</div>
+<div class="cta"><h2>Want the reasoning behind every line?</h2><p class="muted">The book explains each phase, each gate and the mistakes these checklists are built to catch.</p><a class="btn" href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" target="_blank" rel="noopener">Get the book →</a><a class="btn ghost" href="/games/">Play the games</a></div>
+</main>
+<footer><p>© 2026 Johan Philippe Stam · <a href="/">thehardesthardwarelessons.com</a></p></footer>
+</body></html>

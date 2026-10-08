@@ -74,4 +74,27 @@
     get: function (path) { return fetch(API + path).then(function (r) { return r.json(); }); },
     post: post
   };
+
+  // End-screen block: one rule to remember, the terms used, the matching free template, the next game and the book.
+  var LEARN = {
+    1: ['Every problem you defer comes back at the next phase\'s price. Catch it while it is cheap.', [['cost-of-change', 'Cost-of-change curve'], ['gate', 'Gate'], ['open-issue', 'Open issue']], ['gate-checklist', 'Gate readiness checklist']],
+    2: ['Run the honest test, not the flattering one. Risks you do not test now are found later, at a higher price.', [['prototype', 'Prototype'], ['p1', 'P1'], ['risk-register', 'Risk register'], ['dfm', 'DFM']], ['risk-register', 'Prototype risk register']],
+    3: ['If a requirement cannot be tested, it is a wish. The critical path sets the date; contingency protects it.', [['prd', 'PRD'], ['trd', 'TRD'], ['critical-path', 'Critical path'], ['contingency', 'Contingency']], ['testable-requirements', 'Testable requirements checklist']],
+    4: ['Every issue needs one owner, quickly. Problems between two teams are the ones nobody owns.', [['evt', 'EVT'], ['interface-issue', 'Interface issue'], ['open-issue', 'Open issue']], ['gate-checklist', 'Gate readiness checklist']],
+    5: ['Steel can be cut away but never put back. Release tooling on evidence, not because the schedule says so.', [['dvt', 'DVT'], ['tooling', 'Tooling'], ['lab-slot', 'Lab slot'], ['certification', 'Certification']], ['tooling-release', 'Tooling release checklist']],
+    6: ['Find the product\'s limits on your own terms, before a customer finds them for you.', [['pvt', 'PVT'], ['halt', 'HALT'], ['readiness-gate', 'Readiness gate'], ['yield', 'Yield']], ['gate-checklist', 'Gate readiness checklist']]
+  };
+  var A = 'style="color:#e8c547" target="_blank" rel="noopener"';
+  HHL.next = function (ch) {
+    var L = LEARN[ch]; if (!L) return '';
+    var nx = CH[ch + 1], up = ch < 6;
+    return '<div style="margin:14px 0 6px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);font-size:13px;line-height:1.5;text-align:left">' +
+      '<div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-bottom:4px">Remember this</div>' +
+      '<div style="font-size:15px;font-weight:600;margin-bottom:10px">' + L[0] + '</div>' +
+      '<div style="opacity:.85">Terms in this game: ' + L[1].map(function (t) { return '<a href="/glossary/#' + t[0] + '" ' + A + '>' + t[1] + '</a>'; }).join(', ') + '</div>' +
+      '<div style="opacity:.85;margin-top:4px">Free: <a href="/templates/' + L[2][0] + '/" ' + A + '>' + L[2][1] + '</a> (print or PDF)</div>' +
+      (up ? '<div style="margin-top:10px"><a href="../' + nx[2] + '/" style="color:#e8c547;font-weight:700">Next: Chapter ' + (ch + 1) + ', ' + nx[0] + ' →</a></div>'
+          : '<div style="margin-top:10px"><a href="../leaderboard/" style="color:#e8c547;font-weight:700">See your scorecard and the leaderboard →</a></div>') +
+      '<div style="margin-top:6px;opacity:.85">Want the full chapter? <a href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" ' + A + '>Get the book</a></div></div>';
+  };
 })();

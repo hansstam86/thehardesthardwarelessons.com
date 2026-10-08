@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testable requirements checklist: free printable template · The Hardest Hardware Lessons</title>
+<meta name="description" content="Turn "the product should be good" into requirements a team can build to and a test can pass or fail.">
+<meta name="author" content="Hans Stam">
+<link rel="canonical" href="https://thehardesthardwarelessons.com/templates/testable-requirements/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Testable requirements checklist: free printable template · The Hardest Hardware Lessons">
+<meta property="og:description" content="Turn "the product should be good" into requirements a team can build to and a test can pass or fail.">
+<meta property="og:url" content="https://thehardesthardwarelessons.com/templates/testable-requirements/">
+<meta property="og:site_name" content="The Hardest Hardware Lessons">
+<meta name="theme-color" content="#0f0f0f">
+<link rel="stylesheet" href="/assets/learn.css">
+<style>
+.sheet { background:#fff; color:#111; border-radius:4px; padding:1.6rem 1.8rem; margin:1.5rem 0; font-family:Georgia,serif; line-height:1.5; }
+.sheet h2 { color:#111; font-size:1.25rem; margin:1.4rem 0 .5rem; border-bottom:2px solid #111; padding-bottom:.2rem; }
+.sheet h2:first-child { margin-top:0; }
+.sheet p, .sheet li { color:#222; font-size:.95rem; }
+.sheet .why { font-family:sans-serif; font-size:.82rem; color:#555; font-style:italic; }
+.sheet ul.box { list-style:none; padding:0; }
+.sheet ul.box li { display:flex; gap:.6rem; padding:.35rem 0; border-bottom:1px solid #ddd; page-break-inside:avoid; }
+.sheet ul.box li::before { content:""; flex:0 0 14px; height:14px; margin-top:.3rem; border:1.5px solid #111; border-radius:2px; }
+.sheet table { width:100%; border-collapse:collapse; font-family:sans-serif; font-size:.78rem; margin:.5rem 0; }
+.sheet th, .sheet td { border:1px solid #888; padding:.35rem .4rem; text-align:left; vertical-align:top; color:#111; }
+.sheet th { background:#eee; }
+.sheet td.blank { height:2.2rem; }
+.sheet .ex td { color:#555; font-style:italic; background:#fafafa; }
+.sheet .src { font-family:sans-serif; font-size:.72rem; color:#666; margin-top:1.2rem; border-top:1px solid #ccc; padding-top:.5rem; }
+.sheet .bad { color:#a00; } .sheet .good { color:#060; }
+.printtitle { display:none; } .tools { display:flex; gap:.6rem; flex-wrap:wrap; }
+@media print {
+  @page { size:A4; margin:14mm; }
+  body { background:#fff; } nav, .hero, .tools, .cta, footer, .noprint { display:none !important; } .printtitle { display:block !important; font-size:1.7rem; margin:0 0 .2rem; color:#111; } .printsub { display:block !important; font-family:sans-serif; font-size:.8rem; color:#555; margin:0 0 1rem; }
+  main { padding:0; max-width:none; } .sheet { margin:0; padding:0; border-radius:0; }
+}
+</style></head>
+<body>
+<nav>
+  <a class="logo" href="/">The Hardest Hardware Lessons</a>
+  <div class="nav-links">
+    <a class="nav-link" href="/games/">Games</a>
+    <a class="nav-link" href="/glossary/">Glossary</a>
+    <a class="nav-link on" href="/templates/">Templates</a>
+    <a class="nav-link" href="/slides" target="_blank">Slides</a>
+    <a class="cta-nav" href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" target="_blank" rel="noopener">Get the Book</a>
+  </div>
+</nav>
+<header class="hero"><div class="hero-inner"><div class="eyebrow">Free template</div><h1>Testable requirements checklist</h1><p class="sub">Turn "the product should be good" into requirements a team can build to and a test can pass or fail.</p></div></header>
+<main>
+<div class="tools"><a class="btn" href="/templates/pdf/testable-requirements.pdf" download>Download PDF</a><a class="btn ghost" href="javascript:window.print()">Print this page</a><a class="btn ghost" href="/templates/">All templates</a></div>
+<div class="sheet">
+<h1 class="printtitle">Testable requirements checklist</h1><p class="printsub" style="display:none">Turn "the product should be good" into requirements a team can build to and a test can pass or fail.</p>
+<h2>Check every requirement against this</h2>
+<ul class="box"><li><span>It says <b>what</b>, not how. It does not prescribe the solution.</span></li><li><span>It has a <b>number and a unit</b> (hours, °C, mm, g, %, €).</span></li><li><span>It names the <b>conditions</b> it applies in (temperature, load, user, environment).</span></li><li><span>It names a <b>test method</b> and who runs it.</span></li><li><span>It names <b>when</b> it will be verified (EVT, DVT or PVT).</span></li><li><span>It traces back to a <b>customer need</b>. If you cannot say which, question it.</span></li><li><span>It does not <b>conflict</b> with another requirement (size vs battery vs cost).</span></li><li><span>Someone <b>other than the author</b> can say whether the product passes.</span></li></ul>
+<h2>Weak to testable <span style="font-size:.75rem;font-weight:normal">(example numbers: set your own)</span></h2>
+<table><tr><th>Weak</th><th>Testable</th></tr>
+<tr><td class="bad">Battery should last a long time.</td><td class="good">At least 8 h of the standard use profile at 25 °C, measured from 100% to shutdown.</td></tr>
+<tr><td class="bad">Must be rugged.</td><td class="good">Survives 10 drops from 1.2 m onto concrete with no loss of function.</td></tr>
+<tr><td class="bad">Easy to assemble.</td><td class="good">Assembled in under 90 s by a trained operator with no tools beyond the fixture.</td></tr>
+<tr><td class="bad">Runs cool.</td><td class="good">Case surface stays below 45 °C after 2 h at full load in a 30 °C room.</td></tr></table>
+<h2>The four-week set-up</h2>
+<table><tr><th style="width:18%">Week</th><th>Output</th><th style="width:20%">Done?</th></tr>
+<tr><td>1 · PRD</td><td>What the product must do and for whom, every line testable. Review with someone who will build it.</td><td class="blank"></td></tr>
+<tr><td>2 · TRD</td><td>Technical limits and interfaces, each with an owner. Interface specs signed by both sides.</td><td class="blank"></td></tr>
+<tr><td>3 · Critical path</td><td>Task list with dependencies. The longest chain marked. Lab and tooling lead times included.</td><td class="blank"></td></tr>
+<tr><td>4 · Kickoff</td><td>Plan with contingency written in. Risks listed. Gate criteria agreed in advance.</td><td class="blank"></td></tr></table>
+<p class="why">Why: a requirement nobody can test is a debate waiting to happen at the gate. Contingency is not padding; it is the honest admission that something unplanned will happen.</p>
+<p class="src">From <i>The Hardest Hardware Lessons</i> · thehardesthardwarelessons.com · Free to use and share with attribution.</p>
+</div>
+<div class="cta"><h2>Want the reasoning behind every line?</h2><p class="muted">The book explains each phase, each gate and the mistakes these checklists are built to catch.</p><a class="btn" href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" target="_blank" rel="noopener">Get the book →</a><a class="btn ghost" href="/games/">Play the games</a></div>
+</main>
+<footer><p>© 2026 Johan Philippe Stam · <a href="/">thehardesthardwarelessons.com</a></p></footer>
+</body></html>

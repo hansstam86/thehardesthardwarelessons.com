@@ -89,7 +89,7 @@ canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-ac
 </div>
 <div id="ov"></div>
 
-<script src="../hhl.js?v=4"></script>
+<script src="../hhl.js?v=5"></script>
 <script>
 'use strict';
 (function () {
@@ -843,7 +843,7 @@ function showEnd(win, newBest) {
     '<p class="lesson">' + (win ? LESSONS.final : (S.sched ? LESSONS.framing : LESSONS.curve)) + '</p>' +
     '<p class="small">Score: cash left in €k, plus 40 per appeal point and 150 per clean gate.</p>' +
     '<div class="row"><button class="btn" data-a="start">Run again</button><button class="btn ghost" data-a="title">Menu</button></div>' +
-    '<p class="small foot">Read the full chapter: <a href="https://thehardesthardwarelessons.com" target="_blank" rel="noopener">thehardesthardwarelessons.com</a></p></div>');
+    '' + HHL.next(1) + '</div>');
 }
 function showPause() {
   show('<div class="card"><div class="eyebrow">' + PH[S.phase].key + ' · week ' + Math.round(S.week) + '</div><h2>Paused</h2>' +

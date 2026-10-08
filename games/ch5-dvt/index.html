@@ -99,7 +99,7 @@ canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-ac
 </div>
 <div id="ov"></div>
 
-<script src="../hhl.js?v=4"></script>
+<script src="../hhl.js?v=5"></script>
 <script>
 'use strict';
 (function () {
@@ -687,7 +687,7 @@ function showOver(newBest) {
     ledger +
     '<p class="lesson">' + pool[0] + '</p><p class="lesson">' + pool[1] + '</p>' +
     '<div class="row"><button class="btn" data-a="start">Run DVT again</button><button class="btn ghost" data-a="title">Menu</button></div>' +
-    '<p class="small" style="text-align:center">Read the full chapter: <a href="https://thehardesthardwarelessons.com" target="_blank" rel="noopener">thehardesthardwarelessons.com</a></p></div>');
+    '' + HHL.next(5) + '</div>');
 }
 function showPause() {
   show('<div class="card"><div class="eyebrow">Week ' + S.week.toFixed(1) + ' · spindle stopped</div><h2>Paused</h2>' +
