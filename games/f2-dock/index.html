@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#101a1c">
 <title>The Dock — The Hardest Factory Lessons</title>
 <meta name="description" content="A free game: three days on a factory's receiving dock. Choose what to inspect, resist the pressure to release, and see which defects come back a year later. From The Hardest Factory Lessons, Chapter 2.">
+<link rel="stylesheet" href="../juice.css?v=2">
 <style>
 :root{
   --bg:#101a1c; --ink:#eaf3f2; --muted:#93a9a8; --panel:#182427; --panel2:#1e2e31; --rule:#2c4043;
@@ -15,65 +16,138 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-text-size-adjust:100%}
-body{padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 28px)}
+body{padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 28px);overflow-x:hidden}
 #app{width:min(480px,100%);margin:0 auto;display:grid;gap:12px}
 .top{display:flex;justify-content:space-between;align-items:center}
 .back{color:var(--muted);text-decoration:none;font:600 14px/1 var(--font);padding:10px 8px;margin-left:-8px}
-.card{background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:20px 18px;display:grid;gap:13px;animation:pop .28s ease both}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:18px 16px;display:grid;gap:12px;animation:pop .22s ease both}
 @keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
-h1{margin:0;font-size:34px;line-height:1.05;font-weight:800;letter-spacing:-.01em} h1 span{color:var(--acc)}
+h1{margin:0;font-size:36px;line-height:1.02;font-weight:900;letter-spacing:-.01em} h1 span{color:var(--acc)}
 h2{margin:0;font-size:22px;font-weight:800}
 h3{margin:0;font:700 11px/1.3 var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
 p{margin:0;color:var(--muted);font-size:15px;line-height:1.45} p b,li b{color:var(--ink);font-weight:600}
 .small{font-size:12.5px} .plain{border-left:3px solid var(--rule);padding:2px 0 2px 10px;font-size:13px;color:#cfdddc}
-.btn{appearance:none;border:0;border-radius:14px;padding:15px 16px;font:800 16px/1.1 var(--font);background:var(--acc);color:#07201d;width:100%;min-height:50px;cursor:pointer}
-.btn:active{transform:scale(.97)} .btn:disabled{opacity:.35;pointer-events:none}
-.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule);font-weight:700}
+.btn{appearance:none;border:0;border-radius:14px;padding:15px 16px;font:800 16px/1.1 var(--font);background:var(--acc);color:#07201d;width:100%;min-height:50px;cursor:pointer;box-shadow:0 4px 0 #1f8f85;transition:transform .06s,box-shadow .06s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1f8f85} .btn:disabled{opacity:.35;pointer-events:none}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule);font-weight:700;box-shadow:none}
 .btn.sm{padding:10px 12px;min-height:40px;font-size:14px;border-radius:11px}
-.btn.warn{background:var(--amber)}
+.btn.warn{background:var(--amber);box-shadow:0 4px 0 #b86a1d}
 .row{display:flex;gap:10px} .row>*{flex:1}
-.hud{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:10px 12px;position:sticky;top:6px;z-index:5}
-.hud b{font-size:14px} .bar{height:8px;background:#0e1718;border-radius:6px;overflow:hidden} .bar i{display:block;height:100%;background:var(--acc);transition:width .3s}
-.hud span{font:700 12px/1 var(--font);color:var(--muted);font-variant-numeric:tabular-nums}
-.pick{display:grid;gap:8px}
-.pick button{display:grid;gap:3px;text-align:left;border:1px solid var(--rule);background:var(--panel2);border-radius:13px;padding:12px;color:var(--ink);font:inherit;cursor:pointer}
-.pick button.on{border-color:var(--acc);background:#16363a} .pick button b{font-size:15px} .pick button span{font-size:12.5px;color:var(--muted);line-height:1.35}
-.lots{display:grid;gap:8px}
-.lot{display:grid;grid-template-columns:1fr auto;gap:3px 10px;text-align:left;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:12px;color:var(--ink);font:inherit;width:100%;cursor:pointer}
-.lot:active{transform:scale(.985)} .lot b{font-size:15px} .lot span{font-size:12.5px;color:var(--muted)} .lot em{grid-row:1/3;grid-column:2;align-self:center;font:800 11px var(--font);font-style:normal;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-.lot.done{opacity:.6} .lot.done em{color:var(--green)} .lot.q em{color:var(--amber)}
+.hud{margin-right:50px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:10px 12px;position:sticky;top:6px;z-index:5}
+.hud b{font-size:14px} .pips{display:flex;gap:5px}
+.pip{width:100%;max-width:34px;height:14px;border-radius:4px;background:var(--acc);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25);transition:background .15s,transform .15s}
+.pip.off{background:#0e1718;box-shadow:none;transform:scaleY(.7)}
+.hud span{font:800 12px/1 var(--font);color:var(--muted)}
+.stage{position:relative;height:190px;border-radius:14px;overflow:hidden;background:linear-gradient(#1b2b2e 0 62%,#23363a 62% 100%);border:1px solid var(--rule)}
+.stage .floor{position:absolute;left:0;right:0;bottom:0;height:38%;background:repeating-linear-gradient(90deg,#26393d 0 26px,#2b4146 26px 52px)}
+.stage .door{position:absolute;right:14px;top:16px;width:92px;height:84px;border-radius:6px;background:repeating-linear-gradient(#2f4247 0 8px,#273a3e 8px 16px);border:2px solid #3b5359}
+.truck{position:absolute;left:0;bottom:30px;width:200px}
+.crate{position:relative;display:grid;place-items:center}
+.crate .body{width:128px;height:104px;border-radius:10px;border:4px solid #7a5230;background:repeating-linear-gradient(90deg,#a9753f 0 22px,#9a6a38 22px 24px);display:grid;place-items:center;box-shadow:0 8px 0 rgba(0,0,0,.25)}
+.crate .win{width:78px;height:78px;border-radius:10px;background:#101a1c;display:grid;place-items:center;border:2px solid #6b4a2b}
+.crate .qty{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);background:var(--ink);color:#101a1c;font:900 11px var(--font);padding:4px 8px;border-radius:7px;white-space:nowrap}
+.mini{display:grid;place-items:center;width:52px;height:46px;background:#101a1c;border-radius:8px;border:2px solid #6b4a2b}
+.belt{position:relative;height:16px;border-radius:6px;overflow:hidden}
 .tags{display:flex;gap:5px;flex-wrap:wrap}
-.tag{font:700 10px/1 var(--font);letter-spacing:.05em;text-transform:uppercase;padding:5px 7px;border-radius:6px;background:var(--panel2);color:var(--muted)}
+.tag{font:800 10px/1 var(--font);letter-spacing:.05em;text-transform:uppercase;padding:5px 7px;border-radius:6px;background:var(--panel2);color:var(--muted)}
 .tag.hot{color:var(--red)} .tag.warn{color:var(--amber)} .tag.ok{color:var(--green)} .tag.star{color:var(--gold)}
-.act{display:grid;gap:8px}
-.act button{display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-align:left;border:1px solid var(--rule);background:var(--panel2);border-radius:13px;padding:12px;color:var(--ink);font:inherit;cursor:pointer}
-.act button:active{transform:scale(.985)} .act button:disabled{opacity:.38;pointer-events:none}
-.act button b{font-size:15px} .act button span{font-size:12px;color:var(--muted);grid-column:1} .act button em{grid-row:1/3;grid-column:2;font:800 13px var(--font);color:var(--acc);font-style:normal;align-self:center}
+.lots{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lotc{position:relative;display:grid;gap:8px;justify-items:center;text-align:center;background:var(--panel2);border:1px solid var(--rule);border-radius:16px;padding:14px 8px 12px;color:var(--ink);font:inherit;cursor:pointer;animation:jdrop .4s cubic-bezier(.2,1.3,.4,1) both;transition:transform .06s}
+.lotc:active{transform:scale(.95)} .lotc b{font-size:13.5px;line-height:1.2} .lotc span{font-size:11px;color:var(--muted)}
+.lotc .st{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;font-weight:900;background:#0e1718;color:var(--muted)}
+.lotc.done{opacity:.72} .lotc.done .st{background:var(--green);color:#07201d} .lotc.q .st{background:var(--amber);color:#07201d}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tool{display:grid;gap:3px;justify-items:center;text-align:center;border:1px solid var(--rule);background:var(--panel2);border-radius:14px;padding:12px 6px;color:var(--ink);font:inherit;cursor:pointer;transition:transform .06s}
+.tool:active{transform:scale(.93)} .tool:disabled{opacity:.35;pointer-events:none}
+.tool i{font-style:normal;font-size:26px;line-height:1} .tool b{font-size:13px} .tool span{font-size:11px;color:var(--muted)} .tool em{font:900 12px var(--font);font-style:normal;color:var(--acc)}
+.tool.used{opacity:.5;border-style:dashed}
+.find{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;background:#0e1718;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.4;color:#d6e4e3;animation:jrise .3s cubic-bezier(.2,1.2,.4,1) .2s both}
+.find i{font-style:normal;font-size:22px;line-height:1;width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--panel2)}
+.find b{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.find.found{box-shadow:inset 3px 0 0 var(--red)} .find.found b{color:var(--red)} .find.sus{box-shadow:inset 3px 0 0 var(--amber)} .find.sus b{color:var(--amber)} .find.clean{box-shadow:inset 3px 0 0 var(--green)} .find.clean b{color:var(--green)}
+.find.old{animation:none}
 .note{display:grid;gap:3px;background:#0e1718;border-radius:12px;padding:11px 12px;font-size:13.5px;line-height:1.4;color:#d6e4e3}
 .note b{color:var(--acc);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
 .note.warn b{color:var(--amber)} .note.bad b{color:var(--red)} .note.good b{color:var(--green)}
 .pressure{background:#2b1f12;border:1px solid #5a3b17;border-radius:12px;padding:11px 12px;font-size:13.5px;color:#ffd9a8;line-height:1.4}
-.big{font:900 56px/1 var(--font);text-align:center;color:var(--acc);font-variant-numeric:tabular-nums}
+.meter{height:12px;background:#0e1718;border-radius:8px;overflow:hidden;margin-top:8px} .meter i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--amber),var(--red));transform-origin:left;animation:fillm 1.6s ease-out both}
+@keyframes fillm{from{transform:scaleX(.15)}to{transform:scaleX(1)}}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.opt{display:grid;gap:3px;justify-items:center;text-align:center;border:1px solid var(--rule);background:var(--panel2);border-radius:14px;padding:14px 8px;color:var(--ink);font:inherit;cursor:pointer;min-height:112px;transition:transform .06s}
+.opt:active{transform:scale(.93)} .opt:disabled{opacity:.35;pointer-events:none}
+.opt i{font-style:normal;font-size:30px;line-height:1} .opt b{font-size:14px} .opt span{font-size:11px;color:var(--muted);line-height:1.3} .opt em{font:900 13px var(--font);font-style:normal;color:var(--acc)}
+.pick{display:grid;gap:8px}
+.pick button{display:grid;grid-template-columns:40px 1fr;gap:2px 12px;text-align:left;border:1px solid var(--rule);background:var(--panel2);border-radius:14px;padding:12px;color:var(--ink);font:inherit;cursor:pointer;transition:transform .1s,border-color .15s}
+.pick button i{grid-row:1/3;font-style:normal;font-size:28px;align-self:center;text-align:center}
+.pick button.on{border-color:var(--acc);background:#16363a;transform:scale(1.02)} .pick button b{font-size:15px} .pick button span{font-size:12.5px;color:var(--muted);line-height:1.35}
+.slots{display:flex;gap:10px;justify-content:center}
+.slot{width:64px;height:64px;border-radius:14px;border:2px dashed var(--rule);display:grid;place-items:center;font-size:30px;background:#0e1718}
+.slot.on{border:2px solid var(--acc);background:#16363a}
+.big{font:900 64px/1 var(--font);text-align:center;color:var(--acc);font-variant-numeric:tabular-nums}
 .stamp{justify-self:center;font:900 24px/1 var(--font);letter-spacing:.06em;padding:8px 14px;border:4px solid currentColor;border-radius:8px;transform:rotate(-4deg)}
 .stamp.pass{color:var(--green)} .stamp.fail{color:var(--red)} .stamp.warn{color:var(--amber)}
 .lines{display:grid;gap:6px} .lines div{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:#d6e4e3;padding:7px 0;border-top:1px solid var(--rule)} .lines div:first-child{border-top:0}
 .lines em{font-style:normal;font-weight:800;font-variant-numeric:tabular-nums} .lines em.pos{color:var(--green)} .lines em.neg{color:var(--red)}
-.reveal{display:grid;gap:3px;padding:9px 0;border-top:1px solid var(--rule);font-size:13.5px;color:#d6e4e3} .reveal b{font-size:14px}
-.cost{font:900 30px var(--font);font-variant-numeric:tabular-nums;color:var(--red)}
+.reveal{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--rule);font-size:13.5px;color:#d6e4e3} .reveal b{font-size:14px;display:block}
+.cost{font:900 34px var(--font);font-variant-numeric:tabular-nums;color:var(--red);text-align:center}
+.clock{width:84px;height:84px}
+.hand{transform-origin:50px 50px;animation:jspin 6s linear infinite}
 a{color:var(--acc)}
+.fxl{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.glass{position:absolute;top:28%;left:0;width:64px;height:64px;animation:jsweep .5s ease-in-out both}
+.glass svg{width:100%;height:100%}
+.xray{position:absolute;inset:0;background:radial-gradient(circle,rgba(120,200,255,.55),rgba(20,60,120,.65));mix-blend-mode:screen;animation:xr .5s ease-in-out both}
+@keyframes xr{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+.probe{position:absolute;top:0;width:3px;height:44%;background:#e8e8e8;animation:pr .5s ease-in-out both}
+.probe.b{background:#ff5a4e}
+@keyframes pr{0%{transform:translateY(-100%)}35%{transform:translateY(0)}65%{transform:translateY(0)}100%{transform:translateY(-100%)}}
+.wave{position:absolute;left:8%;right:8%;bottom:14%;height:36px;opacity:0;animation:wv .5s ease-in-out both}
+@keyframes wv{40%{opacity:0}55%,90%{opacity:1}100%{opacity:0}}
+.gauge{position:absolute;left:50%;top:50%;width:90px;height:90px;margin:-45px 0 0 -45px;opacity:0;animation:wv .5s ease-in-out both}
+.needle{transform-origin:50px 50px;animation:nd .5s ease-out both}
+@keyframes nd{from{transform:rotate(-80deg)}to{transform:rotate(var(--to,20deg))}}
+.j-scanbeam i{animation-duration:.5s !important}
+.cage{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 14px,rgba(255,159,67,.65) 14px 17px);animation:jdrop .35s ease-out both;border-radius:10px}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<script src="../hhl.js?v=10"></script>
+<script src="../hhl.js?v=11"></script>
+<script src="../juice.js?v=2"></script>
 <script>
 (function () {
 'use strict';
 var $app = document.getElementById('app');
 var DAYS = 3, PER_DAY = 4, HOURS = 5;
 
+/* ---------- art ---------- */
+function svg(inner, s, vb) { return '<svg width="' + (s || 64) + '" height="' + (s || 64) + '" viewBox="' + (vb || '0 0 64 64') + '" aria-hidden="true">' + inner + '</svg>'; }
+var pins = function (n, x0, y, w, h, dx, c) { var o = ''; for (var i = 0; i < n; i++) o += '<rect x="' + (x0 + i * dx) + '" y="' + y + '" width="' + w + '" height="' + h + '" fill="' + (c || '#cfd8dc') + '"/>'; return o; };
+var ICON = {
+  cells: '<rect x="10" y="14" width="20" height="40" rx="4" fill="#2d6cdf"/><rect x="10" y="26" width="20" height="6" fill="#f5c518"/><rect x="17" y="9" width="6" height="6" rx="1" fill="#c9d6d5"/><rect x="34" y="18" width="20" height="36" rx="4" fill="#2d6cdf"/><rect x="34" y="29" width="20" height="6" fill="#f5c518"/><rect x="41" y="13" width="6" height="6" rx="1" fill="#c9d6d5"/>',
+  caps: '<rect x="18" y="14" width="28" height="38" rx="5" fill="#1d3a6b"/><rect x="18" y="14" width="28" height="9" rx="4" fill="#aab8c0"/><rect x="25" y="23" width="5" height="29" fill="#c9d6d5"/>' + pins(2, 24, 52, 3, 9, 14, '#aab8c0'),
+  xtal: '<rect x="22" y="10" width="20" height="36" rx="10" fill="#cfd8dc"/><rect x="26" y="17" width="12" height="20" rx="5" fill="#90a4ae"/>' + pins(2, 27, 46, 2, 13, 8, '#aab8c0'),
+  mosfet: '<rect x="16" y="6" width="32" height="15" rx="2" fill="#b0bec5"/><circle cx="32" cy="13" r="3.5" fill="#455a64"/><rect x="16" y="21" width="32" height="26" rx="3" fill="#222"/>' + pins(3, 21, 47, 4, 13, 9),
+  mcu: '<rect x="16" y="16" width="32" height="32" rx="3" fill="#1b1f23"/><circle cx="23" cy="23" r="2.5" fill="#6b7a80"/>' + pins(6, 18, 9, 2.5, 7, 5.2) + pins(6, 18, 48, 2.5, 7, 5.2) + '<g transform="rotate(90 32 32)">' + pins(6, 18, 9, 2.5, 7, 5.2) + pins(6, 18, 48, 2.5, 7, 5.2) + '</g>',
+  flash: '<rect x="18" y="20" width="28" height="24" rx="3" fill="#2a3036"/><path d="M26 20a6 3 0 0 0 12 0" fill="#101a1c"/>' + pins(5, 20, 14, 2.5, 6, 5.5) + pins(5, 20, 44, 2.5, 6, 5.5),
+  enclosure: '<rect x="8" y="14" width="48" height="36" rx="9" fill="#cfd8dc"/><rect x="14" y="20" width="36" height="24" rx="6" fill="#b0bec5"/><circle cx="15" cy="21" r="2" fill="#78909c"/><circle cx="49" cy="21" r="2" fill="#78909c"/><circle cx="15" cy="43" r="2" fill="#78909c"/><circle cx="49" cy="43" r="2" fill="#78909c"/>',
+  pcb: '<rect x="8" y="12" width="48" height="40" rx="3" fill="#1f8a4c"/><path d="M14 20h16v10h14M14 42h22M44 20v22" stroke="#e8c547" stroke-width="2" fill="none"/><circle cx="14" cy="20" r="2.6" fill="#e8c547"/><circle cx="44" cy="42" r="2.6" fill="#e8c547"/><rect x="34" y="22" width="8" height="8" fill="#1b1f23"/>',
+  connector: '<rect x="8" y="22" width="48" height="16" rx="3" fill="#222"/>' + pins(6, 12, 38, 3, 12, 7.5, '#e8c547'),
+  cable: '<path d="M10 44C10 20 54 48 54 20" stroke="#37474f" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="5" y="40" width="12" height="12" rx="2" fill="#cfd8dc"/><rect x="47" y="12" width="12" height="12" rx="2" fill="#cfd8dc"/>',
+  ldo: '<rect x="16" y="16" width="32" height="24" rx="3" fill="#1b1f23"/>' + pins(3, 21, 40, 4, 14, 9),
+  resistors: '<circle cx="32" cy="32" r="23" fill="#cfd8dc"/><circle cx="32" cy="32" r="8" fill="#101a1c"/><rect x="40" y="20" width="9" height="5" fill="#8d6e63"/><rect x="40" y="34" width="9" height="5" fill="#8d6e63"/><rect x="16" y="40" width="9" height="5" fill="#8d6e63"/>',
+  foam: '<rect x="10" y="16" width="44" height="32" rx="6" fill="#78909c"/><circle cx="24" cy="32" r="6" fill="#546e7a"/><circle cx="42" cy="32" r="6" fill="#546e7a"/>',
+  screws: '<circle cx="20" cy="24" r="8" fill="#b0bec5"/><path d="M15 24h10M20 19v10" stroke="#455a64" stroke-width="2"/><circle cx="44" cy="22" r="8" fill="#b0bec5"/><path d="M39 22h10M44 17v10" stroke="#455a64" stroke-width="2"/><circle cx="32" cy="44" r="8" fill="#b0bec5"/><path d="M27 44h10M32 39v10" stroke="#455a64" stroke-width="2"/>'
+};
+function icon(id, s) { return svg(ICON[id] || '', s || 64); }
+function crateHtml(p, extra) {
+  return '<div class="crate ' + (extra || '') + '"><div class="body"><div class="win">' + icon(p.id, 60) + '</div></div><div class="qty">' + p.qty + ' pcs</div></div>';
+}
+var TRUCK = svg('<rect x="2" y="14" width="86" height="46" rx="5" fill="#e8eef0"/><rect x="88" y="26" width="44" height="34" rx="6" fill="#3dd6c6"/><rect x="100" y="30" width="26" height="14" rx="3" fill="#9af2ea"/><rect x="2" y="56" width="130" height="6" fill="#455a64"/><circle cx="26" cy="64" r="9" fill="#222"/><circle cx="26" cy="64" r="4" fill="#90a4ae"/><circle cx="104" cy="64" r="9" fill="#222"/><circle cx="104" cy="64" r="4" fill="#90a4ae"/><text x="14" y="42" font-family="sans-serif" font-weight="900" font-size="15" fill="#101a1c">FREIGHT</text>', 200, '0 0 136 76');
+var CLOCK = svg('<circle cx="50" cy="50" r="44" fill="#fff4dc" stroke="#ff9f43" stroke-width="5"/><g class="hand"><rect x="48" y="14" width="4" height="38" rx="2" fill="#ff5a4e"/></g><rect x="48" y="30" width="4" height="22" rx="2" fill="#101a1c" transform="rotate(60 50 50)"/><circle cx="50" cy="50" r="5" fill="#101a1c"/><text x="50" y="82" text-anchor="middle" font-family="sans-serif" font-weight="900" font-size="11" fill="#101a1c">THU</text>', 84, '0 0 100 100');
+var GLASS = svg('<circle cx="26" cy="26" r="17" fill="rgba(154,242,234,.25)" stroke="#9af2ea" stroke-width="5"/><rect x="38" y="38" width="7" height="22" rx="3" transform="rotate(-45 41 49)" fill="#9af2ea"/>', 64, '0 0 64 64');
+
 /* ---------- content ---------- */
-// class flags: latent (passes production test, fails later), esc (cost when it escapes: safety / scrap / low), custom (your drawing), broker (independent market), msd, semi (die revision applies)
 var PARTS = [
  { id:'cells', name:'Li-ion cells, 18650', qty:'10,000', sup:'Hengda Power', latent:true, esc:'safety', defects:[
    { type:'counterfeit', harm:true, text:'Capacity-inflated cells: 1,800 mAh cells wearing a 3,000 mAh sleeve.' },
@@ -111,26 +185,27 @@ var PARTS = [
 ];
 var PBY = {}; PARTS.forEach(function (p) { PBY[p.id] = p; });
 var ESC = { safety:250, scrap:100, low:20 };
-
 var SPECS = [
- { id:'spec', name:'An inspection specification for the critical parts', sub:'You tell them what you care about. Otherwise they inspect what hurts the factory, not you.' },
- { id:'mrb', name:'No use-as-is without your approval', sub:'Their review board feels the schedule, not your field-failure liability.' },
- { id:'channel', name:'Channel control: authorised distribution only', sub:'Any broker buy needs your approval, part by part.' },
- { id:'trace', name:'Traceability: lot-level, plus unit-level for the critical parts', sub:'Built at the dock, or never. It decides how big a recall is.' },
- { id:'msd', name:'Moisture-sensitive parts: a floor-life log on every reel', sub:'The log answers in seconds, or it does not exist.' }
+ { id:'spec', ic:'📋', name:'An inspection specification for the critical parts', sub:'Tell them what you care about. Otherwise they inspect what hurts the factory, not you.' },
+ { id:'mrb', ic:'✋', name:'No use-as-is without your approval', sub:'Their review board feels the schedule, not your field-failure liability.' },
+ { id:'channel', ic:'🛡️', name:'Channel control: authorised distribution only', sub:'Any broker buy needs your approval, part by part.' },
+ { id:'trace', ic:'🔗', name:'Traceability: lot-level, plus unit-level for critical parts', sub:'Built at the dock, or never. It decides how big a recall is.' },
+ { id:'msd', ic:'💧', name:'Floor-life log on every moisture-sensitive reel', sub:'The log answers in seconds, or it does not exist.' }
 ];
 var METHODS = [
- { id:'visual', name:'Visual and documents', h:1, sub:'Date codes, markings, certificates, against your drawing.' },
- { id:'electrical', name:'Electrical sampling', h:2, sub:'Measure a sample against the datasheet.' },
- { id:'auth', name:'Authentication (X-ray, decap)', h:3, sub:'Is it the part on the label?' },
- { id:'floor', name:'Floor-life check', h:1, sub:'How long has this reel been out of its bag?' }
+ { id:'visual', ic:'🔍', name:'Visual + documents', h:1, sub:'Markings, certificates, your drawing' },
+ { id:'electrical', ic:'⚡', name:'Electrical sampling', h:2, sub:'Measure against the datasheet' },
+ { id:'auth', ic:'🩻', name:'Authenticate', h:3, sub:'X-ray, decap: is it the real part?' },
+ { id:'floor', ic:'💧', name:'Floor-life check', h:1, sub:'How long out of its bag?' }
 ];
 var MBY = {}; METHODS.forEach(function (m) { MBY[m.id] = m; });
 
 var G = null;
 var store = { get:function (k, d) { try { var v = localStorage.getItem('hhl.ch102.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set:function (k, v) { try { localStorage.setItem('hhl.ch102.' + k, JSON.stringify(v)); } catch (e) {} } };
 function fmt(n) { return Number(n).toLocaleString('en'); }
+function later(ms, fn) { setTimeout(function () { try { fn(); } catch (e) {} }, J.reduce ? 0 : ms); }
 function el(h) { $app.innerHTML = h; window.scrollTo(0, 0); }
+function $q(s) { return $app.querySelector(s); }
 function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
 function has(id) { return G.spec.indexOf(id) >= 0; }
 function riskOf(p) { return (p.broker ? 3 : 0) + (p.latent ? 2 : 0) + (p.esc === 'safety' ? 3 : p.esc === 'scrap' ? 1 : 0) + (p.custom ? 1 : 0); }
@@ -155,34 +230,35 @@ function dayLots() { return G.lots.slice(G.day * PER_DAY, G.day * PER_DAY + PER_
 function ledger(label, cost) { G.ledger.push({ label:label, cost:cost }); }
 
 /* ---------- screens ---------- */
+function topbar(back) { return '<div class="top">' + (back ? '<a class="back" href="../">← Games</a>' : '<span></span>') + J.muteBtn() + '</div>'; }
+
 function screenTitle() {
-  el('<div class="top"><a class="back" href="../">← Games</a></div>' +
-   '<div class="card"><h3>Chapter 2 · The Hardest Factory Lessons</h3><h1>The <span>Dock</span></h1>' +
-   '<p class="small"><i>From The Hardest Factory Lessons</i></p>' +
+  el(topbar(true) +
+   '<div class="card"><div class="stage"><div class="door"></div><div class="floor"></div>' +
+   '<div class="truck j-drive">' + TRUCK + '</div>' +
+   '<div style="position:absolute;right:20px;bottom:34px;display:flex;gap:6px"><div class="mini j-drop" style="animation-delay:.7s">' + icon('pcb', 36) + '</div><div class="mini j-drop" style="animation-delay:.85s">' + icon('cells', 36) + '</div><div class="mini j-drop" style="animation-delay:1s">' + icon('mcu', 36) + '</div></div></div>' +
+   '<h3>Chapter 2 · The Hardest Factory Lessons</h3><h1>The <span>Dock</span></h1>' +
    '<p>Every component in every unit you ship crosses the receiving dock. So does every defective one. <b>The dock is the cheapest place in the system to find out.</b></p>' +
-   '<div class="plain"><b>In plain English:</b> when parts arrive at a factory, a small team inspects some of them. Which parts, how closely, and what happens when one fails is decided by whoever wrote the rules. <b>Goal:</b> catch the defects that would cost you most, without stopping the line for harmless ones.</div>' +
-   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55">' +
-   '<li><b>Put three protections in writing</b> before the first truck. You cannot have all five.</li>' +
-   '<li><b>Three days, twelve lots.</b> You have 5 inspector hours a day. You cannot check everything.</li>' +
-   '<li><b>Stay in the room</b> when a lot fails. The line needs it on Thursday.</li>' +
-   '<li><b>A year later,</b> the defects that got through come back.</li></ul>' +
+   '<div class="plain"><b>In plain English:</b> when parts arrive at a factory, a small team checks some of them. Which parts, how closely, and what happens when one fails is decided by whoever wrote the rules. <b>Goal:</b> catch the defects that would cost you most, without stopping the line for harmless ones.</div>' +
    '<button class="btn" data-a="start">Start the shift</button>' +
    '<p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factory is fictional.</p></div>');
 }
 
 function screenSpec() {
   G.phase = 'spec'; var n = G.spec.length;
-  el('<div class="card"><h3>The quality agreement · ' + n + ' of 3</h3><h2>What goes in writing?</h2>' +
+  el(topbar(false) + '<div class="card"><h3>The quality agreement · ' + n + ' of 3</h3><h2>What goes in writing?</h2>' +
+   '<div class="slots">' + [0, 1, 2].map(function (i) { var id = G.spec[i]; var s = id && SPECS.filter(function (x) { return x.id === id; })[0]; return '<div class="slot' + (s ? ' on' : '') + '">' + (s ? s.ic : '') + '</div>'; }).join('') + '</div>' +
    '<p>Most teams never specify what happens at the dock, so the factory\'s defaults decide. You can put <b>three</b> of these in writing.</p>' +
    '<div class="pick">' + SPECS.map(function (s) { var on = has(s.id);
-     return '<button data-a="spec" data-id="' + s.id + '" class="' + (on ? 'on' : '') + '"><b>' + s.name + '</b><span>' + s.sub + '</span></button>'; }).join('') + '</div>' +
+     return '<button data-a="spec" data-id="' + s.id + '" class="' + (on ? 'on' : '') + '"><i>' + s.ic + '</i><b>' + s.name + '</b><span>' + s.sub + '</span></button>'; }).join('') + '</div>' +
    '<button class="btn" data-a="day"' + (n !== 3 ? ' disabled' : '') + '>First truck arrives</button></div>');
 }
 
 function hud() {
-  return '<div class="hud"><b>Day ' + (G.day + 1) + ' of ' + DAYS + '</b><div class="bar"><i style="width:' + Math.round(100 * G.hours / HOURS) + '%"></i></div><span>' + G.hours + ' h left</span></div>';
+  var pips = ''; for (var i = 0; i < HOURS; i++) pips += '<div class="pip' + (i < G.hours ? '' : ' off') + '"></div>';
+  return J.muteBtn() + '<div class="hud"><b>Day ' + (G.day + 1) + '/' + DAYS + '</b><div class="pips" title="Inspector hours">' + pips + '</div><span>' + G.hours + ' h</span></div>';
 }
-function tagsFor(p, lot) {
+function tagsFor(p) {
   var t = [];
   if (has('spec')) {
     if (riskOf(p) >= 4) t.push('<span class="tag star">★ critical</span>');
@@ -198,37 +274,59 @@ function tagsFor(p, lot) {
 function screenDay() {
   G.phase = 'day';
   var lots = dayLots(), done = lots.every(function (l) { return l.status; });
-  el(hud() + '<div class="card"><h3>The dock · day ' + (G.day + 1) + '</h3><h2>Four lots on the dock</h2>' +
+  el(hud() + '<div class="card"><h3>The dock · day ' + (G.day + 1) + '</h3><h2>Four lots on the belt</h2>' +
    (has('spec') ? '' : '<div class="note warn"><b>No inspection specification</b>You never told them what you care about, so you see what the factory sees: part names and a supplier.</div>') +
    '<div class="lots">' + lots.map(function (l, i) {
-     var st = l.status === 'released' ? 'shelved' : l.status === 'quarantined' ? 'decided' : 'to do';
-     return '<button class="lot' + (l.status ? ' done' : '') + '" data-a="lot" data-i="' + i + '"><b>' + l.p.name + '</b><span>' + l.p.qty + ' pcs · ' + l.p.sup + '</span><em>' + st + '</em></button>'; }).join('') + '</div>' +
-   '<p class="small">Open a lot to inspect it. Anything you do not inspect is counted and shelved.</p>' +
+     var cls = l.status === 'released' ? ' done' : l.status === 'quarantined' ? ' done q' : '', mark = l.status === 'released' ? '✓' : l.status === 'quarantined' ? '!' : '';
+     return '<button class="lotc' + cls + '" style="animation-delay:' + (i * 0.07) + 's" data-a="lot" data-i="' + i + '"><div class="st">' + mark + '</div><div style="transform:scale(.7);margin:-14px 0">' + crateHtml(l.p) + '</div><b>' + l.p.name + '</b><span>' + l.p.sup + '</span></button>'; }).join('') + '</div>' +
+   '<div class="belt j-belt"></div>' +
+   '<p class="small">Tap a crate to inspect it. Anything you do not inspect is counted and shelved.</p>' +
    '<button class="btn"' + (done ? '' : ' disabled') + ' data-a="recap">End the day</button></div>');
 }
 
-function screenLot(i, note) {
-  G.phase = 'lot'; G.cur = G.day * PER_DAY + i; var l = G.lots[G.cur], p = l.p;
-  if (l.status) return screenDay();
-  var used = l.log.map(function (x) { return x.m; });
-  var acts = METHODS.filter(function (m) { return m.id !== 'floor' || p.msd; }).map(function (m) {
-    var h = (m.id === 'floor' && has('msd')) ? 0 : m.h, done = used.indexOf(m.id) >= 0;
-    return '<button data-a="insp" data-m="' + m.id + '"' + (done || h > G.hours ? ' disabled' : '') + '><b>' + m.name + '</b><span>' + (m.id === 'floor' && has('msd') ? 'The reel log answers in seconds.' : m.sub) + '</span><em>' + (done ? 'done' : h === 0 ? 'free' : h + ' h') + '</em></button>'; }).join('');
-  el(hud() + '<div class="card"><h3>Lot ' + (i + 1) + ' of ' + PER_DAY + ' · ' + p.sup + '</h3><h2>' + p.name + '</h2><p class="small">' + p.qty + ' pieces on the dock</p>' + tagsFor(p, l) +
-   (l.log.length ? l.log.map(function (x) { return '<div class="note ' + (x.res === 'found' ? 'bad' : x.res === 'inconclusive' ? 'warn' : '') + '"><b>' + MBY[x.m].name + ' · ' + (x.res === 'found' ? 'finding' : x.res === 'inconclusive' ? 'suspicious' : 'nothing found') + '</b>' + x.text + '</div>'; }).join('') : '') +
-   (note ? '<div class="note"><b>Note</b>' + note + '</div>' : '') +
-   '<div class="act">' + acts + '</div>' +
-   '<div class="row"><button class="btn ghost sm" data-a="shelve">Count and shelve</button>' + (l.log.some(function (x) { return x.res !== 'clean'; }) ? '<button class="btn warn sm" data-a="mrb">Quarantine it</button>' : '') + '</div>' +
-   '<button class="btn ghost sm" data-a="day">Back to the dock</button></div>');
+function findHtml(x, last) {
+  var ic = x.res === 'found' ? '❗' : x.res === 'inconclusive' ? '❓' : '✅';
+  return '<div class="find ' + (x.res === 'found' ? 'found' : x.res === 'inconclusive' ? 'sus' : 'clean') + (last ? '' : ' old') + '"><i>' + MBY[x.m].ic + '</i><div><b>' + MBY[x.m].name + ' · ' + (x.res === 'found' ? 'finding' : x.res === 'inconclusive' ? 'suspicious' : 'nothing found') + '</b>' + x.text + '</div></div>';
+}
+function effectHtml(m) {
+  if (m === 'visual') return '<div class="fxl"><div class="glass">' + GLASS + '</div></div>';
+  if (m === 'electrical') return '<div class="fxl"><div class="probe" style="left:38%"></div><div class="probe b" style="left:60%"></div><svg class="wave" viewBox="0 0 200 36"><polyline points="0,18 20,18 30,4 42,32 54,4 66,32 78,18 200,18" fill="none" stroke="#3dd6c6" stroke-width="2.5"/></svg></div>';
+  if (m === 'auth') return '<div class="fxl"><div class="xray"></div><div class="j-scanbeam v"><i></i></div></div>';
+  if (m === 'floor') return '<div class="fxl"><svg class="gauge" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="#0e1718" stroke="#3dd6c6" stroke-width="4"/><path d="M14 66A40 40 0 0 1 86 66" stroke="#2c4043" stroke-width="8" fill="none"/><g class="needle" style="--to:' + (Math.random() < .5 ? 40 : -10) + 'deg"><rect x="48" y="14" width="4" height="38" rx="2" fill="#ff9f43"/></g><circle cx="50" cy="50" r="5" fill="#fff"/></svg></div>';
+  return '';
 }
 
-// what each method finds, deterministically
-function detect(m, l) {
-  var d = l.defect, p = l.p, T = { res:'clean', text:'' };
-  function ok(t) { return { res:'clean', text:t }; }
-  if (!d) {
-    return ok(m === 'visual' ? 'Documents in order, markings consistent.' : m === 'electrical' ? 'Sample measures within the datasheet.' : m === 'auth' ? 'The parts are what the label says.' : 'Every reel is inside its floor life.');
+function screenLot(i, justDid) {
+  G.phase = 'lot'; G.cur = G.day * PER_DAY + i; var l = G.lots[G.cur], p = l.p;
+  if (l.status) return screenDay();
+  var used = l.log.map(function (x) { return x.m; }), last = l.log[l.log.length - 1];
+  var tools = METHODS.filter(function (m) { return m.id !== 'floor' || p.msd; }).map(function (m) {
+    var h = (m.id === 'floor' && has('msd')) ? 0 : m.h, done = used.indexOf(m.id) >= 0;
+    return '<button class="tool' + (done ? ' used' : '') + '" data-a="insp" data-m="' + m.id + '"' + (done || h > G.hours ? ' disabled' : '') + '><i>' + m.ic + '</i><b>' + m.name + '</b><span>' + (m.id === 'floor' && has('msd') ? 'the log answers in seconds' : m.sub) + '</span><em>' + (done ? 'done' : h === 0 ? 'free' : h + ' h') + '</em></button>'; }).join('');
+  var badge = last && last.res === 'found' ? '<div class="j-blink" style="position:absolute;top:10px;left:12px;font-size:26px">❗</div>' : '';
+  el(hud() + '<div class="card"><h3>Lot ' + (i + 1) + ' of ' + PER_DAY + ' · ' + p.sup + '</h3><h2>' + p.name + '</h2>' +
+   '<div class="stage" id="stage"><div class="floor"></div><div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:26px">' + crateHtml(p, justDid ? '' : 'j-drop') + '</div>' + (justDid ? effectHtml(justDid) : '') + badge + '</div>' +
+   tagsFor(p) +
+   l.log.map(function (x, k) { return findHtml(x, justDid && k === l.log.length - 1); }).join('') +
+   '<div class="tools">' + tools + '</div>' +
+   '<div class="row"><button class="btn ghost sm" data-a="shelve">Count and shelve</button>' + (l.log.some(function (x) { return x.res !== 'clean'; }) ? '<button class="btn warn sm" data-a="mrb">Quarantine it</button>' : '') + '</div>' +
+   '<button class="btn ghost sm" data-a="day">Back to the dock</button></div>');
+  if (justDid) {
+    // the tool's sound fires on the press; the impact lands as the effect peaks (about 280 ms), all senses together
+    J.sfx(justDid === 'auth' ? 'xray' : justDid === 'electrical' ? 'probe' : 'scan');
+    later(280, function () {
+      var st = $q('#stage'); if (!st) return;
+      if (last.res === 'found') J.hit(st, 'bad', 'med');
+      else if (last.res === 'inconclusive') { J.hit(st, 'bad', 'small'); J.wiggle(st); }
+      else J.hit(st, 'good', 'small');
+    });
   }
+}
+
+function detect(m, l) {
+  var d = l.defect, p = l.p;
+  function ok(t) { return { res:'clean', text:t }; }
+  if (!d) return ok(m === 'visual' ? 'Documents in order, markings consistent.' : m === 'electrical' ? 'Sample measures within the datasheet.' : m === 'auth' ? 'The parts are what the label says.' : 'Every reel is inside its floor life.');
   if (m === 'visual') {
     if (d.type === 'cosmetic') return { res:'found', text:d.text };
     if (d.type === 'wrongrev' && p.custom) return has('spec') ? { res:'found', text:d.text + ' Checked against your drawing at your revision.' } : ok('Checked against the supplier\'s own drawing. It passes. Nobody told them which document counts.');
@@ -250,7 +348,7 @@ function detect(m, l) {
     if (d.type === 'msd') return { res:'found', text: has('msd') ? 'The log shows the exposure budget used up. ' + d.text : 'Nobody can say how long this reel has been out. The cabinet shows 40%. ' + d.text };
     return ok('Every reel is inside its floor life.');
   }
-  return T;
+  return ok('');
 }
 
 function doInspect(m) {
@@ -258,25 +356,22 @@ function doInspect(m) {
   if (h > G.hours) return;
   G.hours -= h; l.hoursSpent += h;
   var r = detect(m, l); l.log.push({ m:m, res:r.res, text:r.text });
-  screenLot(G.cur - G.day * PER_DAY);
+  screenLot(G.cur - G.day * PER_DAY, m);
 }
-
-function doShelve() {
-  var l = G.lots[G.cur]; l.status = 'released'; l.decision = l.defect ? 'shelved defective' : 'shelved';
-  screenDay();
-}
+function doShelve() { var l = G.lots[G.cur]; l.status = 'released'; l.decision = l.defect ? 'shelved defective' : 'shelved'; J.sfx('thud'); screenDay(); }
 
 function doMrb() {
   var l = G.lots[G.cur]; l.status = 'quarantined';
-  // without a written no-use-as-is rule, their board releases the first failed lot of the day to protect the schedule
   if (!has('mrb') && G.overridesToday < 1) {
-    G.overridesToday++; G.overrides++; l.decision = 'overridden'; l.status = 'quarantined'; l.useasis = true;
-    el(hud() + '<div class="card"><h3>Their MRB</h3><h2>Released as-is, without you</h2><div class="pressure">The lot is in quarantine, and the line needs it on Thursday. Their material review board met while you were on the dock. <b>"Use as is."</b> The deviation is not on your desk.</div><p class="small">You did not require your approval for use-as-is, so the board decided with your quality margin.</p><button class="btn" data-a="day">Back to the dock</button></div>');
+    G.overridesToday++; G.overrides++; l.decision = 'overridden'; l.useasis = true;
+    el(hud() + '<div class="card"><h3>Their MRB</h3><h2>Released as-is, without you</h2>' +
+     '<div class="stage" id="stage"><div class="floor"></div><div style="position:absolute;inset:0;display:grid;place-items:center">' + crateHtml(l.p, 'j-leave') + '</div></div>' +
+     '<div class="pressure">The lot is in quarantine, and the line needs it on Thursday. Their material review board met while you were on the dock. <b>"Use as is."</b> The deviation is not on your desk.</div><p class="small">You did not require your approval for use-as-is, so the board decided with your quality margin.</p><button class="btn" data-a="day">Back to the dock</button></div>');
+    J.sfx('whoosh'); later(250, function () { J.hit($q('#stage'), 'bad', 'med'); });
     return;
   }
   screenMrb();
 }
-var LATENCY_TXT = 'a replacement lead time of five weeks.';
 function screenMrb() {
   G.phase = 'mrb'; var l = G.lots[G.cur], d = l.defect;
   var found = l.log.filter(function (x) { return x.res === 'found'; })[0], conf = !!found;
@@ -286,39 +381,48 @@ function screenMrb() {
   if (!conf) analysis = 'Suspected, not confirmed. The risk is unknown.';
   var sortOk = G.hours >= 2;
   el(hud() + '<div class="card"><h3>Material review board · ' + l.p.name + '</h3><h2>Decide the lot</h2>' +
+   '<div class="stage"><div class="floor"></div><div style="position:absolute;left:14px;top:18px">' + CLOCK + '</div><div style="position:absolute;inset:0;display:grid;place-items:center;padding-left:90px;padding-bottom:20px"><div style="position:relative">' + crateHtml(l.p) + '<div class="cage"></div></div></div></div>' +
    '<div class="note"><b>Non-conformance · ' + l.p.qty + ' pieces</b>' + text + '</div>' +
-   '<div class="note ' + (d && d.harm ? 'warn' : '') + '"><b>Engineering analysis</b>' + analysis + '</div>' +
-   '<div class="pressure">The lot in quarantine is the lot the line needs on Thursday. Returning it means ' + LATENCY_TXT + ' The build slips, and the factory misses its month-end. <b>Every force in the room pushes toward release.</b></div>' +
-   '<div class="act">' +
-   '<button data-a="disp" data-v="rtv"><b>Return to vendor</b><span>The line waits. The supplier is told.</span><em>−€30k</em></button>' +
-   '<button data-a="disp" data-v="scrap"><b>Scrap it</b><span>Write it off. The line waits.</span><em>−€40k</em></button>' +
-   '<button data-a="disp" data-v="sort"' + (sortOk ? '' : ' disabled') + '><b>Sort it (100% screen)</b><span>' + (sortOk ? 'The good parts are used. Takes 2 inspector hours.' : 'Needs 2 inspector hours. You have ' + G.hours + '.') + '</span><em>−€12k</em></button>' +
-   '<button data-a="disp" data-v="uai"><b>Use as is</b><span>Release with the deviation documented' + (has('trace') ? ' and the lot fenced in your records.' : ', but with no traceability to find these units later.') + '</span><em>€0</em></button></div></div>');
+   '<div class="note ' + (d && d.harm && conf ? 'warn' : '') + '"><b>Engineering analysis</b>' + analysis + '</div>' +
+   '<div class="pressure">The lot in quarantine is the lot the line needs <b>on Thursday</b>. Returning it means a replacement lead time of five weeks. The build slips, and the factory misses its month-end. <b>Every force in the room pushes toward release.</b><div class="meter"><i></i></div></div>' +
+   '<div class="opts">' +
+   '<button class="opt" data-a="disp" data-v="rtv"><i>🚚</i><b>Return to vendor</b><span>The line waits. The supplier is told.</span><em>−€30k</em></button>' +
+   '<button class="opt" data-a="disp" data-v="scrap"><i>🗑️</i><b>Scrap it</b><span>Write it off. The line waits.</span><em>−€40k</em></button>' +
+   '<button class="opt" data-a="disp" data-v="sort"' + (sortOk ? '' : ' disabled') + '><i>🧪</i><b>Sort it</b><span>' + (sortOk ? '100% screen, 2 inspector hours' : 'Needs 2 hours; you have ' + G.hours) + '</span><em>−€12k</em></button>' +
+   '<button class="opt" data-a="disp" data-v="uai"><i>✅</i><b>Use as is</b><span>Release with the deviation documented' + (has('trace') ? ' and fenced' : ', no traceability') + '</span><em>€0</em></button></div></div>');
+  J.sfx('tick'); later(500, function () { J.sfx('alarm'); J.vibe(FEELV()); });
 }
+function FEELV() { return J.FEEL.vibe.small; }
 function doDisp(v) {
-  var l = G.lots[G.cur], d = l.defect, p = l.p, msg = '';
+  var l = G.lots[G.cur], d = l.defect, p = l.p, msg = '', scene = '';
   l.decision = v;
-  if (v === 'rtv') { ledger('Return to vendor: ' + p.name, 30); msg = 'Returned. The build slips, and the supplier knows. Cost €30k.'; }
+  if (v === 'rtv') { ledger('Return to vendor: ' + p.name, 30); msg = 'Returned. The build slips, and the supplier knows. Cost €30k.'; scene = '<div class="truck j-leave" style="left:10px">' + TRUCK + '</div>'; J.sfx('whoosh'); }
   if (v === 'scrap') { ledger('Scrapped: ' + p.name, 40); msg = 'Scrapped. The line waits for a replacement. Cost €40k.'; }
   if (v === 'sort') {
-    G.hours -= 2; ledger('Sorted: ' + p.name, 12);
+    G.hours -= 2; ledger('Sorted: ' + p.name, 12); l.sorted = true;
     var works = d && (d.type === 'parametric' || d.type === 'cosmetic');
-    l.sorted = true;
     if (!works && d) { l.escapes = true; msg = 'You screened it, but you cannot sort out authenticity, the revision or moisture damage. The bad parts are still in the lot. Cost €12k.'; }
     else msg = 'Screened. The good parts go to the line. Cost €12k, and the supplier\'s process is still not fixed.';
+    J.sfx('probe');
   }
   if (v === 'uai') { l.useasis = true; msg = d && d.harm ? 'Released with a deviation. The line runs on Thursday.' : 'Released with a deviation. Nothing will come of it.'; }
-  el(hud() + '<div class="card"><h3>Decision recorded</h3><h2>' + p.name + '</h2><div class="note"><b>' + { rtv:'Return to vendor', scrap:'Scrap', sort:'Sort', uai:'Use as is' }[v] + '</b>' + msg + '</div><button class="btn" data-a="day">Back to the dock</button></div>');
+  var label = { rtv:'Return to vendor', scrap:'Scrap', sort:'Sort', uai:'Use as is' }[v];
+  el(hud() + '<div class="card"><h3>Decision recorded</h3><h2>' + p.name + '</h2>' +
+   '<div class="stage" id="stage"><div class="floor"></div>' + scene + '<div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:20px">' + (v === 'rtv' ? '' : crateHtml(p, v === 'scrap' ? 'j-pulse' : '')) + '</div></div>' +
+   '<div class="note"><b>' + label + '</b>' + msg + '</div><button class="btn" data-a="day">Back to the dock</button></div>');
+  var st = $q('#stage');
+  if (v === 'scrap') J.hit(st, 'bad', 'med'); else if (v === 'uai') { J.hit(st, 'neutral', 'small'); J.sfx('stamp'); } else if (v === 'sort') { J.hit(st, 'neutral', 'small'); } else J.flash('#ff9f43', 200, 0.12);
 }
 
 function screenRecap() {
-  G.phase = 'recap'; var lots = dayLots();
-  var last = G.day === DAYS - 1;
+  G.phase = 'recap'; var lots = dayLots(), last = G.day === DAYS - 1;
+  var words = { rtv:'returned', scrap:'scrapped', sort:'sorted', uai:'used as is', overridden:'released by their MRB', shelved:'shelved', 'shelved defective':'shelved' };
   el('<div class="card"><h3>End of day ' + (G.day + 1) + '</h3><h2>The shift is over</h2>' +
-   '<div class="lines">' + lots.map(function (l) { var t = l.decision || (l.status === 'released' ? 'shelved' : 'quarantined'); return '<div><span>' + l.p.name + '</span><em style="color:var(--muted)">' + ({ rtv:'returned', scrap:'scrapped', sort:'sorted', uai:'used as is', overridden:'released by their MRB', shelved:'shelved', 'shelved defective':'shelved' }[t] || t) + '</em></div>'; }).join('') + '</div>' +
+   '<div class="lines">' + lots.map(function (l) { var t = l.decision || (l.status === 'released' ? 'shelved' : 'quarantined'); return '<div><span style="display:flex;gap:10px;align-items:center"><span class="mini" style="width:40px;height:34px">' + icon(l.p.id, 28) + '</span>' + l.p.name + '</span><em style="color:var(--muted)">' + (words[t] || t) + '</em></div>'; }).join('') + '</div>' +
    (G.overridesToday ? '<div class="note bad"><b>Their MRB</b>Released a failed lot as-is without you.</div>' : '') +
    '<p class="small">Whatever you shelved without checking is now in your product, whether it was good or not.</p>' +
    '<button class="btn" data-a="' + (last ? 'later' : 'nextday') + '">' + (last ? 'Fast-forward eleven months' : 'Day ' + (G.day + 2)) + '</button></div>');
+  J.stagger($app.querySelectorAll('.lines div'), 70);
 }
 
 /* ---------- consequences ---------- */
@@ -341,15 +445,20 @@ function buildEvents() {
 }
 function screenLater() {
   G.phase = 'later'; buildEvents(); G.ei = 0;
-  el('<div class="card"><h3>Eleven months later</h3><h2>What came back</h2><p>' + (G.events.length ? 'Not everything you shelved was good. Now the field reports start to arrive.' : 'A quiet year. Every defect that mattered was stopped at the dock.') + '</p><button class="btn" data-a="nextev">' + (G.events.length ? 'Open the reports' : 'Take the supplier\'s call') + '</button></div>');
+  var months = ''; for (var m = 1; m <= 11; m++) months += '<span class="tag" style="animation:jrise .25s ' + (m * 0.08) + 's both">M' + m + '</span>';
+  el('<div class="card"><h3>Eleven months later</h3><h2>What came back</h2><div class="tags" style="justify-content:center">' + months + '</div><p>' + (G.events.length ? 'Not everything you shelved was good. The field reports start to arrive.' : 'A quiet year. Every defect that mattered was stopped at the dock.') + '</p><button class="btn" data-a="nextev">' + (G.events.length ? 'Open the reports' : 'Take the supplier\'s call') + '</button></div>');
+  J.sfx('belt');
 }
 function nextEvent() {
   if (G.ei >= G.events.length) return screenRecall();
   var e = G.events[G.ei++]; ledger('Field failures: ' + e.l.p.name + ' (' + e.how + ')', e.cost);
-  el('<div class="card"><h3>Field report · ' + e.l.p.name + '</h3><h2>' + (e.l.defect.type === 'counterfeit' ? 'Counterfeit parts in the field' : e.l.defect.type === 'msd' ? 'Moisture damage' : e.l.defect.type === 'wrongrev' ? 'Wrong revision shipped' : 'A latent defect blooms') + '</h2>' +
+  el('<div class="card"><h3>Field report ' + G.ei + ' of ' + G.events.length + ' · ' + e.l.p.name + '</h3><h2>' + (e.l.defect.type === 'counterfeit' ? 'Counterfeit parts in the field' : e.l.defect.type === 'msd' ? 'Moisture damage' : e.l.defect.type === 'wrongrev' ? 'Wrong revision shipped' : 'A latent defect blooms') + '</h2>' +
+   '<div class="stage j-siren" id="stage"><div class="floor"></div><div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:20px"><div class="j-drop">' + icon(e.l.p.id, 84) + '</div></div><div class="j-blink" style="position:absolute;top:10px;right:14px;font-size:34px">⚠️</div></div>' +
    '<div class="note bad"><b>What happened</b>' + FIELD[e.l.defect.type] + '</div>' +
    '<div class="note"><b>How it got through</b>The lot was ' + e.how + '. ' + e.l.defect.text + '</div>' +
-   '<div class="cost">−€' + e.cost + 'k</div><button class="btn" data-a="nextev">' + (G.ei >= G.events.length ? 'Take the supplier\'s call' : 'Next report') + '</button></div>');
+   '<div class="cost" id="cst">−€0k</div><button class="btn" data-a="nextev">' + (G.ei >= G.events.length ? 'Take the supplier\'s call' : 'Next report') + '</button></div>');
+  J.sfx('alarm'); J.hit($q('#stage'), 'bad', 'big');
+  J.count($q('#cst'), 0, e.cost, 800, function (n) { return '−€' + Math.round(n) + 'k'; });
 }
 function screenRecall() {
   G.phase = 'recall';
@@ -360,9 +469,15 @@ function screenRecall() {
   else { cost = harmful ? 400 : 100; txt = harmful ? 'There is no traceability. The recall that could have been four thousand units becomes every unit shipped in six months.' : 'You cannot prove which units contain it, so you screen six months of shipments to be safe.'; }
   ledger('Supplier recall call: ' + bad.p.name, cost);
   el('<div class="card"><h3>Month 11 · ' + bad.p.sup + ' calls</h3><h2>"Lots from March to May have a latent defect"</h2>' +
+   '<div class="stage" id="stage"><div class="floor"></div><div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:20px"><div class="j-float" id="ph" style="font-size:64px">📞</div></div></div>' +
    '<p>Which of your shipped units contain them? Everything about how that gets answered was decided at the receiving dock, months ago, by people who did not know they were deciding it.</p>' +
    '<div class="note ' + (has('trace') ? 'good' : 'bad') + '"><b>' + (has('trace') ? 'Traceability in place' : 'No traceability') + '</b>' + txt + '</div>' +
-   '<div class="cost">' + (cost ? '−€' + cost + 'k' : '€0') + '</div><button class="btn" data-a="result">See the result</button></div>');
+   '<div class="cost" id="cst" style="' + (cost ? '' : 'color:var(--green)') + '">€0k</div><button class="btn" data-a="result">See the result</button></div>');
+  J.sfx('phone'); later(300, function () { J.wiggle($q('#ph')); }); later(700, function () { J.wiggle($q('#ph')); });
+  later(900, function () {
+    if (cost) J.hit($q('#stage'), 'bad', cost >= 100 ? 'big' : 'med'); else J.hit($q('#ph'), 'good', 'med');
+    J.count($q('#cst'), 0, cost, 800, function (n) { return cost ? '−€' + Math.round(n) + 'k' : '€0k'; });
+  });
 }
 
 function score() {
@@ -373,8 +488,6 @@ function score() {
   var bySup = {}; G.lots.forEach(function (l) { if (l.sorted) bySup[l.p.sup] = (bySup[l.p.sup] || 0) + 1; });
   Object.keys(bySup).forEach(function (s) { if (bySup[s] > 1) pen += 20; });
   if (pen) { rows.push(['Same supplier sorted repeatedly (absorbing its problem)', -pen]); total -= pen; }
-  var bonus = 0;
-  var clean = G.lots.filter(function (l) { return !l.defect && (l.decision === 'rtv' || l.decision === 'scrap'); }).length; // wrongly rejected good lots
   return { rows:rows, total:Math.max(0, total), costs:costs };
 }
 
@@ -390,21 +503,24 @@ function screenResult() {
     var how = l.status === 'released' ? 'shelved' : ({ rtv:'returned', scrap:'scrapped', sort:'sorted', uai:'used as is', overridden:'released by their MRB' }[l.decision] || 'quarantined');
     var what = l.defect ? T[l.defect.type] + (l.defect.harm ? '' : ' (harmless)') : 'Good';
     var used = l.log.length ? l.log.map(function (x) { return MBY[x.m].name.split(' ')[0].toLowerCase(); }).join(' + ') : 'no inspection';
-    return '<div class="reveal"><b>' + l.p.name + ' · ' + what + '</b><span class="small">You: ' + used + ' → ' + how + '</span></div>'; }).join('');
+    return '<div class="reveal"><span class="mini" style="width:44px;height:40px">' + icon(l.p.id, 32) + '</span><span><b>' + l.p.name + ' · ' + what + '</b><span class="small">You: ' + used + ' → ' + how + '</span></span></div>'; }).join('');
   var lessons = [];
   if (!has('spec')) lessons.push('Without an inspection specification you could not see which parts were critical, and custom parts were checked against the supplier\'s own drawing.');
   if (!has('mrb')) lessons.push('Without a written approval rule, their board released ' + G.overrides + ' failed lot(s) as-is. It carries the schedule pressure, not your field-failure liability.');
   if (!has('channel')) lessons.push('Without channel control, a broker buy can arrive labelled as authorised distribution. A purchasing desk filling a shortage quietly is not hypothetical. It is a Tuesday.');
   if (!has('trace')) lessons.push('Without traceability, a recall covers everything shipped in six months. Traceability is built at the dock or not at all.');
   if (!has('msd')) lessons.push('Without floor-life logs, nobody could say how long the reels had been open. A disciplined factory answers in seconds.');
-  el('<div class="card"><h3>Year-end result</h3><div class="stamp ' + stamp + '">' + txt + '</div><div class="big">' + fmt(sc.total) + '</div>' +
-   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
+  el('<div class="card"><h3>Year-end result</h3><div class="stamp ' + stamp + '" id="stp">' + txt + '</div><div class="big" id="bigs">0</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800" class="j-pulse">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
    '<div class="lines">' + sc.rows.map(function (r) { return '<div><span>' + r[0] + '</span><em class="' + (r[1] >= 0 ? 'pos' : 'neg') + '">' + (r[1] >= 0 ? '+' : '') + r[1] + '</em></div>'; }).join('') + '</div>' +
-   '<h3>Where the money went</h3><div class="lines">' + (G.ledger.length ? G.ledger.map(function (x) { return '<div><span>' + x.label + '</span><em class="neg">−€' + x.cost + 'k</em></div>'; }).join('') : '<div><span>Nothing</span><em>€0</em></div>') + '</div>' +
+   '<h3>Where the money went</h3><div class="lines" id="led">' + (G.ledger.length ? G.ledger.map(function (x) { return '<div><span>' + x.label + '</span><em class="neg">−€' + x.cost + 'k</em></div>'; }).join('') : '<div><span>Nothing</span><em>€0</em></div>') + '</div>' +
    (lessons.length ? '<div class="note warn"><b>What the missing paperwork cost</b>' + lessons.join('<br><br>') + '</div>' : '') +
-   '<h3>What was really in each lot</h3>' + truth +
+   '<h3>What was really in each lot</h3><div id="tru">' + truth + '</div>' +
    HHL.next(102) +
    '<div class="row"><button class="btn" data-a="again">Run another shift</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+  J.stamp($q('#stp'), stamp); J.count($q('#bigs'), 0, sc.total, 1200);
+  later(1300, function () { if (stamp === 'pass') { J.confetti(); J.sfx('win'); } else J.sfx(stamp === 'warn' ? 'ok' : 'lose'); });
+  J.stagger($app.querySelectorAll('#led div, #tru .reveal'), 50);
 }
 
 /* ---------- events ---------- */
@@ -413,7 +529,7 @@ $app.addEventListener('click', function (e) {
   var a = b.dataset.a, id = b.dataset.id;
   switch (a) {
     case 'start': newGame(); screenSpec(); break;
-    case 'spec': { var i = G.spec.indexOf(id); if (i >= 0) G.spec.splice(i, 1); else if (G.spec.length < 3) G.spec.push(id); screenSpec(); break; }
+    case 'spec': { var i = G.spec.indexOf(id); if (i >= 0) G.spec.splice(i, 1); else if (G.spec.length < 3) { G.spec.push(id); J.sfx('select'); } screenSpec(); if (i < 0) { var sl = $app.querySelectorAll('.slot.on'); if (sl.length) { J.pop(sl[sl.length - 1], 1.3); J.burstAt(sl[sl.length - 1], { n:10, pal:'acc', speed:160 }); } } break; }
     case 'day': G.overridesToday = G.overridesToday || 0; screenDay(); break;
     case 'lot': screenLot(Number(b.dataset.i)); break;
     case 'insp': doInspect(b.dataset.m); break;
