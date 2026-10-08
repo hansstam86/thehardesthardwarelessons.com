@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#101a1c">
 <title>The Deal — The Hardest Factory Lessons</title>
 <meta name="description" content="A free game: negotiate a manufacturing contract, then live through five years of what you secured and what you deferred. From The Hardest Factory Lessons, Chapter 15.">
+<link rel="stylesheet" href="../juice.css?v=2">
 <style>
 :root{
   --bg:#101a1c; --ink:#eaf3f2; --muted:#93a9a8; --panel:#182427; --panel2:#1e2e31; --rule:#2c4043;
@@ -63,11 +64,56 @@ p{margin:0;color:var(--muted);font-size:15px;line-height:1.45} p b,li b{color:va
 .lesson{background:#0e1718;border-radius:12px;padding:12px;color:#e3efee;font-size:14.5px;line-height:1.5}
 .reveal{display:grid;gap:3px;padding:9px 0;border-top:1px solid var(--rule);font-size:13.5px;color:#d6e4e3} .reveal b{font-size:14px}
 a{color:var(--acc)}
+
+/* ---- visual layer ---- */
+body{overflow-x:hidden}
+.btn{box-shadow:0 4px 0 #1f8f85;transition:transform .06s,box-shadow .06s} .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1f8f85} .btn.ghost{box-shadow:none}
+.hud{margin-right:50px}
+.coins{display:flex;flex-wrap:wrap;gap:3px}
+.coin{width:15px;height:15px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe58a,#f5c518 55%,#b8860b);box-shadow:0 1px 0 rgba(0,0,0,.4);transition:transform .2s,opacity .2s}
+.coin.off{background:#0e1718;box-shadow:none;transform:scale(.6);opacity:.7}
+.stage{position:relative;height:170px;border-radius:14px;overflow:hidden;background:linear-gradient(#1b2b2e 0 62%,#23363a 62% 100%);border:1px solid var(--rule)}
+.stage .floor{position:absolute;left:0;right:0;bottom:0;height:38%;background:repeating-linear-gradient(90deg,#26393d 0 26px,#2b4146 26px 52px)}
+.big-ic{font-size:70px;line-height:1;filter:drop-shadow(0 6px 0 rgba(0,0,0,.25))}
+.top{display:flex;justify-content:space-between;align-items:center} .jmute{position:static}
+.tag{font:800 10px/1 var(--font);letter-spacing:.05em;text-transform:uppercase;padding:5px 7px;border-radius:6px;background:var(--panel2);color:var(--muted)}
+.band{position:relative;height:8px;border-radius:6px;background:#0e1718;margin:6px 0 2px} .band i{position:absolute;top:-3px;width:14px;height:14px;border-radius:50%;background:var(--acc);border:2px solid #07201d;transition:left .6s cubic-bezier(.2,1.3,.4,1)} .band u{position:absolute;top:0;bottom:0;left:38%;width:30%;background:rgba(61,214,198,.22);border-radius:6px;text-decoration:none}
+.paper{background:#f4efe3;color:#2a2418;border-radius:6px;padding:12px;display:grid;gap:7px;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.paper .pt{font:900 10px var(--font);letter-spacing:.1em;text-transform:uppercase;color:#6b6252} .paper .price{font:900 28px var(--font);color:#2a2418} .paper .s{color:#4a4333;font-size:12.5px}
+.paper.thin{outline:2px dashed rgba(192,57,43,.0)}
+.paper .ans{font-size:12.5px;color:#2a2418;animation:jrise .3s ease both;padding-top:6px;border-top:1px dashed #d9cfb8}
+.paper button.btn{box-shadow:0 3px 0 #1f8f85}
+.probes{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.probe{display:grid;gap:2px;justify-items:center;text-align:center;border:1px solid var(--rule);background:var(--panel2);border-radius:14px;padding:12px 6px;color:var(--ink);font:inherit;cursor:pointer;transition:transform .06s}
+.probe:active{transform:scale(.94)} .probe:disabled{opacity:.4;pointer-events:none} .probe i{font-style:normal;font-size:26px} .probe b{font-size:13px} .probe span{font-size:11px;color:var(--muted)} .probe em{font:900 11px var(--font);font-style:normal;color:var(--acc)}
+.clause{display:grid;gap:9px;padding:14px 0;border-top:1px solid var(--rule)} .clause:first-of-type{border-top:0;padding-top:4px}
+.clause .h{display:flex;justify-content:space-between;align-items:baseline;gap:8px} .clause .h b{font-size:16px} .clause .h span{font:700 11px var(--font);letter-spacing:.04em;color:var(--amber);white-space:nowrap}
+.clause .sc{font-size:13px;color:var(--muted);font-style:italic}
+.lv{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.lv button{display:grid;gap:3px;align-content:start;justify-items:center;text-align:center;border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:12px;padding:10px 6px;font:inherit;cursor:pointer;min-height:112px;transition:transform .08s,border-color .15s}
+.lv button:active{transform:scale(.94)}
+.lv button .ic{font-size:26px;line-height:1} .lv button b{font-size:13px} .lv button span{font-size:10.5px;color:var(--muted);line-height:1.3} .lv button i{font:800 11px var(--font);font-style:normal;color:var(--acc)}
+.lv button.on{border-color:var(--acc);background:#16363a;transform:scale(1.03)} .lv button.on[data-l="0"]{border-color:var(--red);background:#2b1a1a} .lv button:disabled{opacity:.35;pointer-events:none}
+.react{display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:start;font-size:12.5px;color:#d6e4e3;background:#0e1718;border-radius:10px;padding:8px 10px;animation:jrise .25s ease both} .react i{font-style:normal;font-size:24px}
+.react.bad{color:#ffb4ac} .react.good{color:#aeeccb}
+.tl{display:flex;align-items:center;gap:0;padding:6px 2px}
+.tl .n{width:14px;height:14px;border-radius:50%;background:#0e1718;border:2px solid var(--rule);flex:none;transition:background .3s,border-color .3s}
+.tl .n.done{background:var(--acc);border-color:var(--acc)} .tl .n.hit{background:var(--red);border-color:var(--red)} .tl .n.cur{border-color:var(--gold);box-shadow:0 0 0 4px rgba(245,197,24,.2)}
+.tl .l{height:3px;flex:1;background:var(--rule)} .tl .l.done{background:var(--acc)}
+.evic{font-size:64px}
+.shield{animation:jpulse 1s ease-in-out infinite}
+.bars{display:grid;gap:10px}
+.bar2{display:grid;gap:3px;font-size:12.5px;color:#d6e4e3} .bar2 .t{display:flex;justify-content:space-between;gap:8px} .bar2 .t b{font-size:13px}
+.bar2 .tr{position:relative;height:10px;border-radius:5px;background:#0e1718;overflow:hidden} .bar2 .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;transform-origin:left;animation:fillb .8s cubic-bezier(.2,1.1,.4,1) both} .bar2 .tr .gh{background:rgba(255,255,255,.14)}
+@keyframes fillb{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.bigs{font:900 64px/1 var(--font);text-align:center;color:var(--acc);font-variant-numeric:tabular-nums}
+.tick{font:900 14px var(--font);color:var(--red);font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<script src="../hhl.js?v=10"></script>
+<script src="../hhl.js?v=11"></script>
+<script src="../juice.js?v=2"></script>
 <script>
 (function () {
 'use strict';
@@ -158,46 +204,52 @@ function cost(c, lv) { if (lv === 0) return 0; var base = lv; if (Q().retainer &
 function capLeft() { return Q().cap - spent(); }
 
 /* ---------- screens ---------- */
+var CIC = { tooling:'🔧', yield:'📉', epidemic:'🦠', eo:'📦', capacity:'🏗️', price:'💶', eco:'📝', ip:'🕵️', payment:'💱', exit:'🚪' };
+var LVIC = ['🕳️', '🛡️', '🏰'];
+var PRIC = { yield:'🎯', excl:'🧾', tooling:'🔨', margin:'📈' };
+function later(ms, fn) { setTimeout(function () { try { fn(); } catch (e) {} }, J.reduce ? 0 : ms); }
+function $q(sel) { return $app.querySelector(sel); }
+function topbar(back) { return '<div class="top">' + (back ? '<a class="back" href="../">← Games</a>' : '<span></span>') + J.muteBtn() + '</div>'; }
+function coinsHtml() { var cap = Q().cap, left = capLeft(), h = ''; for (var i = 0; i < cap; i++) h += '<i class="coin' + (i < left ? '' : ' off') + '"></i>'; return h; }
+
 function screenTitle() {
-  el('<div class="top"><a class="back" href="../">← Games</a></div>' +
-   '<div class="card"><h3>Chapter 15 · The Hardest Factory Lessons</h3><h1>The <span>Deal</span></h1>' +
-   '<p class="small"><i>From The Hardest Factory Lessons</i></p>' +
+  el(topbar(true) + '<div class="card"><div class="stage"><div class="floor"></div>' +
+   '<div class="j-drive" style="position:absolute;left:18px;bottom:36px;font-size:46px">🧑‍💼</div><div style="position:absolute;right:20px;bottom:36px;font-size:46px;animation:jdrive 1s .2s cubic-bezier(.2,.9,.3,1) both reverse">👔</div>' +
+   '<div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:30px" class="big-ic j-float">📄</div><div style="position:absolute;left:50%;top:18px;font-size:26px" class="j-float">✒️</div></div>' +
+   '<h3>Chapter 15 · The Hardest Factory Lessons</h3><h1>The <span>Deal</span></h1>' +
    '<p>You have audited three factories. Now you sign one. <b>Everything is negotiable exactly once</b>, and every term you defer "until we\'re up and running" is a concession with a delayed invoice.</p>' +
    '<div class="plain"><b>In plain English:</b> before you sign a manufacturing contract, you read the price quote, decide which protections to demand, and then live with the result for years. <b>Goal:</b> keep the total cost of the relationship low by securing the right protections while you still have alternatives.</div>' +
-   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55">' +
-   '<li><b>Read the quotes.</b> One is suspiciously cheap.</li>' +
-   '<li><b>Spend limited negotiating capital</b> on ten contract clauses. You cannot win them all.</li>' +
-   '<li><b>Live through five years</b> of what each clause was written for.</li></ul>' +
-   '<button class="btn" data-a="start">Start the negotiation</button>' +
-   '<p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factories are fictional.</p></div>');
+   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55"><li><b>Read the quotes.</b> One is suspiciously cheap.</li><li><b>Spend limited negotiating capital</b> on ten contract clauses. You cannot win them all.</li><li><b>Live through five years</b> of what each clause was written for.</li></ul>' +
+   '<button class="btn" data-a="start">Start the negotiation</button><p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factories are fictional.</p></div>');
 }
 
+function bandPos(t) { return t.unit < 45 ? 10 : t.unit < 52 ? 50 : 88; }
 function screenQuotes() {
   G.phase = 'quotes';
   var left = 2 - G.nprobes;
-  el('<div class="card"><h3>Three quotes · ' + left + ' question' + (left === 1 ? '' : 's') + ' left</h3><h2>Read the quotes</h2>' +
+  el(topbar(false) + '<div class="card"><h3>Three quotes · ' + left + ' question' + (left === 1 ? '' : 's') + ' left</h3><h2>Read the quotes</h2>' +
    '<p>A quote is an argument dressed as arithmetic. You can ask <b>two</b> questions before you choose. They apply to all three factories.</p>' +
-   '<div class="act" style="display:grid;gap:8px">' + PROBES.map(function (p) { var done = G.probed[p.id];
-      return '<button class="probe" data-a="probe" data-id="' + p.id + '"' + (done || left <= 0 ? ' disabled' : '') + '><b>' + p.name + '</b><span>' + p.sub + '</span><em>' + (done ? 'asked' : 'ask') + '</em></button>'; }).join('') + '</div>' +
+   '<div class="probes">' + PROBES.map(function (p) { var done = G.probed[p.id];
+      return '<button class="probe" data-a="probe" data-id="' + p.id + '"' + (done || left <= 0 ? ' disabled' : '') + '><i>' + PRIC[p.id] + '</i><b>' + p.name + '</b><span>' + p.sub + '</span><em>' + (done ? 'asked' : 'ask') + '</em></button>'; }).join('') + '</div>' +
    G.quotes.map(function (q, i) { var t = QTYPES[q.type], struck = G.struck[i];
-     var answers = PROBES.filter(function (p) { return G.probed[p.id]; }).map(function (p) { return '<div class="s"><b style="color:var(--ink)">' + p.name + ':</b> ' + t.probes[p.id] + '</div>'; }).join('');
-     return '<div class="quote' + (G.chosen && G.chosen.i === i ? ' on' : '') + '" style="' + (struck ? 'opacity:.4' : '') + '"><div class="p"><b>' + q.name + '</b><em>€' + t.unit + '</em></div><div class="s">Per unit, 50k units a year · ' + t.band + '</div>' + answers +
-       '<button class="btn sm ghost" data-a="choose" data-i="' + i + '"' + (struck ? ' disabled' : '') + '>' + (struck ? 'You walked away' : 'Negotiate with ' + q.name) + '</button></div>'; }).join('') +
+     var answers = PROBES.filter(function (p) { return G.probed[p.id]; }).map(function (p) { return '<div class="ans"><b>' + PRIC[p.id] + ' ' + p.name + ':</b> ' + t.probes[p.id] + '</div>'; }).join('');
+     return '<div class="paper" style="' + (struck ? 'opacity:.4' : '') + '"><div class="pt">Quote · ' + q.name + '</div><div class="price">€' + t.unit + ' <span style="font-size:12px;font-weight:600;color:#6b6252">per unit</span></div><div class="band"><u></u><i style="left:' + bandPos(t) + '%"></i></div><div class="s">50k units a year · ' + t.band + ' (the shaded zone is the market band)</div>' + answers +
+       '<button class="btn sm" data-a="choose" data-i="' + i + '"' + (struck ? ' disabled' : '') + '>' + (struck ? 'You walked away' : 'Negotiate with ' + q.name) + '</button></div>'; }).join('') +
    '</div>');
 }
 
 function screenClauses() {
   G.phase = 'clauses';
   var cl = capLeft(), cap = Q().cap;
-  el('<div class="hud"><b>Capital</b><div class="bar"><i style="width:' + Math.round(100 * cl / cap) + '%"></i></div><span>' + cl + ' of ' + cap + '</span></div>' +
+  el(J.muteBtn() + '<div class="hud"><b>Capital</b><div class="coins">' + coinsHtml() + '</div><span>' + cl + '/' + cap + '</span></div>' +
    '<div class="card"><h3>Negotiating with ' + G.chosen.name + '</h3><h2>The clauses</h2>' +
    '<p>Each clause is written for a scenario that <b>will</b> happen. <b>Basic</b> costs 1 capital and <b>Full</b> costs 2. You cannot afford everything. Cover as many scenarios as you can, then deepen the ones that bite hardest.</p>' +
    '<div class="plain">The counterparty\'s behaviour when you table these is the last audit finding. A factory that engages seriously expects to keep you by performing.</div>' +
    CLAUSES.map(function (c) { var lv = G.level[c.id], r = G.react[c.id];
-     var up1 = cost(c, 1), up2 = cost(c, 2), cur = cost(c, lv);
+     var cur = cost(c, lv);
      function btn(l) { var can = (capLeft() + cur - l) >= 0, shown = (lv === l && l > 0) ? cost(c, l) : l;
-       return '<button data-a="lv" data-id="' + c.id + '" data-l="' + l + '" class="' + (lv === l ? 'on' : '') + '"' + (!can && lv !== l ? ' disabled' : '') + '><b>' + LVNAME[l] + '</b><span>' + (l === 0 ? 'Until we are up and running.' : l === 1 ? c.b : c.f) + '</span><i>' + (shown ? shown + ' capital' : 'free') + '</i></button>'; }
-     return '<div class="clause"><div class="h"><b>' + c.name + '</b><span>' + '●'.repeat(c.ex) + '○'.repeat(3 - c.ex) + ' exposure</span></div><div class="sc">The scenario: ' + c.sc + '</div><div class="lv">' + btn(0) + btn(1) + btn(2) + '</div>' + (r ? '<div class="react ' + r[1] + '">' + r[0] + '</div>' : '') + '</div>'; }).join('') +
+       return '<button data-a="lv" data-id="' + c.id + '" data-l="' + l + '" class="' + (lv === l ? 'on' : '') + '"' + (!can && lv !== l ? ' disabled' : '') + '><div class="ic">' + LVIC[l] + '</div><b>' + LVNAME[l] + '</b><span>' + (l === 0 ? 'Until we are up and running.' : l === 1 ? c.b : c.f) + '</span><i>' + (shown ? shown + ' 🪙' : 'free') + '</i></button>'; }
+     return '<div class="clause" data-c="' + c.id + '"><div class="h"><b>' + CIC[c.id] + ' ' + c.name + '</b><span>' + '🔥'.repeat(c.ex) + '</span></div><div class="sc">The scenario: ' + c.sc + '</div><div class="lv">' + btn(0) + btn(1) + btn(2) + '</div>' + (r ? '<div class="react ' + r[1] + '"><i>' + (r[1] === 'bad' ? '😠' : '🙂') + '</i><span>' + r[0] + '</span></div>' : '') + '</div>'; }).join('') +
    '<div class="row"><button class="btn ghost sm" data-a="walk"' + (G.walked ? ' disabled' : '') + '>Walk away</button><button class="btn" data-a="sign">Sign the contract</button></div>' +
    '<p class="small">' + (G.walked ? 'You have already walked away once.' : 'Walking away returns you to the other quotes. It costs ' + WALK_PENALTY + ' points: the calendar moves, even before the tooling is cut.') + '</p></div>');
 }
@@ -210,29 +262,45 @@ function reaction(c, l) {
 
 function screenWalk() {
   G.struck[G.chosen.i] = true; G.walked++; G.level = {}; CLAUSES.forEach(function (c) { G.level[c.id] = 0; }); G.react = {};
-  G.walkedFrom = G.chosen.type; G.chosen = null; screenQuotes();
+  G.walkedFrom = G.chosen.type; G.chosen = null; J.sfx('whoosh'); screenQuotes();
 }
 
+function timeline(done, cur, hits) {
+  var h = ''; for (var i = 0; i < G.events.length; i++) { h += '<div class="n' + (i < done ? (hits[i] ? ' hit' : ' done') : '') + (i === cur ? ' cur' : '') + '"></div>' + (i < G.events.length - 1 ? '<div class="l' + (i < done ? ' done' : '') + '"></div>' : ''); }
+  return '<div class="tl">' + h + '</div>';
+}
 function screenYears() {
   G.phase = 'years'; var q = Q();
   G.log = []; G.net = 0; G.idx = 0; G.events = CLAUSES.slice().sort(function (a, b) { return Number(a.ev.m.replace(/\D/g, '')) - Number(b.ev.m.replace(/\D/g, '')); });
-  el('<div class="card"><h3>' + G.chosen.name + ' · signed</h3><h2>Five years later</h2>' +
+  el(topbar(false) + '<div class="card"><h3>' + G.chosen.name + ' · signed</h3><h2>Five years later</h2>' +
+   '<div class="stage"><div class="floor"></div><div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:30px" class="big-ic j-drop">✅</div></div>' + timeline(0, -1, {}) +
    '<p>The contract is signed. The tooling is cut. Your alternatives have gone cold. Now the scenarios arrive, one by one, and each one finds out what you wrote and what you deferred.</p>' +
    '<div class="note"><b>Year one</b>' + (q.save > 0 ? 'You saved €' + q.save + 'k on the quote.' : q.save < 0 ? 'You paid €' + (-q.save) + 'k more than the band.' : 'You paid the band price.') + '</div>' +
    '<button class="btn" data-a="nextev">Begin month 1</button></div>');
+  J.sfx('stamp');
 }
 function nextEvent() {
   var q = Q();
   if (G.idx >= G.events.length) return screenDebrief();
+  var prevNet = G.net;
   var c = G.events[G.idx++], lv = G.level[c.id], base = c.cost[lv], mult = (q.mult !== 1 && c.thin) ? q.mult : 1, cst = Math.round(base * mult);
   G.net += cst; G.log.push({ c:c, lv:lv, cost:cst, base:base, mult:mult });
+  var hits = {}; G.log.forEach(function (l, i) { hits[i] = l.lv < 2; });
   var klass = lv === 2 ? 'ok' : lv === 1 ? 'mid' : 'hi';
-  el('<div class="card ev"><h3>' + c.ev.m + ' · ' + c.name + '</h3><h2>' + c.ev.t + '</h2>' +
-   '<div class="note"><b>You wrote: ' + LVNAME[lv] + '</b>' + c.ev.r[lv] + '</div>' +
+  el(topbar(false) + '<div class="card ev"><h3>' + c.ev.m + ' · ' + c.name + '</h3><h2>' + c.ev.t + '</h2>' + timeline(G.idx, G.idx - 1, hits) +
+   '<div class="stage ' + (lv === 0 ? 'j-siren' : '') + '" id="stage"><div class="floor"></div><div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:30px"><div class="evic ' + (lv === 0 ? 'j-drop' : '') + '">' + CIC[c.id] + '</div></div>' +
+   (lv === 2 ? '<div class="shield j-float" style="position:absolute;right:20px;top:14px;font-size:44px">🛡️</div>' : lv === 1 ? '<div style="position:absolute;right:20px;top:14px;font-size:44px;opacity:.7">🛡️</div>' : '<div class="j-blink" style="position:absolute;right:20px;top:14px;font-size:40px">💥</div>') + '</div>' +
+   '<div class="note ' + (lv === 2 ? 'good' : lv === 0 ? 'bad' : 'warn') + '"><b>You wrote: ' + LVNAME[lv] + '</b>' + c.ev.r[lv] + '</div>' +
    (mult !== 1 ? '<div class="note warn"><b>The thin-quote recovery playbook</b>The discount is recovered here: cost × ' + mult + '.</div>' : '') +
-   '<div class="cost ' + klass + '">−€' + cst + 'k</div>' +
-   '<div class="small" style="color:var(--muted)">Running total: €' + G.net + 'k · Event ' + G.idx + ' of ' + G.events.length + '</div>' +
+   '<div class="cost ' + klass + '" id="cst">−€0k</div>' +
+   '<div class="small" style="color:var(--muted);text-align:center">Running total: <span class="tick" id="run">€' + prevNet + 'k</span> · Event ' + G.idx + ' of ' + G.events.length + '</div>' +
    '<button class="btn" data-a="nextev">' + (G.idx >= G.events.length ? 'See the result' : 'Next event') + '</button></div>');
+  var st = $q('#stage');
+  if (lv === 2) { J.sfx('good'); J.hit(st, 'good', 'small'); }
+  else if (lv === 1) { J.sfx('bad'); J.hit(st, 'bad', 'small'); }
+  else { J.sfx('alarm'); J.hit(st, 'bad', cst >= 100 ? 'big' : 'med'); }
+  J.count($q('#cst'), 0, cst, 700, function (n) { return '−€' + Math.round(n) + 'k'; });
+  J.count($q('#run'), prevNet, G.net, 700, function (n) { return '€' + Math.round(n) + 'k'; });
 }
 
 function score() {
@@ -260,15 +328,19 @@ function screenDebrief() {
   var txt = sc.total >= 700 ? 'WELL SIGNED' : sc.total >= 400 ? 'EXPENSIVE LESSONS' : 'AN INVOICE FOR HOPES';
   var worst = G.log.slice().sort(function (a, b) { return b.cost - a.cost; })[0];
   var thinNote = q.retainer ? '<div class="note bad"><b>The thin quote</b>You took the quote 18% below the band. It was a strategy, not a bargain: ' + (G.log.filter(function (l) { return l.mult !== 1; }).length) + ' of your events were multiplied by its recovery playbook, and the counterparty bristled at the exit and lien clauses. Interrogate the outlier; if you take it, arm the contract at full strength.</div>' : '';
-  var mostSaved = G.log.slice().sort(function (a, b) { return (b.c.cost[0] - b.base) - (a.c.cost[0] - a.base); })[0];
-  el('<div class="card"><h3>Five-year result</h3><div class="stamp ' + stamp + '">' + txt + '</div><div class="big">' + fmt(sc.total) + '</div>' +
-   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
-   '<div class="lines">' + sc.rows.map(function (r) { return '<div><span>' + r[0] + '</span><em class="' + (r[1] >= 0 ? 'pos' : 'neg') + '">' + (r[1] >= 0 ? '+' : '') + r[1] + '</em></div>'; }).join('') + '</div>' +
+  var maxc = Math.max.apply(null, CLAUSES.map(function (c) { return c.cost[0]; }));
+  var bars = G.log.map(function (l) { return '<div class="bar2"><div class="t"><b>' + CIC[l.c.id] + ' ' + l.c.name + ' · ' + LVNAME[l.lv] + '</b><span>−€' + l.cost + 'k</span></div><div class="tr"><i class="gh" style="width:' + Math.round(100 * l.c.cost[0] / maxc) + '%"></i><i style="width:' + Math.round(100 * l.cost / maxc) + '%;background:' + (l.lv === 2 ? 'var(--green)' : l.lv === 1 ? 'var(--amber)' : 'var(--red)') + '"></i></div><span class="small" style="color:var(--muted)">Grey: deferred, €' + l.c.cost[0] + 'k. At Full: €' + l.c.cost[2] + 'k.</span></div>'; }).join('');
+  el(topbar(false) + '<div class="card"><h3>Five-year result</h3><div class="stamp ' + stamp + '" id="stp">' + txt + '</div><div class="bigs" id="bigs">0</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800" class="j-pulse">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
+   '<div class="lines" id="led">' + sc.rows.map(function (r) { return '<div><span>' + r[0] + '</span><em class="' + (r[1] >= 0 ? 'pos' : 'neg') + '">' + (r[1] >= 0 ? '+' : '') + r[1] + '</em></div>'; }).join('') + '</div>' +
    thinNote +
    (worst && worst.lv < 2 ? '<div class="note warn"><b>The most expensive gap</b>' + worst.c.name + ' cost you €' + worst.cost + 'k at level ' + LVNAME[worst.lv] + '. At Full it would have cost about €' + worst.c.cost[2] + 'k.</div>' : '') +
-   '<h3>What each clause did</h3>' + G.log.map(function (l) { return '<div class="reveal"><b>' + l.c.name + ' · ' + LVNAME[l.lv] + ' · −€' + l.cost + 'k</b><span class="small">Deferred it would have cost €' + l.c.cost[0] + 'k; at Full, €' + l.c.cost[2] + 'k.</span></div>'; }).join('') +
+   '<h3>What each clause did</h3><div class="bars">' + bars + '</div>' +
    HHL.next(115) +
    '<div class="row"><button class="btn" data-a="again">Negotiate again</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+  J.stamp($q('#stp'), stamp); J.count($q('#bigs'), 0, sc.total, 1200);
+  later(1300, function () { if (stamp === 'pass') { J.confetti(); J.sfx('win'); } else J.sfx(stamp === 'warn' ? 'ok' : 'lose'); });
+  J.stagger($app.querySelectorAll('#led div, .bar2'), 60);
 }
 
 /* ---------- events ---------- */
@@ -277,12 +349,15 @@ $app.addEventListener('click', function (e) {
   var a = b.dataset.a, id = b.dataset.id;
   switch (a) {
     case 'start': newGame(); screenQuotes(); break;
-    case 'probe': if (G.nprobes < 2 && !G.probed[id]) { G.probed[id] = true; G.nprobes++; } screenQuotes(); break;
-    case 'choose': G.chosen = { i:Number(b.dataset.i), type:G.quotes[b.dataset.i].type, name:G.quotes[b.dataset.i].name }; G.level = {}; CLAUSES.forEach(function (c) { G.level[c.id] = 0; }); G.react = {}; screenClauses(); break;
-    case 'lv': { var c = CBY[id], l = Number(b.dataset.l), avail = capLeft() + cost(c, G.level[id]), msg = null;
+    case 'probe': if (G.nprobes < 2 && !G.probed[id]) { G.probed[id] = true; G.nprobes++; J.sfx('scan'); } screenQuotes(); { var an = $app.querySelectorAll('.ans'); if (an.length) J.pop(an[an.length - 1], 1.05); } break;
+    case 'choose': G.chosen = { i:Number(b.dataset.i), type:G.quotes[b.dataset.i].type, name:G.quotes[b.dataset.i].name }; G.level = {}; CLAUSES.forEach(function (c) { G.level[c.id] = 0; }); G.react = {}; J.sfx('confirm'); screenClauses(); break;
+    case 'lv': { var c = CBY[id], l = Number(b.dataset.l), prev = G.level[id], avail = capLeft() + cost(c, G.level[id]), msg = null;
       // a counterparty that bristles charges extra for the clauses it resists, and you only find out by tabling them
       while (l > 0 && cost(c, l) > avail) { l--; msg = ['"Why do we discuss divorce at the wedding?" They bristled, and the push cost more capital than you had. The clause fell back to ' + LVNAME[l] + '. Their retention strategy is the switching cost.', 'bad']; }
-      G.level[id] = l; G.react[id] = msg || reaction(c, l); screenClauses(); break; }
+      G.level[id] = l; G.react[id] = msg || reaction(c, l); var y = window.scrollY; screenClauses(); window.scrollTo(0, y);
+      var node = $app.querySelector('.clause[data-c="' + id + '"]'), bad = (G.react[id] || [])[1] === 'bad';
+      if (l === 0) { J.sfx('cancel'); } else if (bad) { J.sfx('bad'); J.hit(node, 'bad', 'small'); } else { J.sfx(l === 2 ? 'coin' : 'confirm'); J.burstAt($app.querySelector('.clause[data-c="' + id + '"] .lv button.on'), { n:l === 2 ? 18 : 10, pal:'gold', speed:200, up:true }); }
+      break; }
     case 'walk': screenWalk(); break;
     case 'sign': screenYears(); break;
     case 'nextev': nextEvent(); break;
