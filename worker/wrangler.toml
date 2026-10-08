@@ -1,0 +1,10 @@
+name = "hhl-leaderboard"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+workers_dev = false
+routes = [{ pattern = "api.thehardesthardwarelessons.com", custom_domain = true }]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "hhl"
+database_id = "d3f23a39-0b7c-46c4-b4e6-bf3ab9a5878b"

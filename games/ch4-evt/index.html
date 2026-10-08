@@ -91,6 +91,7 @@ a{color:var(--yellow)}
 </div>
 <div id="ov"></div>
 
+<script src="../hhl.js"></script>
 <script>
 'use strict';
 (function () {
@@ -701,7 +702,7 @@ function endMeeting() {
   ev.breakdown = { bonus, crit, slipPen, dvtPen };
   finishRun();
   const newBest = S.score > S.best; if (newBest) { S.best = S.score; store.set('best', S.best); }
-  showMeeting(ev, newBest);
+  HHL.submit(4, S.score); showMeeting(ev, newBest);
   if (ev.result === 'pass') { Sfx.pass(); burst(W / 2, H * 0.3, ['#f5c518', '#3ddc84', '#ffffff', '#5ab0ff', '#ff7eb6'], 90, 620, { up: true, long: true, square: true, big: true }); }
   else if (ev.result === 'cond') { Sfx.cond(); burst(W / 2, H * 0.3, ['#ff9f43', '#f5c518', '#ffffff'], 40, 420, { up: true, long: true }); }
   else Sfx.hold();
@@ -710,7 +711,7 @@ function endOverrun() {
   S.result = 'overrun'; S.mode = 'over';
   finishRun();
   const newBest = S.score > S.best; if (newBest) { S.best = S.score; store.set('best', S.best); }
-  showOverrun(newBest); Sfx.hold();
+  HHL.submit(4, S.score); showOverrun(newBest); Sfx.hold();
 }
 function finishRun() {
   S.runs++; store.set('runs', S.runs);

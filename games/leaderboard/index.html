@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Leaderboard — The Hardest Hardware Lessons</title>
+<meta name="description" content="Global leaderboard for the six Hardest Hardware Lessons games, plus a shareable scorecard of your results.">
+<link rel="canonical" href="https://thehardesthardwarelessons.com/games/leaderboard/">
+<meta name="theme-color" content="#0f0f0f">
+<style>
+  :root { --bg:#0f0f0f; --bg2:#161616; --bg3:#1e1e1e; --border:#2a2a2a; --text:#e8e8e8; --muted:#888; --accent:#e8c547; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:Georgia,serif; line-height:1.6; }
+  nav { position:sticky; top:0; z-index:10; background:rgba(15,15,15,.95); border-bottom:1px solid var(--border); padding:.9rem 1.25rem; display:flex; justify-content:space-between; align-items:center; font-family:sans-serif; }
+  nav a { color:var(--accent); text-decoration:none; font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; font-weight:600; }
+  main { max-width:720px; margin:0 auto; padding:2rem 1.25rem 4rem; }
+  h1 { font-weight:normal; font-size:clamp(1.9rem,6vw,2.8rem); color:#fff; line-height:1.15; margin-bottom:.4rem; }
+  h1 em { color:var(--accent); }
+  .sub { color:var(--muted); font-family:sans-serif; font-size:.9rem; margin-bottom:1.5rem; }
+  h2 { font-family:sans-serif; font-size:.75rem; letter-spacing:.18em; text-transform:uppercase; color:var(--accent); margin:2rem 0 .8rem; font-weight:600; }
+  .card { background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:1.1rem; }
+  .row { display:flex; gap:.6rem; font-family:sans-serif; }
+  input { flex:1; min-width:0; background:var(--bg); color:var(--text); border:1px solid var(--border); border-radius:3px; padding:.7rem .8rem; font:inherit; font-size:1rem; }
+  button { background:var(--accent); color:#000; border:0; border-radius:3px; padding:.7rem 1.1rem; font:700 .8rem sans-serif; letter-spacing:.06em; text-transform:uppercase; cursor:pointer; }
+  button.ghost { background:transparent; border:1px solid var(--accent); color:var(--accent); }
+  .hint { font-family:sans-serif; font-size:.78rem; color:var(--muted); margin-top:.6rem; }
+  .badges { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:.7rem; }
+  .badge { position:relative; background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:.8rem .9rem .8rem 1.1rem; font-family:sans-serif; overflow:hidden; text-decoration:none; color:inherit; }
+  .badge::before { content:""; position:absolute; inset:0 auto 0 0; width:3px; background:var(--c); }
+  .badge.off { opacity:.5; }
+  .badge .k { font-size:.65rem; letter-spacing:.14em; text-transform:uppercase; color:var(--c); }
+  .badge .n { font-size:.85rem; color:#fff; }
+  .badge .v { font-size:1.35rem; font-weight:700; color:#fff; }
+  .badge .m { font-size:.72rem; color:var(--muted); }
+  .actions { display:flex; gap:.6rem; margin-top:1rem; flex-wrap:wrap; }
+  .tabs { display:flex; gap:.4rem; overflow-x:auto; padding-bottom:.4rem; font-family:sans-serif; }
+  .tabs button { background:var(--bg3); color:var(--muted); border:1px solid var(--border); white-space:nowrap; padding:.5rem .8rem; }
+  .tabs button.on { color:#000; background:var(--accent); border-color:var(--accent); }
+  table { width:100%; border-collapse:collapse; font-family:sans-serif; margin-top:.8rem; }
+  td { padding:.55rem .4rem; border-bottom:1px solid var(--border); font-size:.95rem; }
+  td.r { width:2.2rem; color:var(--muted); } td.s { text-align:right; font-weight:700; color:#fff; font-variant-numeric:tabular-nums; }
+  tr.me td { background:rgba(232,197,71,.1); } tr.me td:nth-child(2) { color:var(--accent); }
+  .msg { font-family:sans-serif; color:var(--muted); font-size:.88rem; padding:1rem 0; }
+</style>
+</head>
+<body>
+<nav><a href="../">← Games</a><a href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" target="_blank" rel="noopener">Get the Book</a></nav>
+<main>
+  <h1>The <em>leaderboard</em></h1>
+  <p class="sub">Best score per game, per player. Your scores are saved on this device.</p>
+
+  <h2>Your name</h2>
+  <div class="card">
+    <div class="row"><input id="name" maxlength="20" placeholder="Pick a display name" autocomplete="nickname"><button id="save">Save</button></div>
+    <p class="hint" id="nameHint">Shown on the public board. Letters, numbers, spaces. Max 20.</p>
+  </div>
+
+  <h2>Your scorecard</h2>
+  <div class="badges" id="badges"></div>
+  <div class="actions"><button id="share">Share scorecard</button><button class="ghost" id="dl">Download image</button></div>
+
+  <h2>Global ranking</h2>
+  <div class="tabs" id="tabs"></div>
+  <div id="board"></div>
+</main>
+<script src="../hhl.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var P = HHL.profile(), CH = HHL.CH, cur = 'all';
+  function el(t, c, txt) { var e = document.createElement(t); if (c) e.className = c; if (txt != null) e.textContent = txt; return e; }
+  var fmt = function (n) { return Number(n).toLocaleString('en'); };
+
+  // Fold in bests saved by the games before the shared profile existed.
+  (function migrate() {
+    for (var n = 1; n <= 6; n++) {
+      try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i);
+        if (k && k.indexOf('hhl.ch' + n + '.') === 0 && /best/i.test(k)) { var v = Math.round(parseFloat(String(localStorage.getItem(k)).replace(/[^0-9.\-]/g, '')));
+          if (v >= 0 && !(P.best[n] >= v)) { P.best[n] = v; P.pending.push({ ch: n, score: v, t: Date.now() }); } } } } catch (e) {}
+    }
+    HHL.save(P);
+  })();
+
+  function total() { var t = 0, g = 0; for (var n = 1; n <= 6; n++) if (P.best[n] != null) { t += P.best[n]; g++; } return { t: t, g: g }; }
+
+  function renderBadges() {
+    var b = $('badges'); b.textContent = '';
+    for (var n = 1; n <= 6; n++) {
+      var played = P.best[n] != null, a = el('a', 'badge' + (played ? '' : ' off'));
+      a.href = '../' + CH[n][2] + '/'; a.style.setProperty('--c', CH[n][1]);
+      a.appendChild(el('div', 'k', 'Chapter ' + n)); a.appendChild(el('div', 'n', CH[n][0]));
+      a.appendChild(el('div', 'v', played ? fmt(P.best[n]) : '—'));
+      a.appendChild(el('div', 'm', played ? (P.plays[n] || 1) + ' run' + ((P.plays[n] || 1) > 1 ? 's' : '') : 'Not played yet'));
+      b.appendChild(a);
+    }
+  }
+
+  function renderTabs() {
+    var t = $('tabs'); t.textContent = '';
+    ['all', 1, 2, 3, 4, 5, 6].forEach(function (k) {
+      var x = el('button', k === cur ? 'on' : '', k === 'all' ? 'Overall' : 'Ch ' + k);
+      x.onclick = function () { cur = k; renderTabs(); loadBoard(); }; t.appendChild(x);
+    });
+  }
+
+  function loadBoard() {
+    var d = $('board'); d.textContent = '';
+    if (!HHL.live()) { d.appendChild(el('p', 'msg', 'The global board goes live soon. Your scores are being saved on this device and will be posted when it does.')); return; }
+    d.appendChild(el('p', 'msg', 'Loading…'));
+    HHL.get('/top?ch=' + cur + '&pid=' + P.pid).then(function (r) {
+      d.textContent = '';
+      if (!r.rows.length) { d.appendChild(el('p', 'msg', 'No scores yet. Be the first.')); return; }
+      var tb = el('table'), mine = P.pid.slice(0, 8);
+      r.rows.forEach(function (x, i) {
+        var tr = el('tr', x.id === mine ? 'me' : '');
+        tr.appendChild(el('td', 'r', i + 1)); tr.appendChild(el('td', '', x.name));
+        tr.appendChild(el('td', 's', fmt(x.score) + (cur === 'all' ? ' · ' + x.games + '/6' : '')));
+        tb.appendChild(tr);
+      });
+      d.appendChild(tb);
+      if (r.me && !r.rows.some(function (x) { return x.id === mine; })) d.appendChild(el('p', 'msg', 'You: #' + r.me.rank + ' with ' + fmt(r.me.score)));
+    }).catch(function () { d.textContent = ''; d.appendChild(el('p', 'msg', 'Could not reach the leaderboard. Try again later.')); });
+  }
+
+  $('name').value = P.name || '';
+  $('save').onclick = function () {
+    var n = $('name').value.replace(/[^\p{L}\p{N} ._\-]/gu, '').trim().slice(0, 20);
+    if (!n) { $('nameHint').textContent = 'Enter a name first.'; return; }
+    P.name = n; HHL.save(P); $('name').value = n; $('nameHint').textContent = 'Saved. Posting your scores…';
+    HHL.flush(); setTimeout(function () { $('nameHint').textContent = 'Saved as ' + n + '.'; loadBoard(); }, 1200);
+  };
+
+  // Scorecard image for sharing.
+  function card() {
+    var W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
+    var g = c.getContext('2d'), tt = total();
+    g.fillStyle = '#0f0f0f'; g.fillRect(0, 0, W, H);
+    var gr = g.createRadialGradient(W * .6, 200, 0, W * .6, 200, 800); gr.addColorStop(0, '#2a2000'); gr.addColorStop(1, '#0f0f0f'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#e8c547'; g.font = '600 30px sans-serif'; g.fillText('THE HARDEST HARDWARE LESSONS', 70, 110);
+    g.fillStyle = '#fff'; g.font = '64px Georgia, serif'; g.fillText(P.name || 'Hardware player', 70, 210);
+    g.fillStyle = '#e8c547'; g.font = '700 120px sans-serif'; g.fillText(fmt(tt.t), 70, 350);
+    g.fillStyle = '#888'; g.font = '30px sans-serif'; g.fillText('total across ' + tt.g + ' of 6 games', 70, 400);
+    for (var n = 1; n <= 6; n++) {
+      var col = (n - 1) % 2, row = Math.floor((n - 1) / 2), x = 70 + col * 480, y = 470 + row * 240, ok = P.best[n] != null;
+      g.fillStyle = '#1e1e1e'; g.fillRect(x, y, 460, 210); g.fillStyle = CH[n][1]; g.globalAlpha = ok ? 1 : .35; g.fillRect(x, y, 8, 210);
+      g.font = '600 24px sans-serif'; g.fillText('CHAPTER ' + n, x + 34, y + 50);
+      g.fillStyle = '#fff'; g.font = '30px Georgia, serif'; g.fillText(CH[n][0], x + 34, y + 94);
+      g.font = '700 64px sans-serif'; g.fillText(ok ? fmt(P.best[n]) : '—', x + 34, y + 170); g.globalAlpha = 1;
+    }
+    g.fillStyle = '#888'; g.font = '28px sans-serif'; g.fillText('Play free: thehardesthardwarelessons.com/games', 70, 1290);
+    return c;
+  }
+  function blob() { return new Promise(function (res) { card().toBlob(res, 'image/png'); }); }
+  $('dl').onclick = function () { blob().then(function (b) { var a = el('a'); a.href = URL.createObjectURL(b); a.download = 'hardware-lessons-scorecard.png'; a.click(); }); };
+  $('share').onclick = function () {
+    var tt = total(), text = 'I scored ' + fmt(tt.t) + ' across ' + tt.g + '/6 Hardest Hardware Lessons games. Beat me:';
+    blob().then(function (b) {
+      var f = new File([b], 'scorecard.png', { type: 'image/png' }), data = { text: text, url: 'https://thehardesthardwarelessons.com/games/', files: [f] };
+      if (navigator.canShare && navigator.canShare(data)) return navigator.share(data);
+      if (navigator.share) return navigator.share({ text: text, url: data.url });
+      $('dl').click();
+    }).catch(function () {});
+  };
+
+  renderBadges(); renderTabs(); loadBoard(); HHL.flush();
+})();
+</script>
+</body>
+</html>

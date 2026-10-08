@@ -88,6 +88,7 @@ canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-ac
 </div>
 <div id="ov"></div>
 
+<script src="../hhl.js"></script>
 <script>
 'use strict';
 (function () {
@@ -749,7 +750,7 @@ function computeScore(win) {
   return Math.max(0, win ? Math.round(Math.max(0, S.cash) / 1000) + base : base + S.phase * 100);
 }
 function finish(win) {
-  S.mode = 'over'; S.score = computeScore(win);
+  S.mode = 'over'; S.score = computeScore(win); HHL.submit(1, S.score);
   const newBest = S.score > S.best; if (newBest) { S.best = S.score; store.set('best', S.best); }
   if (S.tutorial) { S.tutorial = false; store.set('tutDone', true); }
   if (win) { Sfx.win(); burst(W / 2, H * 0.35, ['#3ddc84', ACC, '#ffffff', '#f5c518', '#ff7ac6'], 90, 650, { up: true, long: true, square: true, big: true }); }

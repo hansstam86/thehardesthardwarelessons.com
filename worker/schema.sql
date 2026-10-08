@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS scores (
+  pid TEXT NOT NULL,
+  ch INTEGER NOT NULL,
+  score INTEGER NOT NULL,
+  updated INTEGER NOT NULL,
+  PRIMARY KEY (pid, ch)
+);
+CREATE TABLE IF NOT EXISTS players (
+  pid TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  updated INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS scores_ch ON scores (ch, score DESC);

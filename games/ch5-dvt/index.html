@@ -99,6 +99,7 @@ canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-ac
 </div>
 <div id="ov"></div>
 
+<script src="../hhl.js"></script>
 <script>
 'use strict';
 (function () {
@@ -622,6 +623,7 @@ function finish() {
   S.late = late; S.budgetPts = Math.max(0, Math.floor(S.budget / 100));
   S.final = Math.max(0, S.score + S.budgetPts - late * 150);
   if (S.outcome === 'broke' || S.outcome === 'quit') S.final = Math.max(0, S.score - late * 150);
+  HHL.submit(5, S.final);
   const newBest = S.final > S.best; if (newBest) { S.best = S.final; store.set('best', S.best); }
   if (S.tutorial) { S.tutorial = false; store.set('tutDone', true); }
   const good = S.outcome === 'clean' || S.outcome === 'held';

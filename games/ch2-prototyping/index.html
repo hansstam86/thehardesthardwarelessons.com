@@ -90,6 +90,7 @@ canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-ac
 </div>
 <div id="ov"></div>
 
+<script src="../hhl.js"></script>
 <script>
 'use strict';
 (function () {
@@ -610,14 +611,14 @@ function finish() {
   F.known = known; F.hidden = hidden;
   S.final = F; S.mode = 'results';
   const newBest = F.score > S.best; if (newBest) { S.best = F.score; store.set('best', S.best); }
-  Sfx.win(); showResults(newBest);
+  HHL.submit(2, F.score); Sfx.win(); showResults(newBest);
   if (newBest) setTimeout(() => burst(W / 2, H * 0.3, [ACC, '#ffb86b', '#4fc3f7', '#ff80c0', '#ffffff'], 80, 600, { up: true, long: true, square: true, big: true }), 350);
 }
 function gameOver() {
   S.mode = 'over'; Sfx.over(); finishTutorial();
   const sc = Math.round(S.score);
   const newBest = sc > S.best; if (newBest) { S.best = sc; store.set('best', S.best); }
-  showOver(newBest);
+  HHL.submit(2, sc); showOver(newBest);
 }
 function pause() { if (S.paused || !(S.mode === 'play' || S.mode === 'intro' || S.mode === 'converge')) return; S.paused = true; showPause(); }
 function resume() { S.paused = false; hideOverlay(); last = performance.now(); }

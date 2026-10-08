@@ -72,6 +72,7 @@ canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-ac
 </div>
 <div id="ov"></div>
 
+<script src="../hhl.js"></script>
 <script>
 'use strict';
 (function () {
@@ -811,7 +812,7 @@ function gameOver(win) {
   S.mode = 'over'; S.win = win;
   if (win) Sfx.win(); else Sfx.over();
   const newBest = S.score > S.best; if (newBest) { S.best = S.score; store.set('best', S.best); }
-  showOver(newBest);
+  HHL.submit(3, S.score); showOver(newBest);
   if (win || newBest) setTimeout(() => burst(W / 2, H * 0.3, [ACC, AMBER, '#ffffff', '#5ab0ff', '#ff7eb6'], 80, 600, { up: true, long: true, square: true, big: true }), 350);
 }
 function pause() { if (S.paused || !(S.mode === 'play' || S.mode === 'intro' || S.mode === 'out')) return; S.paused = true; showPause(); }

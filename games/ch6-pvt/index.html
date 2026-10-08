@@ -140,6 +140,7 @@ a{color:var(--acc)}
 <canvas id="fx"></canvas>
 <div id="ov"></div>
 
+<script src="../hhl.js"></script>
 <script>
 'use strict';
 (function () {
@@ -836,6 +837,7 @@ function gameOver() {
   S.mode = 'over'; hidePanel();
   const score = Math.round(ledger());
   const nb = S.best == null || score > S.best; if (nb) { S.best = score; store.set('best', score); }
+  HHL.submit(6, score);
   if (S.tut) { S.tut = false; store.set('tutDone', true); }
   if (score >= 1900) Sfx.win(); else Sfx.over();
   showResults(score, nb);
