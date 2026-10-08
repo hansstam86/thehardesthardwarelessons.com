@@ -6,10 +6,11 @@
     1: ['The Development Journey', '#5ab0ff', 'ch1-journey'], 2: ['Prototyping', '#b388ff', 'ch2-prototyping'],
     3: ['Project Set-up', '#3ddc84', 'ch3-setup'], 4: ['EVT', '#f5c518', 'ch4-evt'],
     5: ['DVT', '#ff7a45', 'ch5-dvt'], 6: ['PVT', '#ff5a8a', 'ch6-pvt'],
+    102: ['The Dock', '#3dd6c6', 'f2-dock'],
     114: ['The Audit', '#3dd6c6', 'f14-audit'],
     115: ['The Deal', '#3dd6c6', 'f15-deal']
   };
-  var ORDER = [1, 2, 3, 4, 5, 6, 114, 115];
+  var ORDER = [1, 2, 3, 4, 5, 6, 102, 114, 115];
   function chLabel(n) { return n >= 100 ? 'Factory ch. ' + (n - 100) : 'Chapter ' + n; }
   var K = 'hhl.profile';
   function load() { try { return JSON.parse(localStorage.getItem(K)) || {}; } catch (e) { return {}; } }
@@ -87,6 +88,7 @@
     4: ['Every issue needs one owner, quickly. Problems between two teams are the ones nobody owns.', [['evt', 'EVT'], ['interface-issue', 'Interface issue'], ['open-issue', 'Open issue']], ['gate-checklist', 'Gate readiness checklist']],
     5: ['Steel can be cut away but never put back. Release tooling on evidence, not because the schedule says so.', [['dvt', 'DVT'], ['tooling', 'Tooling'], ['lab-slot', 'Lab slot'], ['certification', 'Certification']], ['tooling-release', 'Tooling release checklist']],
     6: ['Find the product\'s limits on your own terms, before a customer finds them for you.', [['pvt', 'PVT'], ['halt', 'HALT'], ['readiness-gate', 'Readiness gate'], ['yield', 'Yield']], ['gate-checklist', 'Gate readiness checklist']],
+    102: ['Every component in every unit crossed the dock, and the dock is the cheapest place in the system to find that one is wrong. Specify what happens there, or the factory\'s defaults decide.', [['iqc', 'IQC'], ['mrb', 'MRB'], ['msd', 'MSD'], ['traceability', 'Traceability'], ['counterfeit', 'Counterfeit']], null],
     114: ['The audit is the one moment the whole relationship is still free. You see the factory on its best day, so everything you find is a floor, and every finding that matters must become a contract term, or it becomes a hope.', [['audit', 'Factory audit'], ['evidence-standard', 'Evidence standard'], ['reluctance-map', 'Reluctance map'], ['red-line', 'Red line'], ['capa', 'CAPA']], null],
     115: ['Everything is negotiable exactly once. A term deferred "until we are up and running" is a concession with a delayed invoice, and the exit is cheapest to buy at signature.', [['thin-quote', 'Thin quote'], ['nre', 'NRE'], ['lien', 'Lien'], ['epidemic-failure', 'Epidemic-failure clause'], ['eo-liability', 'E&O'], ['last-buy', 'Last buy']], null]
   };

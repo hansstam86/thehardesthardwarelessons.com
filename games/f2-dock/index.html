@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a1c">
+<title>The Dock — The Hardest Factory Lessons</title>
+<meta name="description" content="A free game: three days on a factory's receiving dock. Choose what to inspect, resist the pressure to release, and see which defects come back a year later. From The Hardest Factory Lessons, Chapter 2.">
+<style>
+:root{
+  --bg:#101a1c; --ink:#eaf3f2; --muted:#93a9a8; --panel:#182427; --panel2:#1e2e31; --rule:#2c4043;
+  --acc:#3dd6c6; --red:#ff5a4e; --green:#3ddc84; --amber:#ff9f43; --gold:#f5c518;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-text-size-adjust:100%}
+body{padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 28px)}
+#app{width:min(480px,100%);margin:0 auto;display:grid;gap:12px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.back{color:var(--muted);text-decoration:none;font:600 14px/1 var(--font);padding:10px 8px;margin-left:-8px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:20px 18px;display:grid;gap:13px;animation:pop .28s ease both}
+@keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+h1{margin:0;font-size:34px;line-height:1.05;font-weight:800;letter-spacing:-.01em} h1 span{color:var(--acc)}
+h2{margin:0;font-size:22px;font-weight:800}
+h3{margin:0;font:700 11px/1.3 var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+p{margin:0;color:var(--muted);font-size:15px;line-height:1.45} p b,li b{color:var(--ink);font-weight:600}
+.small{font-size:12.5px} .plain{border-left:3px solid var(--rule);padding:2px 0 2px 10px;font-size:13px;color:#cfdddc}
+.btn{appearance:none;border:0;border-radius:14px;padding:15px 16px;font:800 16px/1.1 var(--font);background:var(--acc);color:#07201d;width:100%;min-height:50px;cursor:pointer}
+.btn:active{transform:scale(.97)} .btn:disabled{opacity:.35;pointer-events:none}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule);font-weight:700}
+.btn.sm{padding:10px 12px;min-height:40px;font-size:14px;border-radius:11px}
+.btn.warn{background:var(--amber)}
+.row{display:flex;gap:10px} .row>*{flex:1}
+.hud{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:10px 12px;position:sticky;top:6px;z-index:5}
+.hud b{font-size:14px} .bar{height:8px;background:#0e1718;border-radius:6px;overflow:hidden} .bar i{display:block;height:100%;background:var(--acc);transition:width .3s}
+.hud span{font:700 12px/1 var(--font);color:var(--muted);font-variant-numeric:tabular-nums}
+.pick{display:grid;gap:8px}
+.pick button{display:grid;gap:3px;text-align:left;border:1px solid var(--rule);background:var(--panel2);border-radius:13px;padding:12px;color:var(--ink);font:inherit;cursor:pointer}
+.pick button.on{border-color:var(--acc);background:#16363a} .pick button b{font-size:15px} .pick button span{font-size:12.5px;color:var(--muted);line-height:1.35}
+.lots{display:grid;gap:8px}
+.lot{display:grid;grid-template-columns:1fr auto;gap:3px 10px;text-align:left;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:12px;color:var(--ink);font:inherit;width:100%;cursor:pointer}
+.lot:active{transform:scale(.985)} .lot b{font-size:15px} .lot span{font-size:12.5px;color:var(--muted)} .lot em{grid-row:1/3;grid-column:2;align-self:center;font:800 11px var(--font);font-style:normal;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.lot.done{opacity:.6} .lot.done em{color:var(--green)} .lot.q em{color:var(--amber)}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font:700 10px/1 var(--font);letter-spacing:.05em;text-transform:uppercase;padding:5px 7px;border-radius:6px;background:var(--panel2);color:var(--muted)}
+.tag.hot{color:var(--red)} .tag.warn{color:var(--amber)} .tag.ok{color:var(--green)} .tag.star{color:var(--gold)}
+.act{display:grid;gap:8px}
+.act button{display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-align:left;border:1px solid var(--rule);background:var(--panel2);border-radius:13px;padding:12px;color:var(--ink);font:inherit;cursor:pointer}
+.act button:active{transform:scale(.985)} .act button:disabled{opacity:.38;pointer-events:none}
+.act button b{font-size:15px} .act button span{font-size:12px;color:var(--muted);grid-column:1} .act button em{grid-row:1/3;grid-column:2;font:800 13px var(--font);color:var(--acc);font-style:normal;align-self:center}
+.note{display:grid;gap:3px;background:#0e1718;border-radius:12px;padding:11px 12px;font-size:13.5px;line-height:1.4;color:#d6e4e3}
+.note b{color:var(--acc);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.note.warn b{color:var(--amber)} .note.bad b{color:var(--red)} .note.good b{color:var(--green)}
+.pressure{background:#2b1f12;border:1px solid #5a3b17;border-radius:12px;padding:11px 12px;font-size:13.5px;color:#ffd9a8;line-height:1.4}
+.big{font:900 56px/1 var(--font);text-align:center;color:var(--acc);font-variant-numeric:tabular-nums}
+.stamp{justify-self:center;font:900 24px/1 var(--font);letter-spacing:.06em;padding:8px 14px;border:4px solid currentColor;border-radius:8px;transform:rotate(-4deg)}
+.stamp.pass{color:var(--green)} .stamp.fail{color:var(--red)} .stamp.warn{color:var(--amber)}
+.lines{display:grid;gap:6px} .lines div{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:#d6e4e3;padding:7px 0;border-top:1px solid var(--rule)} .lines div:first-child{border-top:0}
+.lines em{font-style:normal;font-weight:800;font-variant-numeric:tabular-nums} .lines em.pos{color:var(--green)} .lines em.neg{color:var(--red)}
+.reveal{display:grid;gap:3px;padding:9px 0;border-top:1px solid var(--rule);font-size:13.5px;color:#d6e4e3} .reveal b{font-size:14px}
+.cost{font:900 30px var(--font);font-variant-numeric:tabular-nums;color:var(--red)}
+a{color:var(--acc)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="../hhl.js?v=9"></script>
+<script>
+(function () {
+'use strict';
+var $app = document.getElementById('app');
+var DAYS = 3, PER_DAY = 4, HOURS = 5;
+
+/* ---------- content ---------- */
+// class flags: latent (passes production test, fails later), esc (cost when it escapes: safety / scrap / low), custom (your drawing), broker (independent market), msd, semi (die revision applies)
+var PARTS = [
+ { id:'cells', name:'Li-ion cells, 18650', qty:'10,000', sup:'Hengda Power', latent:true, esc:'safety', defects:[
+   { type:'counterfeit', harm:true, text:'Capacity-inflated cells: 1,800 mAh cells wearing a 3,000 mAh sleeve.' },
+   { type:'parametric', harm:true, text:'Internal resistance is high on 7% of the sampled cells.' }] },
+ { id:'caps', name:'Aluminium electrolytic capacitors', qty:'50,000', sup:'Auric Passives', latent:true, esc:'scrap', defects:[
+   { type:'parametric', harm:true, text:'ESR is marginal and drifts up under heat.' }] },
+ { id:'xtal', name:'Crystals, 32.768 kHz', qty:'20,000', sup:'Auric Passives', latent:true, esc:'scrap', defects:[
+   { type:'parametric', harm:true, text:'Frequency drifts outside spec at temperature extremes.' }] },
+ { id:'mosfet', name:'Power MOSFET, mains stage', qty:'5,000', sup:'Kestrel Trading', broker:true, esc:'safety', semi:true, defects:[
+   { type:'counterfeit', harm:true, text:'Re-topped packages: the die is smaller than the datasheet part.' }] },
+ { id:'mcu', name:'Microcontroller (shortage part)', qty:'12,000', sup:'Kestrel Trading', broker:true, esc:'scrap', semi:true, defects:[
+   { type:'counterfeit', harm:true, text:'Remarked speed grade: runs at 48 MHz, marked 72 MHz.' }] },
+ { id:'flash', name:'Flash memory, moisture-sensitive (MSL 3)', qty:'12,000', sup:'Nanfeng Semi', msd:true, latent:true, esc:'scrap', semi:true, defects:[
+   { type:'msd', harm:true, text:'Floor life exceeded: the reels sat open in a humid warehouse for months.' },
+   { type:'wrongrev', harm:true, text:'The die revision changed without notice.' }] },
+ { id:'enclosure', name:'Enclosure, injection moulded', qty:'10,000', sup:'Dongxin Plastics', custom:true, esc:'low', defects:[
+   { type:'cosmetic', harm:false, text:'A weld line on a hidden face, within your boundary sample.' },
+   { type:'wrongrev', harm:true, text:'Built to the previous drawing revision: a boss moved 0.4 mm and the PCB no longer seats.' }] },
+ { id:'pcb', name:'PCB, 4-layer', qty:'10,000', sup:'Yuexing PCB', custom:true, esc:'scrap', defects:[
+   { type:'wrongrev', harm:true, text:'The surface finish is HASL, not the ENIG you specified.' },
+   { type:'cosmetic', harm:false, text:'Silkscreen is slightly offset. No function impact.' }] },
+ { id:'connector', name:'Connector, 6-pin FPC', qty:'30,000', sup:'Hengda Power', esc:'scrap', defects:[
+   { type:'parametric', harm:true, text:'Plating sits at the thin edge of the drawing: contact resistance climbs with cycling.' },
+   { type:'cosmetic', harm:false, text:'Housing colour varies between batches. Function unaffected.' }] },
+ { id:'cable', name:'Cable assembly', qty:'10,000', sup:'Yuexing PCB', custom:true, esc:'scrap', defects:[
+   { type:'wrongrev', harm:true, text:'Pinout built to the previous revision: pins 3 and 4 are swapped.' }] },
+ { id:'ldo', name:'LDO regulators', qty:'30,000', sup:'Nanfeng Semi', esc:'scrap', semi:true, defects:[
+   { type:'parametric', harm:true, text:'Dropout voltage is out of spec on 3% of parts.' }] },
+ { id:'resistors', name:'Resistors, 0402', qty:'500,000', sup:'Auric Passives', esc:'low', defects:[
+   { type:'cosmetic', harm:false, text:'Reel labelling is inconsistent. The parts measure fine.' }] },
+ { id:'foam', name:'Foam inserts', qty:'20,000', sup:'Dongxin Plastics', esc:'low', defects:[
+   { type:'cosmetic', harm:false, text:'Slightly short on 2% of pieces, still retains the unit.' }] },
+ { id:'screws', name:'Screws, M2', qty:'60,000', sup:'Dongxin Plastics', esc:'low', defects:[
+   { type:'cosmetic', harm:true, text:'Wrong head type on a fraction: they strip on assembly.' }] }
+];
+var PBY = {}; PARTS.forEach(function (p) { PBY[p.id] = p; });
+var ESC = { safety:250, scrap:100, low:20 };
+
+var SPECS = [
+ { id:'spec', name:'An inspection specification for the critical parts', sub:'You tell them what you care about. Otherwise they inspect what hurts the factory, not you.' },
+ { id:'mrb', name:'No use-as-is without your approval', sub:'Their review board feels the schedule, not your field-failure liability.' },
+ { id:'channel', name:'Channel control: authorised distribution only', sub:'Any broker buy needs your approval, part by part.' },
+ { id:'trace', name:'Traceability: lot-level, plus unit-level for the critical parts', sub:'Built at the dock, or never. It decides how big a recall is.' },
+ { id:'msd', name:'Moisture-sensitive parts: a floor-life log on every reel', sub:'The log answers in seconds, or it does not exist.' }
+];
+var METHODS = [
+ { id:'visual', name:'Visual and documents', h:1, sub:'Date codes, markings, certificates, against your drawing.' },
+ { id:'electrical', name:'Electrical sampling', h:2, sub:'Measure a sample against the datasheet.' },
+ { id:'auth', name:'Authentication (X-ray, decap)', h:3, sub:'Is it the part on the label?' },
+ { id:'floor', name:'Floor-life check', h:1, sub:'How long has this reel been out of its bag?' }
+];
+var MBY = {}; METHODS.forEach(function (m) { MBY[m.id] = m; });
+
+var G = null;
+var store = { get:function (k, d) { try { var v = localStorage.getItem('hhl.ch102.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set:function (k, v) { try { localStorage.setItem('hhl.ch102.' + k, JSON.stringify(v)); } catch (e) {} } };
+function fmt(n) { return Number(n).toLocaleString('en'); }
+function el(h) { $app.innerHTML = h; window.scrollTo(0, 0); }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function has(id) { return G.spec.indexOf(id) >= 0; }
+function riskOf(p) { return (p.broker ? 3 : 0) + (p.latent ? 2 : 0) + (p.esc === 'safety' ? 3 : p.esc === 'scrap' ? 1 : 0) + (p.custom ? 1 : 0); }
+
+function newGame() {
+  var must = ['cells', 'caps', 'flash', 'enclosure', 'pcb'], rest = shuffle(PARTS.filter(function (p) { return must.indexOf(p.id) < 0; }).map(function (p) { return p.id; }));
+  var broker = rest.filter(function (id) { return PBY[id].broker; })[0]; var ids = must.concat([broker]);
+  rest.filter(function (id) { return id !== broker; }).slice(0, DAYS * PER_DAY - ids.length).forEach(function (id) { ids.push(id); });
+  var lots, tries = 0;
+  do {
+    lots = ids.map(function (id) {
+      var p = PBY[id], r = riskOf(p), pr = r >= 5 ? .8 : r >= 3 ? .5 : r >= 1 ? .25 : .12, bad = Math.random() < pr;
+      return { p:p, defect: bad ? p.defects[Math.floor(Math.random() * p.defects.length)] : null, status:null, log:[], hoursSpent:0, decision:null };
+    });
+    var n = lots.filter(function (l) { return l.defect; }).length; tries++;
+    if (n >= 5 && n <= 8) break;
+  } while (tries < 50);
+  lots = shuffle(lots);
+  G = { spec:[], lots:lots, day:0, idx:0, hours:HOURS, ledger:[], overrides:0, overridesToday:0, cur:null, events:[], phase:'title' };
+}
+function dayLots() { return G.lots.slice(G.day * PER_DAY, G.day * PER_DAY + PER_DAY); }
+function ledger(label, cost) { G.ledger.push({ label:label, cost:cost }); }
+
+/* ---------- screens ---------- */
+function screenTitle() {
+  el('<div class="top"><a class="back" href="../">← Games</a></div>' +
+   '<div class="card"><h3>Chapter 2 · The Hardest Factory Lessons</h3><h1>The <span>Dock</span></h1>' +
+   '<p class="small"><i>From The Hardest Factory Lessons</i></p>' +
+   '<p>Every component in every unit you ship crosses the receiving dock. So does every defective one. <b>The dock is the cheapest place in the system to find out.</b></p>' +
+   '<div class="plain"><b>In plain English:</b> when parts arrive at a factory, a small team inspects some of them. Which parts, how closely, and what happens when one fails is decided by whoever wrote the rules. <b>Goal:</b> catch the defects that would cost you most, without stopping the line for harmless ones.</div>' +
+   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55">' +
+   '<li><b>Put three protections in writing</b> before the first truck. You cannot have all five.</li>' +
+   '<li><b>Three days, twelve lots.</b> You have 5 inspector hours a day. You cannot check everything.</li>' +
+   '<li><b>Stay in the room</b> when a lot fails. The line needs it on Thursday.</li>' +
+   '<li><b>A year later,</b> the defects that got through come back.</li></ul>' +
+   '<button class="btn" data-a="start">Start the shift</button>' +
+   '<p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factory is fictional.</p></div>');
+}
+
+function screenSpec() {
+  G.phase = 'spec'; var n = G.spec.length;
+  el('<div class="card"><h3>The quality agreement · ' + n + ' of 3</h3><h2>What goes in writing?</h2>' +
+   '<p>Most teams never specify what happens at the dock, so the factory\'s defaults decide. You can put <b>three</b> of these in writing.</p>' +
+   '<div class="pick">' + SPECS.map(function (s) { var on = has(s.id);
+     return '<button data-a="spec" data-id="' + s.id + '" class="' + (on ? 'on' : '') + '"><b>' + s.name + '</b><span>' + s.sub + '</span></button>'; }).join('') + '</div>' +
+   '<button class="btn" data-a="day"' + (n !== 3 ? ' disabled' : '') + '>First truck arrives</button></div>');
+}
+
+function hud() {
+  return '<div class="hud"><b>Day ' + (G.day + 1) + ' of ' + DAYS + '</b><div class="bar"><i style="width:' + Math.round(100 * G.hours / HOURS) + '%"></i></div><span>' + G.hours + ' h left</span></div>';
+}
+function tagsFor(p, lot) {
+  var t = [];
+  if (has('spec')) {
+    if (riskOf(p) >= 4) t.push('<span class="tag star">★ critical</span>');
+    if (p.latent) t.push('<span class="tag warn">latent failure</span>');
+    t.push('<span class="tag ' + (p.esc === 'safety' ? 'hot' : p.esc === 'scrap' ? 'warn' : '') + '">escape: ' + (p.esc === 'safety' ? 'safety' : p.esc === 'scrap' ? 'scraps the board' : 'low') + '</span>');
+    if (p.custom) t.push('<span class="tag">your drawing</span>');
+  }
+  if (p.broker && has('channel')) t.push('<span class="tag hot">broker · you approved</span>');
+  else t.push('<span class="tag ok">authorised distribution</span>');
+  return '<div class="tags">' + t.join('') + '</div>';
+}
+
+function screenDay() {
+  G.phase = 'day';
+  var lots = dayLots(), done = lots.every(function (l) { return l.status; });
+  el(hud() + '<div class="card"><h3>The dock · day ' + (G.day + 1) + '</h3><h2>Four lots on the dock</h2>' +
+   (has('spec') ? '' : '<div class="note warn"><b>No inspection specification</b>You never told them what you care about, so you see what the factory sees: part names and a supplier.</div>') +
+   '<div class="lots">' + lots.map(function (l, i) {
+     var st = l.status === 'released' ? 'shelved' : l.status === 'quarantined' ? 'decided' : 'to do';
+     return '<button class="lot' + (l.status ? ' done' : '') + '" data-a="lot" data-i="' + i + '"><b>' + l.p.name + '</b><span>' + l.p.qty + ' pcs · ' + l.p.sup + '</span><em>' + st + '</em></button>'; }).join('') + '</div>' +
+   '<p class="small">Open a lot to inspect it. Anything you do not inspect is counted and shelved.</p>' +
+   '<button class="btn"' + (done ? '' : ' disabled') + ' data-a="recap">End the day</button></div>');
+}
+
+function screenLot(i, note) {
+  G.phase = 'lot'; G.cur = G.day * PER_DAY + i; var l = G.lots[G.cur], p = l.p;
+  if (l.status) return screenDay();
+  var used = l.log.map(function (x) { return x.m; });
+  var acts = METHODS.filter(function (m) { return m.id !== 'floor' || p.msd; }).map(function (m) {
+    var h = (m.id === 'floor' && has('msd')) ? 0 : m.h, done = used.indexOf(m.id) >= 0;
+    return '<button data-a="insp" data-m="' + m.id + '"' + (done || h > G.hours ? ' disabled' : '') + '><b>' + m.name + '</b><span>' + (m.id === 'floor' && has('msd') ? 'The reel log answers in seconds.' : m.sub) + '</span><em>' + (done ? 'done' : h === 0 ? 'free' : h + ' h') + '</em></button>'; }).join('');
+  el(hud() + '<div class="card"><h3>Lot ' + (i + 1) + ' of ' + PER_DAY + ' · ' + p.sup + '</h3><h2>' + p.name + '</h2><p class="small">' + p.qty + ' pieces on the dock</p>' + tagsFor(p, l) +
+   (l.log.length ? l.log.map(function (x) { return '<div class="note ' + (x.res === 'found' ? 'bad' : x.res === 'inconclusive' ? 'warn' : '') + '"><b>' + MBY[x.m].name + ' · ' + (x.res === 'found' ? 'finding' : x.res === 'inconclusive' ? 'suspicious' : 'nothing found') + '</b>' + x.text + '</div>'; }).join('') : '') +
+   (note ? '<div class="note"><b>Note</b>' + note + '</div>' : '') +
+   '<div class="act">' + acts + '</div>' +
+   '<div class="row"><button class="btn ghost sm" data-a="shelve">Count and shelve</button>' + (l.log.some(function (x) { return x.res !== 'clean'; }) ? '<button class="btn warn sm" data-a="mrb">Quarantine it</button>' : '') + '</div>' +
+   '<button class="btn ghost sm" data-a="day">Back to the dock</button></div>');
+}
+
+// what each method finds, deterministically
+function detect(m, l) {
+  var d = l.defect, p = l.p, T = { res:'clean', text:'' };
+  function ok(t) { return { res:'clean', text:t }; }
+  if (!d) {
+    return ok(m === 'visual' ? 'Documents in order, markings consistent.' : m === 'electrical' ? 'Sample measures within the datasheet.' : m === 'auth' ? 'The parts are what the label says.' : 'Every reel is inside its floor life.');
+  }
+  if (m === 'visual') {
+    if (d.type === 'cosmetic') return { res:'found', text:d.text };
+    if (d.type === 'wrongrev' && p.custom) return has('spec') ? { res:'found', text:d.text + ' Checked against your drawing at your revision.' } : ok('Checked against the supplier\'s own drawing. It passes. Nobody told them which document counts.');
+    if (d.type === 'counterfeit') return { res:'inconclusive', text:'Date codes look plausible, but the package texture is slightly off and the certificate of conformance is missing. Escalate.' };
+    return ok('Documents in order, markings consistent.');
+  }
+  if (m === 'electrical') {
+    if (d.type === 'parametric') return { res:'found', text:d.text };
+    if (d.type === 'counterfeit') return { res:'found', text:'The sample is off the datasheet. ' + d.text };
+    if (d.type === 'wrongrev' && p.semi) return { res:'found', text:d.text };
+    return ok('Sample measures within the datasheet.');
+  }
+  if (m === 'auth') {
+    if (d.type === 'counterfeit' || d.type === 'wrongrev') return { res:'found', text:d.text };
+    if (d.type === 'parametric') return { res:'inconclusive', text:'The die looks genuine, but the sample shows odd behaviour. Measure it.' };
+    return ok('The parts are what the label says.');
+  }
+  if (m === 'floor') {
+    if (d.type === 'msd') return { res:'found', text: has('msd') ? 'The log shows the exposure budget used up. ' + d.text : 'Nobody can say how long this reel has been out. The cabinet shows 40%. ' + d.text };
+    return ok('Every reel is inside its floor life.');
+  }
+  return T;
+}
+
+function doInspect(m) {
+  var l = G.lots[G.cur], mm = MBY[m], h = (m === 'floor' && has('msd')) ? 0 : mm.h;
+  if (h > G.hours) return;
+  G.hours -= h; l.hoursSpent += h;
+  var r = detect(m, l); l.log.push({ m:m, res:r.res, text:r.text });
+  screenLot(G.cur - G.day * PER_DAY);
+}
+
+function doShelve() {
+  var l = G.lots[G.cur]; l.status = 'released'; l.decision = l.defect ? 'shelved defective' : 'shelved';
+  screenDay();
+}
+
+function doMrb() {
+  var l = G.lots[G.cur]; l.status = 'quarantined';
+  // without a written no-use-as-is rule, their board releases the first failed lot of the day to protect the schedule
+  if (!has('mrb') && G.overridesToday < 1) {
+    G.overridesToday++; G.overrides++; l.decision = 'overridden'; l.status = 'quarantined'; l.useasis = true;
+    el(hud() + '<div class="card"><h3>Their MRB</h3><h2>Released as-is, without you</h2><div class="pressure">The lot is in quarantine, and the line needs it on Thursday. Their material review board met while you were on the dock. <b>"Use as is."</b> The deviation is not on your desk.</div><p class="small">You did not require your approval for use-as-is, so the board decided with your quality margin.</p><button class="btn" data-a="day">Back to the dock</button></div>');
+    return;
+  }
+  screenMrb();
+}
+var LATENCY_TXT = 'a replacement lead time of five weeks.';
+function screenMrb() {
+  G.phase = 'mrb'; var l = G.lots[G.cur], d = l.defect;
+  var found = l.log.filter(function (x) { return x.res === 'found'; })[0], conf = !!found;
+  var susp = l.log.filter(function (x) { return x.res === 'inconclusive'; })[0];
+  var text = conf ? found.text : (susp ? susp.text : 'Nothing found.');
+  var analysis = !d ? 'Not confirmed.' : d.harm ? 'It affects fit, function or lifetime in your application.' : 'Cosmetic, or outside anything the customer sees. No expected effect.';
+  if (!conf) analysis = 'Suspected, not confirmed. The risk is unknown.';
+  var sortOk = G.hours >= 2;
+  el(hud() + '<div class="card"><h3>Material review board · ' + l.p.name + '</h3><h2>Decide the lot</h2>' +
+   '<div class="note"><b>Non-conformance · ' + l.p.qty + ' pieces</b>' + text + '</div>' +
+   '<div class="note ' + (d && d.harm ? 'warn' : '') + '"><b>Engineering analysis</b>' + analysis + '</div>' +
+   '<div class="pressure">The lot in quarantine is the lot the line needs on Thursday. Returning it means ' + LATENCY_TXT + ' The build slips, and the factory misses its month-end. <b>Every force in the room pushes toward release.</b></div>' +
+   '<div class="act">' +
+   '<button data-a="disp" data-v="rtv"><b>Return to vendor</b><span>The line waits. The supplier is told.</span><em>−€30k</em></button>' +
+   '<button data-a="disp" data-v="scrap"><b>Scrap it</b><span>Write it off. The line waits.</span><em>−€40k</em></button>' +
+   '<button data-a="disp" data-v="sort"' + (sortOk ? '' : ' disabled') + '><b>Sort it (100% screen)</b><span>' + (sortOk ? 'The good parts are used. Takes 2 inspector hours.' : 'Needs 2 inspector hours. You have ' + G.hours + '.') + '</span><em>−€12k</em></button>' +
+   '<button data-a="disp" data-v="uai"><b>Use as is</b><span>Release with the deviation documented' + (has('trace') ? ' and the lot fenced in your records.' : ', but with no traceability to find these units later.') + '</span><em>€0</em></button></div></div>');
+}
+function doDisp(v) {
+  var l = G.lots[G.cur], d = l.defect, p = l.p, msg = '';
+  l.decision = v;
+  if (v === 'rtv') { ledger('Return to vendor: ' + p.name, 30); msg = 'Returned. The build slips, and the supplier knows. Cost €30k.'; }
+  if (v === 'scrap') { ledger('Scrapped: ' + p.name, 40); msg = 'Scrapped. The line waits for a replacement. Cost €40k.'; }
+  if (v === 'sort') {
+    G.hours -= 2; ledger('Sorted: ' + p.name, 12);
+    var works = d && (d.type === 'parametric' || d.type === 'cosmetic');
+    l.sorted = true;
+    if (!works && d) { l.escapes = true; msg = 'You screened it, but you cannot sort out authenticity, the revision or moisture damage. The bad parts are still in the lot. Cost €12k.'; }
+    else msg = 'Screened. The good parts go to the line. Cost €12k, and the supplier\'s process is still not fixed.';
+  }
+  if (v === 'uai') { l.useasis = true; msg = d && d.harm ? 'Released with a deviation. The line runs on Thursday.' : 'Released with a deviation. Nothing will come of it.'; }
+  el(hud() + '<div class="card"><h3>Decision recorded</h3><h2>' + p.name + '</h2><div class="note"><b>' + { rtv:'Return to vendor', scrap:'Scrap', sort:'Sort', uai:'Use as is' }[v] + '</b>' + msg + '</div><button class="btn" data-a="day">Back to the dock</button></div>');
+}
+
+function screenRecap() {
+  G.phase = 'recap'; var lots = dayLots();
+  var last = G.day === DAYS - 1;
+  el('<div class="card"><h3>End of day ' + (G.day + 1) + '</h3><h2>The shift is over</h2>' +
+   '<div class="lines">' + lots.map(function (l) { var t = l.decision || (l.status === 'released' ? 'shelved' : 'quarantined'); return '<div><span>' + l.p.name + '</span><em style="color:var(--muted)">' + ({ rtv:'returned', scrap:'scrapped', sort:'sorted', uai:'used as is', overridden:'released by their MRB', shelved:'shelved', 'shelved defective':'shelved' }[t] || t) + '</em></div>'; }).join('') + '</div>' +
+   (G.overridesToday ? '<div class="note bad"><b>Their MRB</b>Released a failed lot as-is without you.</div>' : '') +
+   '<p class="small">Whatever you shelved without checking is now in your product, whether it was good or not.</p>' +
+   '<button class="btn" data-a="' + (last ? 'later' : 'nextday') + '">' + (last ? 'Fast-forward eleven months' : 'Day ' + (G.day + 2)) + '</button></div>');
+}
+
+/* ---------- consequences ---------- */
+var FIELD = {
+  parametric:'Intermittent failures grow month by month. Warranty returns climb, and nothing reproduces on the bench.',
+  counterfeit:'Remarked and re-topped parts fail under load. The failure analysis ends in a lab report you did not want.',
+  msd:'Ghost failures that pass every test: hidden delamination from moisture, showing up in the field months later.',
+  wrongrev:'The units that shipped do not match the drawing. Some do not even assemble, and the ones that do fail early.',
+  cosmetic:'Assembly stripped screws and hand-sorting. Annoying and cheap.'
+};
+function buildEvents() {
+  G.events = [];
+  G.lots.forEach(function (l) {
+    if (!l.defect || !l.defect.harm) return;
+    var escaped = (l.status === 'released') || l.useasis || l.escapes;
+    if (!escaped) return;
+    var cost = ESC[l.p.esc]; if (l.p.esc === 'safety' && l.defect.type === 'counterfeit') cost = 300;
+    G.events.push({ l:l, cost:cost, how: l.status === 'released' ? 'shelved without a finding' : l.useasis ? 'used as is' : 'sorted' });
+  });
+}
+function screenLater() {
+  G.phase = 'later'; buildEvents(); G.ei = 0;
+  el('<div class="card"><h3>Eleven months later</h3><h2>What came back</h2><p>' + (G.events.length ? 'Not everything you shelved was good. Now the field reports start to arrive.' : 'A quiet year. Every defect that mattered was stopped at the dock.') + '</p><button class="btn" data-a="nextev">' + (G.events.length ? 'Open the reports' : 'Take the supplier\'s call') + '</button></div>');
+}
+function nextEvent() {
+  if (G.ei >= G.events.length) return screenRecall();
+  var e = G.events[G.ei++]; ledger('Field failures: ' + e.l.p.name + ' (' + e.how + ')', e.cost);
+  el('<div class="card"><h3>Field report · ' + e.l.p.name + '</h3><h2>' + (e.l.defect.type === 'counterfeit' ? 'Counterfeit parts in the field' : e.l.defect.type === 'msd' ? 'Moisture damage' : e.l.defect.type === 'wrongrev' ? 'Wrong revision shipped' : 'A latent defect blooms') + '</h2>' +
+   '<div class="note bad"><b>What happened</b>' + FIELD[e.l.defect.type] + '</div>' +
+   '<div class="note"><b>How it got through</b>The lot was ' + e.how + '. ' + e.l.defect.text + '</div>' +
+   '<div class="cost">−€' + e.cost + 'k</div><button class="btn" data-a="nextev">' + (G.ei >= G.events.length ? 'Take the supplier\'s call' : 'Next report') + '</button></div>');
+}
+function screenRecall() {
+  G.phase = 'recall';
+  var harmful = G.events.length > 0;
+  var bad = harmful ? G.events[0].l : (G.lots.filter(function (l) { return !l.defect; })[0] || G.lots[0]);
+  var cost, txt;
+  if (has('trace')) { cost = harmful ? 40 : 0; txt = harmful ? 'You give them the serial range from your records. 4,200 units are affected, and the retrieval is scoped to them.' : 'You run the genealogy: no shipped units contain the lot. Five minutes, and the call is over.'; }
+  else { cost = harmful ? 400 : 100; txt = harmful ? 'There is no traceability. The recall that could have been four thousand units becomes every unit shipped in six months.' : 'You cannot prove which units contain it, so you screen six months of shipments to be safe.'; }
+  ledger('Supplier recall call: ' + bad.p.name, cost);
+  el('<div class="card"><h3>Month 11 · ' + bad.p.sup + ' calls</h3><h2>"Lots from March to May have a latent defect"</h2>' +
+   '<p>Which of your shipped units contain them? Everything about how that gets answered was decided at the receiving dock, months ago, by people who did not know they were deciding it.</p>' +
+   '<div class="note ' + (has('trace') ? 'good' : 'bad') + '"><b>' + (has('trace') ? 'Traceability in place' : 'No traceability') + '</b>' + txt + '</div>' +
+   '<div class="cost">' + (cost ? '−€' + cost + 'k' : '€0') + '</div><button class="btn" data-a="result">See the result</button></div>');
+}
+
+function score() {
+  var costs = 0, rows = []; G.ledger.forEach(function (x) { costs += x.cost; });
+  var base = Math.max(0, Math.round(1000 - costs * 0.75));
+  rows.push(['Total cost of poor quality: €' + costs + 'k', base]);
+  var total = base, pen = 0;
+  var bySup = {}; G.lots.forEach(function (l) { if (l.sorted) bySup[l.p.sup] = (bySup[l.p.sup] || 0) + 1; });
+  Object.keys(bySup).forEach(function (s) { if (bySup[s] > 1) pen += 20; });
+  if (pen) { rows.push(['Same supplier sorted repeatedly (absorbing its problem)', -pen]); total -= pen; }
+  var bonus = 0;
+  var clean = G.lots.filter(function (l) { return !l.defect && (l.decision === 'rtv' || l.decision === 'scrap'); }).length; // wrongly rejected good lots
+  return { rows:rows, total:Math.max(0, total), costs:costs };
+}
+
+function screenResult() {
+  G.phase = 'result';
+  var sc = score(), best = store.get('best', 0), nb = sc.total > best;
+  if (nb) store.set('best', sc.total);
+  try { HHL.submit(102, sc.total); } catch (e) {}
+  var stamp = sc.total >= 750 ? 'pass' : sc.total >= 450 ? 'warn' : 'fail';
+  var txt = sc.total >= 750 ? 'DOCK UNDER CONTROL' : sc.total >= 450 ? 'SOME GOT THROUGH' : 'THE DOOR WAS OPEN';
+  var T = { counterfeit:'Counterfeit', parametric:'Latent parametric defect', msd:'Moisture damage', wrongrev:'Wrong revision', cosmetic:'Cosmetic' };
+  var truth = G.lots.map(function (l) {
+    var how = l.status === 'released' ? 'shelved' : ({ rtv:'returned', scrap:'scrapped', sort:'sorted', uai:'used as is', overridden:'released by their MRB' }[l.decision] || 'quarantined');
+    var what = l.defect ? T[l.defect.type] + (l.defect.harm ? '' : ' (harmless)') : 'Good';
+    var used = l.log.length ? l.log.map(function (x) { return MBY[x.m].name.split(' ')[0].toLowerCase(); }).join(' + ') : 'no inspection';
+    return '<div class="reveal"><b>' + l.p.name + ' · ' + what + '</b><span class="small">You: ' + used + ' → ' + how + '</span></div>'; }).join('');
+  var lessons = [];
+  if (!has('spec')) lessons.push('Without an inspection specification you could not see which parts were critical, and custom parts were checked against the supplier\'s own drawing.');
+  if (!has('mrb')) lessons.push('Without a written approval rule, their board released ' + G.overrides + ' failed lot(s) as-is. It carries the schedule pressure, not your field-failure liability.');
+  if (!has('channel')) lessons.push('Without channel control, a broker buy can arrive labelled as authorised distribution. A purchasing desk filling a shortage quietly is not hypothetical. It is a Tuesday.');
+  if (!has('trace')) lessons.push('Without traceability, a recall covers everything shipped in six months. Traceability is built at the dock or not at all.');
+  if (!has('msd')) lessons.push('Without floor-life logs, nobody could say how long the reels had been open. A disciplined factory answers in seconds.');
+  el('<div class="card"><h3>Year-end result</h3><div class="stamp ' + stamp + '">' + txt + '</div><div class="big">' + fmt(sc.total) + '</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
+   '<div class="lines">' + sc.rows.map(function (r) { return '<div><span>' + r[0] + '</span><em class="' + (r[1] >= 0 ? 'pos' : 'neg') + '">' + (r[1] >= 0 ? '+' : '') + r[1] + '</em></div>'; }).join('') + '</div>' +
+   '<h3>Where the money went</h3><div class="lines">' + (G.ledger.length ? G.ledger.map(function (x) { return '<div><span>' + x.label + '</span><em class="neg">−€' + x.cost + 'k</em></div>'; }).join('') : '<div><span>Nothing</span><em>€0</em></div>') + '</div>' +
+   (lessons.length ? '<div class="note warn"><b>What the missing paperwork cost</b>' + lessons.join('<br><br>') + '</div>' : '') +
+   '<h3>What was really in each lot</h3>' + truth +
+   HHL.next(102) +
+   '<div class="row"><button class="btn" data-a="again">Run another shift</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+}
+
+/* ---------- events ---------- */
+$app.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+  var a = b.dataset.a, id = b.dataset.id;
+  switch (a) {
+    case 'start': newGame(); screenSpec(); break;
+    case 'spec': { var i = G.spec.indexOf(id); if (i >= 0) G.spec.splice(i, 1); else if (G.spec.length < 3) G.spec.push(id); screenSpec(); break; }
+    case 'day': G.overridesToday = G.overridesToday || 0; screenDay(); break;
+    case 'lot': screenLot(Number(b.dataset.i)); break;
+    case 'insp': doInspect(b.dataset.m); break;
+    case 'shelve': doShelve(); break;
+    case 'mrb': doMrb(); break;
+    case 'disp': doDisp(b.dataset.v); break;
+    case 'recap': screenRecap(); break;
+    case 'nextday': G.day++; G.hours = HOURS; G.overridesToday = 0; screenDay(); break;
+    case 'later': screenLater(); break;
+    case 'nextev': nextEvent(); break;
+    case 'result': screenResult(); break;
+    case 'again': newGame(); screenSpec(); break;
+    case 'menu': screenTitle(); break;
+  }
+});
+newGame(); screenTitle();
+window.__f2 = { G:function () { return G; }, score:score, PARTS:PARTS, detect:detect };
+})();
+</script>
+</body>
+</html>
