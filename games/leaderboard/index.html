@@ -52,6 +52,7 @@
   <h2>Your name</h2>
   <div class="card">
     <div class="row"><input id="name" maxlength="20" placeholder="Pick a display name" autocomplete="nickname"><button id="save">Save</button></div>
+    <p class="hint" id="status"></p>
     <p class="hint" id="nameHint">Shown on the public board. Letters, numbers, spaces. Max 20.</p>
   </div>
 
@@ -63,7 +64,7 @@
   <div class="tabs" id="tabs"></div>
   <div id="board"></div>
 </main>
-<script src="../hhl.js"></script>
+<script src="../hhl.js?v=2"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -126,8 +127,8 @@
   $('save').onclick = function () {
     var n = $('name').value.replace(/[^\p{L}\p{N} ._\-]/gu, '').trim().slice(0, 20);
     if (!n) { $('nameHint').textContent = 'Enter a name first.'; return; }
-    P.name = n; HHL.save(P); $('name').value = n; $('nameHint').textContent = 'Saved. Posting your scores…';
-    HHL.flush(); setTimeout(function () { $('nameHint').textContent = 'Saved as ' + n + '.'; loadBoard(); }, 1200);
+    P.name = n; HHL.save(P); $('name').value = n; 
+    $('nameHint').textContent = 'Saved as ' + n + '.'; HHL.flush();
   };
 
   // Scorecard image for sharing.
@@ -162,7 +163,12 @@
     }).catch(function () {});
   };
 
-  renderBadges(); renderTabs(); loadBoard(); HHL.flush();
+  function status() {
+    var q = HHL.profile(), n = q.pending.length;
+    $('status').textContent = !q.name ? 'Set a name to post your scores.' : n ? n + ' score' + (n > 1 ? 's' : '') + ' waiting to post' + (q.lastPost && q.lastPost !== 'ok' ? ' (' + q.lastPost + ')' : '…') : 'All scores posted.';
+  }
+  var _flush = HHL.flush; HHL.flush = function () { _flush(function () { status(); loadBoard(); }); status(); };
+  renderBadges(); renderTabs(); loadBoard(); status(); HHL.flush(); setInterval(status, 2000);
 })();
 </script>
 </body>

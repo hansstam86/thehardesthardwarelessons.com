@@ -22,17 +22,23 @@
   function live() { return API.indexOf('REPLACE-ME') < 0; }
   function post(path, body) {
     return fetch(API + path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), keepalive: true })
-      .then(function (r) { return r.json(); });
+      .then(function (r) { return r.json().catch(function () { return { error: 'http ' + r.status }; }); });
   }
-  function flush() {
+  var flushing = false;
+  // Post queued scores one at a time; a score leaves the queue only after the server accepts it.
+  function flush(done) {
     if (!live()) return;
-    var p = profile(); if (!p.name || !p.pending.length) return;
-    var batch = p.pending.slice();
-    batch.forEach(function (s) {
-      post('/score', { pid: p.pid, name: p.name, ch: s.ch, score: s.score }).then(function () {
-        var q = profile(); q.pending = q.pending.filter(function (x) { return !(x.ch === s.ch && x.score === s.score && x.t === s.t); }); save(q);
-      }).catch(function () {});
-    });
+    if (flushing) { if (done) setTimeout(function () { flush(done); }, 1000); return; }
+    var p = profile(); if (!p.name || !p.pending.length) { if (done) done(); return; }
+    flushing = true;
+    var s = p.pending[0];
+    post('/score', { pid: p.pid, name: p.name, ch: s.ch, score: s.score }).then(function (r) {
+      var q = profile();
+      if (r.ok || r.error === 'invalid') { q.pending = q.pending.filter(function (x) { return x !== s && !(x.ch === s.ch && x.score <= s.score); }); }
+      else if (r.error === 'slow down') { flushing = false; return setTimeout(function () { flush(done); }, 5500); }
+      q.lastPost = r.ok ? 'ok' : (r.error || 'error'); save(q);
+      flushing = false; flush(done);
+    }).catch(function () { flushing = false; var q = profile(); q.lastPost = 'network'; save(q); if (done) done(); });
   }
   function toast(msg, href) {
     var d = document.createElement('a');
