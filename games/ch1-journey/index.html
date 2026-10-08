@@ -77,6 +77,7 @@ canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-ac
 .foot{text-align:center}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
 .hudbtns[hidden]{display:none!important}
+#ov{padding-top:calc(env(safe-area-inset-top,0px) + 48px) !important}
 </style>
 </head>
 <body>
@@ -767,10 +768,11 @@ function curveHtml() {
 }
 function showTitle() {
   $('hudbtns').hidden = true; S.mode = 'title';
-  show('<a class="back" href="../">← Arcade</a><div class="card"><div class="eyebrow">Chapter 1 · The Development Journey: An Overview</div>' +
+  show('<a class="back" href="../">← Games</a><div class="card"><div class="eyebrow">Chapter 1 · The Development Journey: An Overview</div>' +
     '<h1>Hold the <span>Gate</span></h1>' +
     '<p class="from">From <i>The Hardest Hardware Lessons</i></p>' +
     '<p>You run the <b>Lumo smart lamp</b> programme, from first prototype to mass production. Cards land on your desk. <b>Swipe right to act now</b>, left to move on.</p>' +
+    '<p style="font-size:13px;line-height:1.4;margin:8px 0 !important;padding:2px 0 2px 10px;border-left:3px solid rgba(255,255,255,.28);color:#d5dce1"><b>In plain English:</b> Building a gadget goes in stages, and fixing a mistake costs roughly 10× more at each stage. Catch problems early. <b>Goal:</b> reach mass production with money in the bank and a board that still trusts you.</p>' +
     curveHtml() +
     '<p class="small">The cost of a design change, by phase. Anything you defer comes back at the next phase\'s price. Reach mass production with cash left and the board still on your side.</p>' +
     '<button class="btn" data-a="start">Start the programme</button>' +

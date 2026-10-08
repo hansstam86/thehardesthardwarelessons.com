@@ -61,6 +61,7 @@ canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-ac
 .weeks div{background:#161b20;border-radius:8px;padding:8px 4px;text-align:center;font-size:11px;color:var(--muted);line-height:1.25}
 .weeks div.on{background:#173826;color:var(--acc);font-weight:700}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+#ov{padding-top:calc(env(safe-area-inset-top,0px) + 48px) !important}
 </style>
 </head>
 <body>
@@ -843,12 +844,13 @@ function previewCanvas() {
 function showTitle() {
   S.mode = 'title'; S.lv = null; S.paused = false;
   $('hudbtns').hidden = true;
-  show('<a class="back" href="../">← Arcade</a>' +
+  show('<a class="back" href="../">← Games</a>' +
     '<div class="card"><div class="eyebrow">Chapter 3 · Project Set-up: Building the Foundation</div>' +
     '<h1>Critical <span>Path</span></h1>' +
     '<p class="small">From <i>The Hardest Hardware Lessons</i></p>' +
     '<div id="prev"></div>' +
     '<p>The DFM handoff is done. You have <b>four weeks</b> before EVT starts. Write a PRD that can be tested, get the interface specs signed, find the critical path and commit a plan with contingency.</p>' +
+    '<p style="font-size:13px;line-height:1.4;margin:8px 0 !important;padding:2px 0 2px 10px;border-left:3px solid rgba(255,255,255,.28);color:#d5dce1"><b>In plain English:</b> Before building starts, you write down what the product must do (the <b>PRD</b>), the technical limits it must meet (the <b>TRD</b>), and which tasks set the finish date (the <b>critical path</b>). <b>Goal:</b> a plan someone else can test and follow.</p>' +
     '<div class="weeks"><div>Wk 1<br>PRD</div><div>Wk 2<br>TRD</div><div>Wk 3<br>Critical path</div><div>Wk 4<br>Kickoff</div></div>' +
     '<p class="small">No timer. Think it through. Two or more mistakes in a level cost <b>sponsor confidence</b>. Lose all three and the programme goes on hold.</p>' +
     '<button class="btn" data-a="start">Start Project Set-up</button>' +

@@ -127,6 +127,7 @@ a{color:var(--acc)}
 .item.chosen{border-color:#3a434b}
 .sum{font-size:13px!important;color:var(--ink)!important;text-align:center}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+#ov{padding-top:calc(env(safe-area-inset-top,0px) + 48px) !important}
 </style>
 </head>
 <body>
@@ -856,10 +857,11 @@ function hideOverlay() { ov.hidden = true; ov.innerHTML = ''; }
 function show(html) { ov.innerHTML = html; ov.hidden = false; ov.scrollTop = 0; }
 function showTitle() {
   S.mode = 'title'; S.paused = false; hidePanel(); $('hudbtns').hidden = true;
-  show('<a class="back" href="../">← Arcade</a><div class="card"><div class="eyebrow">Chapter 6 · PVT: Production Validation Test</div>' +
+  show('<a class="back" href="../">← Games</a><div class="card"><div class="eyebrow">Chapter 6 · PVT: Production Validation Test</div>' +
     '<h1>Breaking <span>Point</span></h1>' +
     '<p class="small">From <i>The Hardest Hardware Lessons</i></p>' +
     '<p>Six weeks to prove the factory can build it. Check the <b>readiness gate</b>, watch <b>200 pilot units</b>, push production units to failure in the <b>HALT chamber</b>, then face the <b>PVT Meeting</b>.</p>' +
+    '<p style="font-size:13px;line-height:1.4;margin:8px 0 !important;padding:2px 0 2px 10px;border-left:3px solid rgba(255,255,255,.28);color:#d5dce1"><b>In plain English:</b> PVT proves the factory can build your product again and again, and that it survives abuse. <b>HALT</b> means deliberately stressing units until they break, to find the weak spot. <b>Goal:</b> learn the product\'s limits without wasting too many scarce units.</p>' +
     '<p class="small">Push too far and you destroy scarce units. Stop too early and the customer finds the weakness for you. Score: the euros you keep.</p>' +
     '<button class="btn" data-a="start">Start PVT</button>' +
     '<p class="small center">' + (S.best != null ? 'Best ' + eur(S.best) : 'No best yet') + ' · Sound on? Check the silent switch.</p></div>');

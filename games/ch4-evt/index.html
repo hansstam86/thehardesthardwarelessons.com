@@ -80,6 +80,7 @@ a{color:var(--yellow)}
 .back{position:fixed;top:calc(env(safe-area-inset-top,0px) + 6px);left:calc(env(safe-area-inset-left,0px) + 8px);z-index:11;color:var(--ink);text-decoration:none;font:700 14px/1 var(--font);padding:0 12px;min-height:44px;border-radius:10px;display:flex;align-items:center;background:rgba(29,35,41,.7);border:1px solid var(--rule)}
 .back:active{transform:scale(.94)}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+#ov{padding-top:calc(env(safe-area-inset-top,0px) + 48px) !important}
 </style>
 </head>
 <body>
@@ -739,11 +740,12 @@ function sevTable() {
 }
 function showTitle() {
   S.mode = 'title'; S.paused = false; $('hudbtns').hidden = true;
-  show('<a class="back" href="../">← Arcade</a>' +
+  show('<a class="back" href="../">← Games</a>' +
     '<div class="card"><div class="eyebrow">Chapter 4 · EVT: Engineering Validation Test</div>' +
     '<h1>EVT <span>War Room</span></h1>' +
     '<p class="from">From <i>The Hardest Hardware Lessons</i></p>' +
     '<p>Twelve weeks. Five teams working in parallel. One gate. Issues land in the tracker. <b>Drag each one to the team that owns it</b> before it escalates.</p>' +
+    '<p style="font-size:13px;line-height:1.4;margin:8px 0 !important;padding:2px 0 2px 10px;border-left:3px solid rgba(255,255,255,.28);color:#d5dce1"><b>In plain English:</b> EVT is the first time real engineering samples get tested. Problems pour in; your job is to send each one to the right team fast. <b>Goal:</b> reach the EVT meeting with the serious problems owned and under control.</p>' +
     sevTable() +
     '<p class="small"><b>⇄ Interface issues</b> need both teams. Some changes look like one team\'s business but aren\'t. Tap the weekly <b>cross-team review</b> to surface them while they are cheap.</p>' +
     '<button class="btn" data-a="start">Start EVT</button>' +

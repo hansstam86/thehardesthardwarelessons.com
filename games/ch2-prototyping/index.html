@@ -83,7 +83,7 @@ canvas#game{position:fixed;inset:0;width:100%;height:100%;display:block;touch-ac
 <body>
 <canvas id="game"></canvas>
 <div id="safe"></div>
-<a id="back" href="../">← Arcade</a>
+<a id="back" href="../">← Games</a>
 <div class="hudbtns" id="hudbtns" hidden>
   <button id="btnMute" aria-label="Sound on or off">♪</button>
   <button id="btnPause" aria-label="Pause">❚❚</button>
@@ -649,6 +649,7 @@ function showTitle() {
     '<div id="pv"></div>' +
     '<p>Keep the <b>Looks Like</b>, <b>Works Like</b> and <b>Feels Like</b> prototypes spinning at the same time. <b>Tap a plate</b> to put attention on it. Neglect one and it stalls.</p>' +
     '<p class="small">Risks from the register pop up for testing. Pick the honest test, not the flattering one. Converge into P1, review it properly and hand a clean design to DFM before week 52 or the money runs out.</p>' +
+    '<p style="font-size:13px;line-height:1.4;margin:8px 0 !important;padding:2px 0 2px 10px;border-left:3px solid rgba(255,255,255,.28);color:#d5dce1"><b>In plain English:</b> A prototype is an early test version. <b>P1</b> is your first complete one; <b>DFM</b> (design for manufacturing) is the step that makes the design ready for a factory. <b>Goal:</b> find the problems now, while they\'re cheap, and hand over a solid design before week 52.</p>' +
     '<button class="btn" data-a="start">Start prototyping</button>' +
     '<p class="small" style="text-align:center">Best ' + S.best + ' · Sound on? Check the silent switch.</p></div>');
   try { $('pv').appendChild(previewCanvas()); } catch (e) {}
