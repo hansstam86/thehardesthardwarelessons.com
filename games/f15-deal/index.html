@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a1c">
+<title>The Deal — The Hardest Factory Lessons</title>
+<meta name="description" content="A free game: negotiate a manufacturing contract, then live through five years of what you secured and what you deferred. From The Hardest Factory Lessons, Chapter 15.">
+<style>
+:root{
+  --bg:#101a1c; --ink:#eaf3f2; --muted:#93a9a8; --panel:#182427; --panel2:#1e2e31; --rule:#2c4043;
+  --acc:#3dd6c6; --red:#ff5a4e; --green:#3ddc84; --amber:#ff9f43; --gold:#f5c518;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-text-size-adjust:100%}
+body{padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 28px)}
+#app{width:min(480px,100%);margin:0 auto;display:grid;gap:12px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.back{color:var(--muted);text-decoration:none;font:600 14px/1 var(--font);padding:10px 8px;margin-left:-8px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:20px 18px;display:grid;gap:13px;animation:pop .28s ease both}
+@keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+h1{margin:0;font-size:34px;line-height:1.05;font-weight:800;letter-spacing:-.01em} h1 span{color:var(--acc)}
+h2{margin:0;font-size:22px;font-weight:800}
+h3{margin:0;font:700 11px/1.3 var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+p{margin:0;color:var(--muted);font-size:15px;line-height:1.45} p b,li b{color:var(--ink);font-weight:600}
+.small{font-size:12.5px} .plain{border-left:3px solid var(--rule);padding:2px 0 2px 10px;font-size:13px;color:#cfdddc}
+.btn{appearance:none;border:0;border-radius:14px;padding:15px 16px;font:800 16px/1.1 var(--font);background:var(--acc);color:#07201d;width:100%;min-height:50px;cursor:pointer}
+.btn:active{transform:scale(.97)} .btn:disabled{opacity:.35;pointer-events:none}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule);font-weight:700}
+.btn.sm{padding:10px 12px;min-height:40px;font-size:14px;border-radius:11px}
+.row{display:flex;gap:10px} .row>*{flex:1}
+.hud{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:10px 12px;position:sticky;top:6px;z-index:5}
+.hud b{font-size:14px} .bar{height:8px;background:#0e1718;border-radius:6px;overflow:hidden} .bar i{display:block;height:100%;background:var(--acc);transition:width .3s}
+.hud span{font:700 12px/1 var(--font);color:var(--muted);font-variant-numeric:tabular-nums}
+.quote{display:grid;gap:6px;background:var(--panel2);border:1px solid var(--rule);border-radius:14px;padding:13px}
+.quote.on{border-color:var(--acc);background:#16363a}
+.quote .p{display:flex;justify-content:space-between;align-items:baseline;gap:10px} .quote .p b{font-size:16px} .quote .p em{font:800 20px var(--font);font-style:normal;color:var(--acc);font-variant-numeric:tabular-nums}
+.quote .s{font-size:12.5px;color:var(--muted)}
+.probe{display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-align:left;border:1px solid var(--rule);background:var(--panel2);border-radius:12px;padding:11px;color:var(--ink);font:inherit;cursor:pointer;width:100%}
+.probe b{font-size:14px} .probe span{font-size:12px;color:var(--muted)} .probe em{grid-row:1/3;grid-column:2;align-self:center;font:800 12px var(--font);color:var(--acc);font-style:normal}
+.probe:disabled{opacity:.4;pointer-events:none}
+.note{display:grid;gap:3px;background:#0e1718;border-radius:12px;padding:11px 12px;font-size:13.5px;line-height:1.4;color:#d6e4e3}
+.note b{color:var(--acc);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.note.warn b{color:var(--amber)} .note.bad b{color:var(--red)} .note.good b{color:var(--green)}
+.clause{display:grid;gap:9px;padding:14px 0;border-top:1px solid var(--rule)} .clause:first-of-type{border-top:0;padding-top:4px}
+.clause .h{display:flex;justify-content:space-between;align-items:baseline;gap:8px} .clause .h b{font-size:16px}
+.clause .h span{font:700 11px var(--font);letter-spacing:.06em;color:var(--amber);white-space:nowrap}
+.clause .sc{font-size:13px;color:var(--muted);font-style:italic}
+.lv{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.lv button{display:grid;gap:3px;align-content:start;text-align:left;border:1px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:11px;padding:9px 8px;font:inherit;cursor:pointer;min-height:96px}
+.lv button b{font-size:13px} .lv button span{font-size:11px;color:var(--muted);line-height:1.3} .lv button i{font:800 11px var(--font);font-style:normal;color:var(--acc)}
+.lv button.on{border-color:var(--acc);background:#16363a} .lv button.on[data-l="0"]{border-color:var(--red);background:#2b1a1a} .lv button:disabled{opacity:.35;pointer-events:none}
+.react{font-size:12.5px;color:#d6e4e3;background:#0e1718;border-radius:9px;padding:8px 10px}
+.react.bad{color:#ffb4ac} .react.good{color:#aeeccb}
+.big{font:900 56px/1 var(--font);text-align:center;color:var(--acc);font-variant-numeric:tabular-nums}
+.stamp{justify-self:center;font:900 24px/1 var(--font);letter-spacing:.06em;padding:8px 14px;border:4px solid currentColor;border-radius:8px;transform:rotate(-4deg)}
+.stamp.pass{color:var(--green)} .stamp.fail{color:var(--red)} .stamp.warn{color:var(--amber)}
+.lines{display:grid;gap:6px} .lines div{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:#d6e4e3;padding:7px 0;border-top:1px solid var(--rule)} .lines div:first-child{border-top:0}
+.lines em{font-style:normal;font-weight:800;font-variant-numeric:tabular-nums} .lines em.pos{color:var(--green)} .lines em.neg{color:var(--red)}
+.ev{display:grid;gap:8px} .ev .cost{font:900 30px var(--font);font-variant-numeric:tabular-nums} .ev .cost.ok{color:var(--green)} .ev .cost.mid{color:var(--amber)} .ev .cost.hi{color:var(--red)}
+.lesson{background:#0e1718;border-radius:12px;padding:12px;color:#e3efee;font-size:14.5px;line-height:1.5}
+.reveal{display:grid;gap:3px;padding:9px 0;border-top:1px solid var(--rule);font-size:13.5px;color:#d6e4e3} .reveal b{font-size:14px}
+a{color:var(--acc)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="../hhl.js?v=8"></script>
+<script>
+(function () {
+'use strict';
+var $app = document.getElementById('app');
+var CAPITAL = 14, WALK_PENALTY = 30;
+
+/* ---------- content ---------- */
+// three quotes; one is "thin" (below the band, free tooling, yield unstated, ECO desk as profit centre). Positions are shuffled each run.
+var NAMES = ['Lianxing Precision', 'Rui Tai Electronics', 'Dongyue Smart Manufacturing'];
+var QTYPES = {
+  thin: { label:'thin', unit:'41.20', band:'18% below the band', save:220, mult:1.5, cap:CAPITAL, retainer:true,
+    probes:{
+      yield:'Not stated. "Standard industry yield." Pressed, they say: "we will review after the first builds."',
+      excl:'The data package, retest policy and audit support are "engineering services", billed per hour. Volumes under 20k carry +12%.',
+      tooling:'"Free" tooling, folded into the piece price. Ownership: "standard terms".',
+      margin:'Margin hides in an ECO rate of €180 an hour and a 12% handling mark-up on a BOM priced from brokers.' } },
+  mid: { label:'mid', unit:'50.10', band:'in the band', save:0, mult:1, cap:CAPITAL, retainer:false,
+    probes:{
+      yield:'98% stated. They will discuss who keeps the difference.',
+      excl:'Data package included. Volumes below the tier are quoted separately.',
+      tooling:'You pay NRE and tooling, and you own it. Plates and custody reporting accepted in principle.',
+      margin:'Margin sits in the labour rate. Handling is 6%. BOM from authorised distributors.' } },
+  high: { label:'high', unit:'53.40', band:'6% above the band', save:-100, mult:1, cap:CAPITAL + 2, retainer:false,
+    probes:{
+      yield:'97% stated, with a joint-attribution process already in their template.',
+      excl:'Data package and audit rights included. Packaging spec listed in full.',
+      tooling:'Amortised: a €0.80 per-unit adder over 100k units, then the price steps down. The buyout is stated.',
+      margin:'Open-book on the BOM with pass-through at actuals. Margin sits in value-add.' } }
+};
+var PROBES = [
+  { id:'yield', name:'Yield assumption', sub:'Every quote assumes a yield. Few state it.' },
+  { id:'excl', name:'Exclusions', sub:'The quote\'s silences are terms too.' },
+  { id:'tooling', name:'Tooling funding', sub:'Who pays, who owns, what happens at the end.' },
+  { id:'margin', name:'Where the margin sits', sub:'It tells you where they will fight you.' }
+];
+
+// the ten clauses and their five-year scenarios. cost = in €k when it plays out, by level 0 (deferred), 1 (basic), 2 (full)
+var CLAUSES = [
+ { id:'tooling', name:'Tooling ownership and lien', ex:3, sc:'A commercial dispute while your molds sit in their building.', b:'Ownership stated, plates fitted.', f:'Ownership, custody address, an N-day return, and the lien carved out.', cost:[250,110,12], thin:true, retain:true,
+   ev:{ m:'Month 14', t:'An invoice dispute. The factory holds your molds.',
+     r:['"Details later." Under their standard terms the tooling is theirs by default. You pay the disputed invoice and a "storage fee" to get it back.','Ownership is documented, but there is no lien carve-out. Your tooling sits behind the dispute for five weeks.','The tooling is plated, listed and released regardless of the dispute. You never need to collect it. Settled in a week.'] } },
+ { id:'yield', name:'Yield assumption', ex:2, sc:'The "your yield is lower than expected" letter.', b:'State the assumed yield.', f:'Yield in writing, with who keeps the gain, who pays the miss, and a joint attribution first.', cost:[120,54,6], thin:true,
+   ev:{ m:'Month 5', t:'The "your yield is lower than expected" letter.',
+     r:['The yield was never stated, so the price was never a number. +6% on every unit, and pressure on test coverage.','The yield is stated, but nobody assigned the miss. They propose +4%. You settle at +2%.','The assumption is in writing with the consequence assigned. Joint attribution points at their stencil process. No price move.'] } },
+ { id:'epidemic', name:'Epidemic failure', ex:3, sc:'A latent defect ships for five months, then blooms in the field.', b:'A workmanship warranty with a defined remedy.', f:'A threshold, a causation standard, and event-cost liability: capped, but non-zero.', cost:[300,135,15],
+   ev:{ m:'Month 9', t:'A latent defect blooms in the field.',
+     r:['No clause. Replace-the-unit is all they owe. Retrieval, screening and the customer calls are on you.','The warranty covers replacement units only. You carry retrieval and screening.','The epidemic clause triggers. The factory funds retrieval, screening and rework of fielded stock (capped), and tightens the process.'] } },
+ { id:'eo', name:'Forecast and E&O', ex:2, sc:'The excess-and-obsolete invoice at end of life.', b:'Buy-against rules and liability bands.', f:'Bands plus substantiation, mitigation duties, and a monthly exposure report.', cost:[150,68,8], thin:true,
+   ev:{ m:'Month 30', t:'The end-of-life E&O invoice arrives.',
+     r:['A €150k excess-and-obsolete spreadsheet. You cannot disprove a single line.','Bands exist but there is no substantiation rule. The invoice drops by a third in negotiation.','Buy-against rules and bands apply. Substantiation voids a third of the lines, mitigation resells the rest. A small bill.'] } },
+ { id:'capacity', name:'Capacity and allocation', ex:2, sc:'A shortage year, and their bigger customer\'s launch.', b:'Priority language.', f:'Reserved capacity bands, priority, and a second-source trigger on missed supply.', cost:[160,72,8],
+   ev:{ m:'Month 20', t:'A shortage year. Their biggest customer launches.',
+     r:['"We did our best." Your product waits behind the launch for a quarter.','Priority language, no remedies. They did their best. Builds slip eight weeks.','Reserved capacity and a second-source trigger. Your builds slip two weeks, not two quarters, and the trigger starts the second source.'] } },
+ { id:'price', name:'Price reviews and cost-downs', ex:2, sc:'The mid-life price-increase letter.', b:'An annual review calendar.', f:'Calendar, component pass-through at actuals, and a joint cost-down roadmap with an escalation valve.', cost:[140,63,7], thin:true,
+   ev:{ m:'Month 24', t:'The mid-life price-increase letter.',
+     r:['It lands after your tooling is in their building. +9%, or a requote. Your alternatives have gone cold.','A review cadence exists, but there are no pass-through rules. You bargain it from +9% to +5%.','Calendar, pass-through and a cost-down roadmap turn the argument into arithmetic. The increase is the documented component move, and you share the next saving.'] } },
+ { id:'eco', name:'Change-order rate card', ex:2, sc:'Dozens of engineering changes, priced by the factory.', b:'A rate card for ECOs.', f:'A rate card plus a material-disposition rule for every change.', cost:[130,58,6], thin:true,
+   ev:{ m:'Month 12', t:'Dozens of engineering changes.',
+     r:['Every ECO is priced at their rate and reopens the quote. The change desk is their profit centre.','A rate card exists, but no disposition rule. The scrap from each change lands on you.','Rate card at signature, and a disposition for every change. The change desk is a service, not a profit centre.'] } },
+ { id:'ip', name:'IP and subcontractors', ex:2, sc:'The molder is swapped, and a competitor shares the line.', b:'Your data is yours, with the licence limited to your production.', f:'Plus notice before any subcontractor change, audit rights across the web, and compartmentalised data.', cost:[120,54,6],
+   ev:{ m:'Month 26', t:'The molder is swapped. A competitor shares the line.',
+     r:['No notice, no audit rights, a loose licence. Your fixtures are copied for another customer.','Your data is yours on paper, but there is no notice duty. You find out from a part with a different texture.','Notice and audit rights apply across the web. Your data is compartmentalised and the licence is bounded. The swap is stopped.'] } },
+ { id:'payment', name:'Payment and currency', ex:1, sc:'A year of currency drift, and paid before inspection.', b:'Net terms, earned by payment history.', f:'Payment tied to your pre-ship audit, and the currency carrier chosen and hedged.', cost:[60,27,3],
+   ev:{ m:'Month 8', t:'A year of currency drift.',
+     r:['Paid in full before your first inspection, and nobody chose who carries the FX. It costs 4%, and a shipment is accepted unchecked.','The terms are clear, but the currency was defaulted. The RMB moves 4%.','Payment is tied to your pre-ship audit and the FX carrier is chosen and hedged. It is a line in your plan, not a surprise.'] } },
+ { id:'exit', name:'The exit package', ex:3, sc:'The relationship ends. They all do.', b:'Tooling return terms.', f:'Tooling, data and test-program sources, priced transition services, and a last-buy right.', cost:[220,99,11], thin:true, retain:true,
+   ev:{ m:'Month 40', t:'The relationship ends.',
+     r:['Everything is negotiated at extortion prices. A hostage negotiation, an eight-month gap, and a last-buy refused.','The tooling return is agreed, but the data package and transition support are not. The transfer takes six extra months.','Tooling collected in 14 days, data and test sources delivered, transition support priced, last-buy right exercised. It ends as logistics.'] } }
+];
+var CBY = {}; CLAUSES.forEach(function (c) { CBY[c.id] = c; });
+var LVNAME = ['Defer', 'Basic', 'Full'];
+
+var G = null;
+var store = { get:function (k, d) { try { var v = localStorage.getItem('hhl.ch115.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set:function (k, v) { try { localStorage.setItem('hhl.ch115.' + k, JSON.stringify(v)); } catch (e) {} } };
+function fmt(n) { return Number(n).toLocaleString('en'); }
+function el(h) { $app.innerHTML = h; window.scrollTo(0, 0); }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+function newGame() {
+  var types = shuffle(['thin', 'mid', 'high']), names = shuffle(NAMES);
+  G = { quotes: types.map(function (t, i) { return { type:t, name:names[i] }; }), probed:{}, nprobes:0, chosen:null, struck:{}, walked:0,
+        level:{}, react:{}, ev:0, net:0, log:[], faced:{}, phase:'title' };
+  CLAUSES.forEach(function (c) { G.level[c.id] = 0; });
+}
+function Q() { return QTYPES[G.chosen.type]; }
+function spent() { var s = 0; CLAUSES.forEach(function (c) { s += cost(c, G.level[c.id]); }); return s; }
+function cost(c, lv) { if (lv === 0) return 0; var base = lv; if (Q().retainer && c.retain) base += 1; return base; }
+function capLeft() { return Q().cap - spent(); }
+
+/* ---------- screens ---------- */
+function screenTitle() {
+  el('<div class="top"><a class="back" href="../">← Games</a></div>' +
+   '<div class="card"><h3>Chapter 15 · The Hardest Factory Lessons</h3><h1>The <span>Deal</span></h1>' +
+   '<p class="small"><i>From The Hardest Factory Lessons</i></p>' +
+   '<p>You have audited three factories. Now you sign one. <b>Everything is negotiable exactly once</b>, and every term you defer "until we\'re up and running" is a concession with a delayed invoice.</p>' +
+   '<div class="plain"><b>In plain English:</b> before you sign a manufacturing contract, you read the price quote, decide which protections to demand, and then live with the result for years. <b>Goal:</b> keep the total cost of the relationship low by securing the right protections while you still have alternatives.</div>' +
+   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55">' +
+   '<li><b>Read the quotes.</b> One is suspiciously cheap.</li>' +
+   '<li><b>Spend limited negotiating capital</b> on ten contract clauses. You cannot win them all.</li>' +
+   '<li><b>Live through five years</b> of what each clause was written for.</li></ul>' +
+   '<button class="btn" data-a="start">Start the negotiation</button>' +
+   '<p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factories are fictional.</p></div>');
+}
+
+function screenQuotes() {
+  G.phase = 'quotes';
+  var left = 2 - G.nprobes;
+  el('<div class="card"><h3>Three quotes · ' + left + ' question' + (left === 1 ? '' : 's') + ' left</h3><h2>Read the quotes</h2>' +
+   '<p>A quote is an argument dressed as arithmetic. You can ask <b>two</b> questions before you choose. They apply to all three factories.</p>' +
+   '<div class="act" style="display:grid;gap:8px">' + PROBES.map(function (p) { var done = G.probed[p.id];
+      return '<button class="probe" data-a="probe" data-id="' + p.id + '"' + (done || left <= 0 ? ' disabled' : '') + '><b>' + p.name + '</b><span>' + p.sub + '</span><em>' + (done ? 'asked' : 'ask') + '</em></button>'; }).join('') + '</div>' +
+   G.quotes.map(function (q, i) { var t = QTYPES[q.type], struck = G.struck[i];
+     var answers = PROBES.filter(function (p) { return G.probed[p.id]; }).map(function (p) { return '<div class="s"><b style="color:var(--ink)">' + p.name + ':</b> ' + t.probes[p.id] + '</div>'; }).join('');
+     return '<div class="quote' + (G.chosen && G.chosen.i === i ? ' on' : '') + '" style="' + (struck ? 'opacity:.4' : '') + '"><div class="p"><b>' + q.name + '</b><em>€' + t.unit + '</em></div><div class="s">Per unit, 50k units a year · ' + t.band + '</div>' + answers +
+       '<button class="btn sm ghost" data-a="choose" data-i="' + i + '"' + (struck ? ' disabled' : '') + '>' + (struck ? 'You walked away' : 'Negotiate with ' + q.name) + '</button></div>'; }).join('') +
+   '</div>');
+}
+
+function screenClauses() {
+  G.phase = 'clauses';
+  var cl = capLeft(), cap = Q().cap;
+  el('<div class="hud"><b>Capital</b><div class="bar"><i style="width:' + Math.round(100 * cl / cap) + '%"></i></div><span>' + cl + ' of ' + cap + '</span></div>' +
+   '<div class="card"><h3>Negotiating with ' + G.chosen.name + '</h3><h2>The clauses</h2>' +
+   '<p>Each clause is written for a scenario that <b>will</b> happen. <b>Basic</b> costs 1 capital and <b>Full</b> costs 2. You cannot afford everything. Cover as many scenarios as you can, then deepen the ones that bite hardest.</p>' +
+   '<div class="plain">The counterparty\'s behaviour when you table these is the last audit finding. A factory that engages seriously expects to keep you by performing.</div>' +
+   CLAUSES.map(function (c) { var lv = G.level[c.id], r = G.react[c.id];
+     var up1 = cost(c, 1), up2 = cost(c, 2), cur = cost(c, lv);
+     function btn(l) { var can = (capLeft() + cur - l) >= 0, shown = (lv === l && l > 0) ? cost(c, l) : l;
+       return '<button data-a="lv" data-id="' + c.id + '" data-l="' + l + '" class="' + (lv === l ? 'on' : '') + '"' + (!can && lv !== l ? ' disabled' : '') + '><b>' + LVNAME[l] + '</b><span>' + (l === 0 ? 'Until we are up and running.' : l === 1 ? c.b : c.f) + '</span><i>' + (shown ? shown + ' capital' : 'free') + '</i></button>'; }
+     return '<div class="clause"><div class="h"><b>' + c.name + '</b><span>' + '●'.repeat(c.ex) + '○'.repeat(3 - c.ex) + ' exposure</span></div><div class="sc">The scenario: ' + c.sc + '</div><div class="lv">' + btn(0) + btn(1) + btn(2) + '</div>' + (r ? '<div class="react ' + r[1] + '">' + r[0] + '</div>' : '') + '</div>'; }).join('') +
+   '<div class="row"><button class="btn ghost sm" data-a="walk"' + (G.walked ? ' disabled' : '') + '>Walk away</button><button class="btn" data-a="sign">Sign the contract</button></div>' +
+   '<p class="small">' + (G.walked ? 'You have already walked away once.' : 'Walking away returns you to the other quotes. It costs ' + WALK_PENALTY + ' points: the calendar moves, even before the tooling is cut.') + '</p></div>');
+}
+function reaction(c, l) {
+  var q = Q();
+  if (l === 0) return ['They are happy to leave it for later. Of course they are.', 'bad'];
+  if (q.retainer && c.retain) return ['"Why do we discuss divorce at the wedding?" They bristle. It costs you one more capital to push it through. Their retention strategy is the switching cost.', 'bad'];
+  return [l === 2 ? 'They ask about the cap and the day-count, then agree. They expect to keep you by performing.' : 'Agreed, with a note to revisit. Fine, but thin.', 'good'];
+}
+
+function screenWalk() {
+  G.struck[G.chosen.i] = true; G.walked++; G.level = {}; CLAUSES.forEach(function (c) { G.level[c.id] = 0; }); G.react = {};
+  G.walkedFrom = G.chosen.type; G.chosen = null; screenQuotes();
+}
+
+function screenYears() {
+  G.phase = 'years'; var q = Q();
+  G.log = []; G.net = 0; G.idx = 0; G.events = CLAUSES.slice().sort(function (a, b) { return Number(a.ev.m.replace(/\D/g, '')) - Number(b.ev.m.replace(/\D/g, '')); });
+  el('<div class="card"><h3>' + G.chosen.name + ' · signed</h3><h2>Five years later</h2>' +
+   '<p>The contract is signed. The tooling is cut. Your alternatives have gone cold. Now the scenarios arrive, one by one, and each one finds out what you wrote and what you deferred.</p>' +
+   '<div class="note"><b>Year one</b>' + (q.save > 0 ? 'You saved €' + q.save + 'k on the quote.' : q.save < 0 ? 'You paid €' + (-q.save) + 'k more than the band.' : 'You paid the band price.') + '</div>' +
+   '<button class="btn" data-a="nextev">Begin month 1</button></div>');
+}
+function nextEvent() {
+  var q = Q();
+  if (G.idx >= G.events.length) return screenDebrief();
+  var c = G.events[G.idx++], lv = G.level[c.id], base = c.cost[lv], mult = (q.mult !== 1 && c.thin) ? q.mult : 1, cst = Math.round(base * mult);
+  G.net += cst; G.log.push({ c:c, lv:lv, cost:cst, base:base, mult:mult });
+  var klass = lv === 2 ? 'ok' : lv === 1 ? 'mid' : 'hi';
+  el('<div class="card ev"><h3>' + c.ev.m + ' · ' + c.name + '</h3><h2>' + c.ev.t + '</h2>' +
+   '<div class="note"><b>You wrote: ' + LVNAME[lv] + '</b>' + c.ev.r[lv] + '</div>' +
+   (mult !== 1 ? '<div class="note warn"><b>The thin-quote recovery playbook</b>The discount is recovered here: cost × ' + mult + '.</div>' : '') +
+   '<div class="cost ' + klass + '">−€' + cst + 'k</div>' +
+   '<div class="small" style="color:var(--muted)">Running total: €' + G.net + 'k · Event ' + G.idx + ' of ' + G.events.length + '</div>' +
+   '<button class="btn" data-a="nextev">' + (G.idx >= G.events.length ? 'See the result' : 'Next event') + '</button></div>');
+}
+
+function score() {
+  var q = Q(), rows = [];
+  var net = G.net - q.save;
+  var base = Math.max(0, Math.round(1000 - 0.6 * net));
+  rows.push(['Five-year cost (events €' + G.net + 'k' + (q.save ? (q.save > 0 ? ', quote saving −€' + q.save + 'k' : ', quote premium +€' + (-q.save) + 'k') : '') + ' = €' + net + 'k)', base]);
+  var total = base;
+  var bonus = 0;
+  if (G.probed.yield) bonus += 15; if (G.probed.tooling) bonus += 15;
+  if (bonus) { rows.push(['Asked about the yield and the tooling funding', bonus]); total += bonus; }
+  if (G.walked) {
+    rows.push(['Time lost walking away (the calendar moves)', -WALK_PENALTY]); total -= WALK_PENALTY;
+    if (G.walkedFrom === 'thin') { rows.push(['Recognised a retention strategy and walked', 90]); total += 90; }
+  }
+  return { rows:rows, total:Math.max(0, total), net:net };
+}
+
+function screenDebrief() {
+  G.phase = 'debrief';
+  var sc = score(), best = store.get('best', 0), nb = sc.total > best, q = Q();
+  if (nb) store.set('best', sc.total);
+  try { HHL.submit(115, sc.total); } catch (e) {}
+  var stamp = sc.total >= 700 ? 'pass' : sc.total >= 400 ? 'warn' : 'fail';
+  var txt = sc.total >= 700 ? 'WELL SIGNED' : sc.total >= 400 ? 'EXPENSIVE LESSONS' : 'AN INVOICE FOR HOPES';
+  var worst = G.log.slice().sort(function (a, b) { return b.cost - a.cost; })[0];
+  var thinNote = q.retainer ? '<div class="note bad"><b>The thin quote</b>You took the quote 18% below the band. It was a strategy, not a bargain: ' + (G.log.filter(function (l) { return l.mult !== 1; }).length) + ' of your events were multiplied by its recovery playbook, and the counterparty bristled at the exit and lien clauses. Interrogate the outlier; if you take it, arm the contract at full strength.</div>' : '';
+  var mostSaved = G.log.slice().sort(function (a, b) { return (b.c.cost[0] - b.base) - (a.c.cost[0] - a.base); })[0];
+  el('<div class="card"><h3>Five-year result</h3><div class="stamp ' + stamp + '">' + txt + '</div><div class="big">' + fmt(sc.total) + '</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
+   '<div class="lines">' + sc.rows.map(function (r) { return '<div><span>' + r[0] + '</span><em class="' + (r[1] >= 0 ? 'pos' : 'neg') + '">' + (r[1] >= 0 ? '+' : '') + r[1] + '</em></div>'; }).join('') + '</div>' +
+   thinNote +
+   (worst && worst.lv < 2 ? '<div class="note warn"><b>The most expensive gap</b>' + worst.c.name + ' cost you €' + worst.cost + 'k at level ' + LVNAME[worst.lv] + '. At Full it would have cost about €' + worst.c.cost[2] + 'k.</div>' : '') +
+   '<h3>What each clause did</h3>' + G.log.map(function (l) { return '<div class="reveal"><b>' + l.c.name + ' · ' + LVNAME[l.lv] + ' · −€' + l.cost + 'k</b><span class="small">Deferred it would have cost €' + l.c.cost[0] + 'k; at Full, €' + l.c.cost[2] + 'k.</span></div>'; }).join('') +
+   HHL.next(115) +
+   '<div class="row"><button class="btn" data-a="again">Negotiate again</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+}
+
+/* ---------- events ---------- */
+$app.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+  var a = b.dataset.a, id = b.dataset.id;
+  switch (a) {
+    case 'start': newGame(); screenQuotes(); break;
+    case 'probe': if (G.nprobes < 2 && !G.probed[id]) { G.probed[id] = true; G.nprobes++; } screenQuotes(); break;
+    case 'choose': G.chosen = { i:Number(b.dataset.i), type:G.quotes[b.dataset.i].type, name:G.quotes[b.dataset.i].name }; G.level = {}; CLAUSES.forEach(function (c) { G.level[c.id] = 0; }); G.react = {}; screenClauses(); break;
+    case 'lv': { var c = CBY[id], l = Number(b.dataset.l), avail = capLeft() + cost(c, G.level[id]), msg = null;
+      // a counterparty that bristles charges extra for the clauses it resists, and you only find out by tabling them
+      while (l > 0 && cost(c, l) > avail) { l--; msg = ['"Why do we discuss divorce at the wedding?" They bristled, and the push cost more capital than you had. The clause fell back to ' + LVNAME[l] + '. Their retention strategy is the switching cost.', 'bad']; }
+      G.level[id] = l; G.react[id] = msg || reaction(c, l); screenClauses(); break; }
+    case 'walk': screenWalk(); break;
+    case 'sign': screenYears(); break;
+    case 'nextev': nextEvent(); break;
+    case 'again': newGame(); screenQuotes(); break;
+    case 'menu': screenTitle(); break;
+  }
+});
+newGame(); screenTitle();
+window.__f15 = { G:function () { return G; }, score:score, CLAUSES:CLAUSES };
+})();
+</script>
+</body>
+</html>
