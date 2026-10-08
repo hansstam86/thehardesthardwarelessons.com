@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#101a1c">
 <title>The Audit — The Hardest Factory Lessons</title>
 <meta name="description" content="A free game: two days to audit a factory. Pull the evidence, read the reluctance map, spot the staged areas, then decide whether to qualify it. From The Hardest Factory Lessons, Chapter 14.">
+<link rel="stylesheet" href="../juice.css?v=2">
 <style>
 :root{
   --bg:#101a1c; --ink:#eaf3f2; --muted:#93a9a8; --panel:#182427; --panel2:#1e2e31; --rule:#2c4043;
@@ -73,11 +74,64 @@ p{margin:0;color:var(--muted);font-size:15px;line-height:1.45} p b,li b{color:va
 .reveal{display:grid;gap:4px;padding:9px 0;border-top:1px solid var(--rule);font-size:13.5px;color:#d6e4e3} .reveal b{font-size:14px}
 .tabs{display:flex;gap:6px} .tabs button{flex:1}
 a{color:var(--acc)}
+
+/* ---- visual layer ---- */
+body{overflow-x:hidden}
+.btn{box-shadow:0 4px 0 #1f8f85;transition:transform .06s,box-shadow .06s} .btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1f8f85} .btn.ghost{box-shadow:none}
+.hud{margin-right:50px}
+.pips16{display:grid;grid-template-columns:repeat(16,1fr);gap:2px}
+.pips16 i{height:12px;border-radius:3px;background:var(--acc);transition:background .2s,transform .2s} .pips16 i.off{background:#0e1718;transform:scaleY(.65)} .pips16 i.sep{margin-left:6px}
+.stage{position:relative;height:180px;border-radius:14px;overflow:hidden;background:linear-gradient(#1b2b2e 0 62%,#23363a 62% 100%);border:1px solid var(--rule)}
+.stage .floor{position:absolute;left:0;right:0;bottom:0;height:38%;background:repeating-linear-gradient(90deg,#26393d 0 26px,#2b4146 26px 52px)}
+.stage.dusk{background:linear-gradient(#2a1d3b 0 62%,#1d1830 62% 100%)}
+.big-ic{font-size:72px;line-height:1;filter:drop-shadow(0 6px 0 rgba(0,0,0,.25))}
+.speech{position:relative;background:#eaf3f2;color:#101a1c;border-radius:14px;padding:10px 12px;font-size:13.5px;line-height:1.35;max-width:88%}
+.speech.you{background:var(--acc);color:#07201d;justify-self:end}
+.speech:after{content:"";position:absolute;bottom:-7px;left:18px;border:8px solid transparent;border-top-color:#eaf3f2;border-bottom:0}
+.speech.you:after{left:auto;right:18px;border-top-color:var(--acc)}
+.convo{display:grid;gap:10px}
+.who{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)} .who i{font-style:normal;font-size:24px}
+.eyes{display:inline-block;animation:jblink .6s steps(2,end) 3}
+.plan{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;border-radius:14px;background:#0e1718;border:1px solid var(--rule)}
+.room{position:relative;display:grid;gap:4px;justify-items:center;text-align:center;background:var(--panel2);border:2px solid var(--rule);border-radius:12px;padding:12px 4px 8px;color:var(--ink);font:inherit;cursor:pointer;transition:transform .08s,border-color .2s,background .3s}
+.room:active{transform:scale(.94)} .room .ri{font-size:30px;line-height:1} .room b{font-size:11.5px;line-height:1.15;min-height:26px;display:grid;place-items:center}
+.room .no{position:absolute;top:-7px;left:-5px;width:20px;height:20px;border-radius:50%;background:var(--panel);border:2px solid var(--rule);font:900 10px/16px var(--font);color:var(--muted)}
+.room .st{font-size:11px;min-height:15px;letter-spacing:2px}
+.room.walked{border-color:#4a7a76} .room.drilled{border-color:var(--acc);background:#16363a}
+.room.locked{opacity:.5;border-style:dashed}
+.room.off{border-style:dashed;background:repeating-linear-gradient(135deg,#1e2e31 0 8px,#1a2a2d 8px 16px)}
+.avatar{position:absolute;left:0;top:0;font-size:30px;pointer-events:none;transition:transform .42s cubic-bezier(.4,.1,.2,1);z-index:3;filter:drop-shadow(0 3px 0 rgba(0,0,0,.35))}
+.paper{background:#f4efe3;color:#2a2418;border-radius:6px;padding:12px;display:grid;gap:8px;box-shadow:0 6px 0 rgba(0,0,0,.25);animation:jrise .4s ease both}
+.paper .pt{font:900 10px var(--font);letter-spacing:.1em;text-transform:uppercase;color:#6b6252} .paper p{color:#2a2418;font-size:13.5px;margin:0}
+.lat{display:flex;align-items:center;gap:10px}
+.dial{width:54px;height:54px;flex:none} .dial circle.bg{fill:none;stroke:#d9cfb8;stroke-width:6} .dial circle.fg{fill:none;stroke-width:6;stroke-linecap:round;stroke-dasharray:100;transform:rotate(-90deg);transform-origin:50% 50%;animation:dial var(--d,.5s) ease-out both}
+@keyframes dial{from{stroke-dashoffset:100}to{stroke-dashoffset:var(--o)}}
+.lat.sec .fg{stroke:#2e9d5f} .lat.hr .fg{stroke:#d9831b} .lat.mt .fg{stroke:#c0392b}
+.lat b{font-size:13px;color:#2a2418}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:8px} .split>div{background:#0e1718;border-radius:12px;padding:10px;font-size:12.5px;line-height:1.35;color:#d6e4e3} .split>div b{display:block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;color:var(--acc)} .split>div.t b{color:var(--amber)}
+.mail{background:#f4efe3;color:#2a2418;border-radius:8px;padding:12px;display:grid;gap:8px;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.mail .mh{font:700 11px var(--font);color:#6b6252;border-bottom:1px solid #d9cfb8;padding-bottom:6px}
+.mail .ml{display:grid;grid-template-columns:22px 1fr;gap:8px;font-size:13px;animation:jrise .35s ease both} .mail .ml.fr{color:#a45a00}
+.tiles{display:grid;gap:8px}
+.tile{display:grid;grid-template-columns:42px 1fr;gap:2px 12px;text-align:left;border:1px solid var(--rule);background:var(--panel2);border-radius:14px;padding:12px;color:var(--ink);font:inherit;cursor:pointer;transition:transform .1s,border-color .15s}
+.tile i{grid-row:1/3;font-style:normal;font-size:28px;align-self:center;text-align:center} .tile b{font-size:15px} .tile span{font-size:12.5px;color:var(--muted);line-height:1.35}
+.tile.on{border-color:var(--acc);background:#16363a;transform:scale(1.02)} .tile:disabled{opacity:.4}
+.slots{display:flex;gap:8px;justify-content:center}
+.slot{width:54px;height:54px;border-radius:14px;border:2px dashed var(--rule);display:grid;place-items:center;font-size:26px;background:#0e1718} .slot.on{border:2px solid var(--acc);background:#16363a}
+.vd{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.vd button{display:grid;gap:4px;justify-items:center;border:2px solid var(--rule);background:var(--panel2);border-radius:14px;padding:12px 4px;color:var(--ink);font:inherit;cursor:pointer;font-size:12px;font-weight:700;transition:transform .08s}
+.vd button i{font-style:normal;font-size:26px} .vd button.on{transform:scale(1.05)} .vd button.on[data-v=proceed]{border-color:var(--green);background:#143324} .vd button.on[data-v=conditions]{border-color:var(--amber);background:#33260f} .vd button.on[data-v=decline]{border-color:var(--red);background:#341715}
+.check i{width:22px;height:22px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.dot.solid{background:var(--green)} .dot.paper{background:var(--amber)} .dot.staged{background:#b388ff} .dot.mess{background:#ff9f43} .dot.fake,.dot.closed{background:var(--red)}
+.rowtruth{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--rule)} .rowtruth i{font-style:normal;font-size:24px;text-align:center}
+.bigs{font:900 64px/1 var(--font);text-align:center;color:var(--acc);font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
 <div id="app"></div>
-<script src="../hhl.js?v=10"></script>
+<script src="../hhl.js?v=11"></script>
+<script src="../juice.js?v=2"></script>
 <script>
 (function () {
 'use strict';
@@ -248,116 +302,141 @@ function left() { return G.hours - G.used; }
 function addNote(area, kind, text, lat) { G.notes.push({ area:area, kind:kind, text:text, lat:lat || null }); }
 
 /* ---------- screens ---------- */
+var AIC = { dock:'🚚', warehouse:'📦', smt:'🖨️', molding:'🏭', battery:'🔋', assembly:'🧑‍🏭', test:'🧪', quality:'📋', packing:'📮' };
+var PLAN = [0, 1, 2, 5, 4, 3, 6, 7, 8];
+function later(ms, fn) { setTimeout(function () { try { fn(); } catch (e) {} }, J.reduce ? 0 : ms); }
+function $q(sel) { return $app.querySelector(sel); }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function topbar(back) { return '<div class="top">' + (back ? '<a class="back" href="../">← Games</a>' : '<span></span>') + J.muteBtn() + '</div>'; }
+function hud() {
+  var p = ''; for (var i = 0; i < 16; i++) p += '<i class="' + (i < left() ? '' : 'off') + (i === 8 ? ' sep' : '') + '"></i>';
+  return J.muteBtn() + '<div class="hud"><b>' + (G.phase === 'thu' ? 'Thu' : 'Day ' + G.day) + '</b><div class="pips16" title="Hours on site">' + p + '</div><span>' + left() + ' h</span></div>';
+}
+function stage(inner, cls) { return '<div class="stage ' + (cls || '') + '"><div class="floor"></div>' + inner + '</div>'; }
+
 function screenTitle() {
   G.phase = 'title';
-  el('<div class="top"><a class="back" href="../">← Games</a></div>' +
-   '<div class="card"><h3>Chapter 14 · The Hardest Factory Lessons</h3><h1>The <span>Audit</span></h1>' +
-   '<p class="small"><i>From The Hardest Factory Lessons</i></p>' +
+  el(topbar(true) + '<div class="card">' + stage('<div style="position:absolute;right:26px;bottom:34px" class="big-ic j-drop">🏭</div><div style="position:absolute;right:112px;top:14px;font-size:30px" class="j-float">☁️</div><div class="j-drive" style="position:absolute;left:20px;bottom:36px;font-size:46px">🧑‍💼</div><div style="position:absolute;left:78px;bottom:40px;font-size:30px" class="j-float">📋</div>') +
+   '<h3>Chapter 14 · The Hardest Factory Lessons</h3><h1>The <span>Audit</span></h1>' +
    '<p>You have two days at a candidate factory that could build your product for years. The tour will show you a good performance. <b>Find out what is real.</b></p>' +
    '<div class="plain"><b>In plain English:</b> before you sign with a factory, you visit it, check its records, and talk to its people, then decide whether to work with it. <b>Goal:</b> find the truth behind the tour, and make the right call.</div>' +
-   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55">' +
-   '<li><b>Desk work</b> before you fly, then an <b>agenda</b> that doubles as a test.</li>' +
-   '<li><b>16 hours on site.</b> Walk, run drills, talk to the floor. You cannot check everything.</li>' +
-   '<li><b>Evidence beats assurance.</b> Only mark an area Verified if you saw proof.</li>' +
-   '<li>Then decide: proceed, proceed with conditions, or decline.</li></ul>' +
-   '<button class="btn" data-a="start">Start the audit</button>' +
-   '<p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factory is fictional.</p></div>');
+   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55"><li><b>Desk work</b> before you fly, then an <b>agenda</b> that doubles as a test.</li><li><b>16 hours on site.</b> Walk, run drills, talk to the floor. You cannot check everything.</li><li><b>Evidence beats assurance.</b> Only mark an area Verified if you saw proof.</li><li>Then decide: proceed, proceed with conditions, or decline.</li></ul>' +
+   '<button class="btn" data-a="start">Start the audit</button><p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factory is fictional.</p></div>');
 }
 
 function screenBrief() {
   G.phase = 'brief';
-  el('<div class="top"><a class="back" href="../">← Games</a></div>' +
-   '<div class="card"><h3>The candidate</h3><h2>' + G.name + '</h2>' +
+  el(topbar(true) + '<div class="card"><h3>The candidate</h3><h2>' + G.name + '</h2>' +
+   stage('<div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:30px" class="big-ic j-drop">🏭</div><div style="position:absolute;left:12px;top:12px;background:#eaf3f2;color:#101a1c;font:900 11px var(--font);letter-spacing:.06em;padding:5px 8px;border-radius:6px">' + G.name.toUpperCase() + '</div>') +
    '<p>A contract manufacturer in Dongguan, shortlisted to build your <b>battery-powered smart device</b>. It was recommended by a friend and has a good website. You have not seen it yet.</p>' +
    '<div class="note"><b>The rule of the audit</b>Every claim is tested against a document or an observation. A claim that cannot be tested is recorded as a claim.</div>' +
    '<p class="small">Whatever you find is a floor, not a ceiling. You are seeing the factory on its best day.</p>' +
    '<button class="btn" data-a="desk">Start with desk work</button></div>');
 }
 
+var DICON = { entity:'🏢', fin:'💰', refs:'📞' }, AGIC = { flow:'🚶', records:'🗂️', qm:'🤝', live:'⏱️', sub:'🔗' };
 function screenDesk() {
-  G.phase = 'desk';
-  var n = G.desk.length;
-  el('<div class="card"><h3>Before you fly · ' + n + ' of 2</h3><h2>Desk work</h2>' +
+  G.phase = 'desk'; var n = G.desk.length;
+  el(topbar(false) + '<div class="card"><h3>Before you fly · ' + n + ' of 2</h3><h2>Desk work</h2>' +
+   '<div class="slots">' + [0, 1].map(function (i) { var id = G.desk[i]; return '<div class="slot' + (id ? ' on' : '') + '">' + (id ? DICON[id] : '') + '</div>'; }).join('') + '</div>' +
    '<p>The cheapest findings come from a desk, and they disqualify more candidates than site visits. You have time for <b>two</b> of these.</p>' +
-   '<div class="pick">' + DESK.map(function (d) { var on = G.desk.indexOf(d.id) >= 0;
-      return '<button data-a="deskpick" data-id="' + d.id + '" class="' + (on ? 'on' : '') + '"><b>' + d.name + '</b><span>' + d.sub + '</span></button>'; }).join('') + '</div>' +
+   '<div class="tiles">' + DESK.map(function (d) { var on = G.desk.indexOf(d.id) >= 0; return '<button class="tile' + (on ? ' on' : '') + '" data-a="deskpick" data-id="' + d.id + '"><i>' + DICON[d.id] + '</i><b>' + d.name + '</b><span>' + d.sub + '</span></button>'; }).join('') + '</div>' +
    G.desk.map(function (id) { var r = G.arch.desk[id], d = DESK.filter(function (x) { return x.id === id; })[0];
-      return '<div class="note ' + (r[1] === 'bad' ? 'bad' : r[1] === 'warn' ? 'warn' : '') + '"><b>' + d.name + '</b>' + r[0] + '</div>'; }).join('') +
+     return '<div class="paper"><div class="pt">Dossier · ' + d.name + '</div><p>' + r[0] + '</p><div><span class="chip ' + (r[1] === 'bad' ? 'mt' : r[1] === 'warn' ? 'hr' : 'sec') + '">' + (r[1] === 'bad' ? 'Red flag' : r[1] === 'warn' ? 'Worth a question' : 'Looks fine') + '</span></div></div>'; }).join('') +
    '<button class="btn" data-a="agenda"' + (n < 2 ? ' disabled' : '') + '>Next: write the agenda</button></div>');
 }
 
 function screenAgenda() {
-  G.phase = 'agenda';
-  var n = G.agenda.length;
-  el('<div class="card"><h3>The agenda · ' + n + ' of 4</h3><h2>Send the agenda</h2>' +
+  G.phase = 'agenda'; var n = G.agenda.length;
+  el(topbar(false) + '<div class="card"><h3>The agenda · ' + n + ' of 4</h3><h2>Send the agenda</h2>' +
+   '<div class="slots">' + [0, 1, 2, 3].map(function (i) { var id = G.agenda[i]; return '<div class="slot' + (id ? ' on' : '') + '">' + (id ? AGIC[id] : '') + '</div>'; }).join('') + '</div>' +
    '<p>The agenda is the first probe. Ask for four of these. A factory that gets in the way of the others is telling you something.</p>' +
-   '<div class="pick">' + DEMANDS.map(function (d) { var on = G.agenda.indexOf(d.id) >= 0;
-      return '<button data-a="agpick" data-id="' + d.id + '" class="' + (on ? 'on' : '') + '"><b>' + d.name + '</b><span>' + d.sub + '</span></button>'; }).join('') + '</div>' +
+   '<div class="tiles">' + DEMANDS.map(function (d) { var on = G.agenda.indexOf(d.id) >= 0; return '<button class="tile' + (on ? ' on' : '') + '" data-a="agpick" data-id="' + d.id + '"><i>' + AGIC[d.id] + '</i><b>' + d.name + '</b><span>' + d.sub + '</span></button>'; }).join('') + '</div>' +
    '<button class="btn" data-a="send"' + (n !== 4 ? ' disabled' : '') + '>Send the agenda</button></div>');
 }
 
 function screenReply() {
   G.phase = 'reply';
   var f = G.arch.friction, asked = G.agenda, skipped = DEMANDS.filter(function (d) { return asked.indexOf(d.id) < 0; });
-  var rows = asked.map(function (id) { var d = DEMANDS.filter(function (x) { return x.id === id; })[0]; return '<div class="note ' + (/^Annotated/.test(f[id]) ? '' : 'warn') + '"><b>' + d.name + '</b>' + f[id] + '</div>'; }).join('');
-  asked.forEach(function (id) { if (!/^Annotated/.test(f[id])) { addNote(null, 'friction', DEMANDS.filter(function (x) { return x.id === id; })[0].name + ': ' + f[id]); } });
-  var out = skipped.map(function (d) { return d.name; });
-  el('<div class="card"><h3>Their reply</h3><h2>Read it as data</h2>' +
-   '<p>A confident factory annotates the agenda. A factory with something to manage returns friction. Each friction goes on your <b>reluctance map</b>.</p>' + rows +
-   '<p class="small">You did not ask for: ' + out.join('; ').toLowerCase() + '. Those parts of the audit may be closed to you.</p>' +
+  var rows = asked.map(function (id, i) { var d = DEMANDS.filter(function (x) { return x.id === id; })[0], fr = !/^Annotated/.test(f[id]);
+    if (fr) addNote(null, 'friction', d.name + ': ' + f[id]);
+    return '<div class="ml' + (fr ? ' fr' : '') + '" style="animation-delay:' + (i * 0.25) + 's"><span>' + (fr ? '⚠️' : '✅') + '</span><span><b>' + d.name + '</b><br>' + f[id] + '</span></div>'; }).join('');
+  var nfr = asked.filter(function (id) { return !/^Annotated/.test(f[id]); }).length;
+  el(topbar(false) + '<div class="card"><h3>Their reply</h3><h2>Read it as data</h2>' +
+   '<p>A confident factory annotates the agenda. A factory with something to manage returns friction. Each friction goes on your <b>reluctance map</b>.</p>' +
+   '<div class="mail"><div class="mh">From: General Manager, ' + G.name + '<br>Re: Audit agenda</div>' + rows + '</div>' +
+   '<p class="small">You did not ask for: ' + skipped.map(function (d) { return d.name.toLowerCase(); }).join('; ') + '. Those parts of the audit may be closed to you.</p>' +
    '<button class="btn" data-a="arrive">Fly to Dongguan</button></div>');
-}
-
-function hud() {
-  var d = G.day, tl = Math.max(0, HOURS_PER_DAY - G.today);
-  return '<div class="hud"><b>Day ' + (G.phase === 'thu' ? 'Thursday' : d) + '</b><div class="bar"><i style="width:' + Math.round(100 * left() / G.hours) + '%"></i></div><span>' + left() + ' h left</span></div>';
+  later(300, function () { if (nfr) { J.sfx('bad'); J.hit($q('.mail'), 'bad', 'small'); } else J.sfx('ok'); });
 }
 
 function screenMap() {
   G.phase = 'map';
   if (left() <= 0) return screenNight(true);
-  el(hud() +
-   '<div class="card"><h3>The floor · ' + G.name + '</h3>' +
-   '<p class="small">Walking an area costs 1 hour. Drills and conversations cost 1 hour each. Areas are listed in flow order.</p>' +
-   '<div class="areas">' + AREAS.map(function (a, i) { var s = G.seen[a.id], ul = unlocked(a);
-     var tags = (s.walk ? '<span class="tag w">walked</span>' : '') + (s.drill ? '<span class="tag d">drilled</span>' : '') + (s.talk ? '<span class="tag p">talked</span>' : '');
-     return '<button class="area' + (ul ? '' : ' locked') + '" data-a="area" data-id="' + a.id + '"><div class="n">' + (i + 1) + '</div><div class="t"><b>' + a.name + '</b><span>' + (a.sub ? a.sub + ' · ' : '') + a.ch + (ul ? '' : ' · not on this trip') + '</span></div><div class="tags">' + tags + '</div></button>'; }).join('') + '</div>' +
-   '<div class="row"><button class="btn ghost sm" data-a="thread">Pull a thread · 2 h</button><button class="btn ghost sm" data-a="notebook">Notebook (' + G.notes.length + ')</button></div>' +
+  var rooms = PLAN.map(function (idx, pos) { var a = AREAS[idx], s = G.seen[a.id], ul = unlocked(a);
+    var st = (s.walk ? '👣' : '') + (s.drill ? '🔎' : '') + (s.talk ? '💬' : '') + (s.thu ? '↺' : '');
+    return '<button class="room' + (s.drill ? ' drilled' : s.walk ? ' walked' : '') + (ul ? '' : ' locked') + (a.sub ? ' off' : '') + '" data-a="area" data-id="' + a.id + '"><div class="no">' + (idx + 1) + '</div><div class="ri">' + (ul ? AIC[a.id] : '🔒') + '</div><b>' + a.name + '</b><div class="st">' + (ul ? st : 'not on trip') + '</div></button>'; }).join('');
+  el(hud() + '<div class="card"><h3>The floor · ' + G.name + '</h3>' +
+   '<p class="small">Numbers show the material flow, dock to dock. Walking an area costs 1 hour. Drills and conversations cost 1 hour each.</p>' +
+   '<div class="plan" id="plan">' + rooms + '<div class="avatar" id="av">🧑‍💼</div></div>' +
+   '<div class="row"><button class="btn ghost sm" data-a="thread">🧵 Pull a thread · 2 h</button><button class="btn ghost sm" data-a="notebook">📓 Notebook (' + G.notes.length + ')</button></div>' +
    '<button class="btn ghost sm" data-a="toverdict">I am done: make the call</button></div>');
+  placeAvatar(G.at, false);
+}
+function roomEl(id) { return $app.querySelector('.room[data-id="' + id + '"]'); }
+function placeAvatar(id, animate) {
+  var plan = $q('#plan'), av = $q('#av'); if (!plan || !av) return;
+  var r = id ? roomEl(id) : null, pr = plan.getBoundingClientRect();
+  if (!pr.width) return;
+  var x, y; if (r) { var rr = r.getBoundingClientRect(); x = rr.left - pr.left + rr.width / 2 - 15; y = rr.top - pr.top + rr.height - 28; } else { x = 6; y = -6; }
+  if (!animate) av.style.transition = 'none';
+  av.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+  if (!animate) { void av.offsetWidth; av.style.transition = ''; }
+}
+function goArea(id) {
+  var plan = $q('#plan');
+  if (plan && plan.getBoundingClientRect().width > 0 && !J.reduce && G.at !== id) {
+    J.sfx('whoosh'); placeAvatar(id, true); G.at = id; var t = 0; var iv = setInterval(function () { J.sfx('tick'); if (++t > 3) clearInterval(iv); }, 100);
+    setTimeout(function () { screenArea(id); }, 440);
+  } else { G.at = id; screenArea(id); }
 }
 
+function dialHtml(lat) {
+  var o = lat === 'sec' ? 86 : lat === 'hr' ? 40 : 0, d = lat === 'sec' ? 0.5 : lat === 'hr' ? 1.4 : 2.2;
+  return '<div class="lat ' + lat + '"><svg class="dial" viewBox="0 0 40 40"><circle class="bg" cx="20" cy="20" r="15.9" pathLength="100"/><circle class="fg" cx="20" cy="20" r="15.9" pathLength="100" style="--o:' + o + ';--d:' + d + 's"/></svg><b>' + LATLABEL[lat] + '</b></div>';
+}
 function screenArea(id, msg) {
   var a = BYID[id], s = G.seen[id], st = state(a); G.area = id; G.phase = 'area';
-  var ul = unlocked(a), body = '';
+  var ul = unlocked(a);
   if (!ul) {
-    body = '<div class="note warn"><b>Not on this trip</b>' + (a.gate === 'sub' ? 'The molding is at a partner site. You did not ask for subcontractor disclosure and visits, so it was never arranged. The shop that holds your tool is out of reach.' : 'The escort says it is being reorganised, and suggests the next visit. You did not ask to walk every area in order.') + '</div>';
-    el(hud() + '<div class="card"><h3>' + a.ch + '</h3><h2>' + a.name + '</h2>' + body + '<button class="btn ghost" data-a="map">Back to the floor</button></div>'); return;
+    el(hud() + '<div class="card"><h3>' + a.ch + '</h3><h2>' + AIC[id] + ' ' + a.name + '</h2><div class="note warn"><b>Not on this trip</b>' + (a.gate === 'sub' ? 'The molding is at a partner site. You did not ask for subcontractor disclosure and visits, so it was never arranged. The shop that holds your tool is out of reach.' : 'The escort says it is being reorganised, and suggests the next visit. You did not ask to walk every area in order.') + '</div><button class="btn ghost" data-a="map">Back to the floor</button></div>');
+    J.sfx('bad'); return;
   }
+  var escortEyes = (s.talk && (st === 'staged' || st === 'fake' || st === 'closed')) ? ' <span class="eyes">👀</span>' : '';
   if (!s.walk) {
-    el(hud() + '<div class="card"><h3>' + a.ch + (a.sub ? ' · ' + a.sub : '') + '</h3><h2>' + a.name + '</h2>' +
-      '<div class="claim">' + a.claim + '</div>' +
-      '<p class="small">Your escort says this on the way in. Walk it to see for yourself.</p>' +
-      '<div class="act"><button data-a="walk"><b>Walk it</b><span>See the area with your own eyes</span><em>1 h</em></button></div>' +
+    el(hud() + '<div class="card"><h3>' + a.ch + (a.sub ? ' · ' + a.sub : '') + '</h3><h2>' + a.name + '</h2>' + stage('<div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:26px" class="big-ic j-drop">' + AIC[id] + '</div>') +
+      '<div class="convo"><div class="who"><i>🧑‍💼</i> Your escort says, on the way in:</div><div class="speech">' + a.claim + '</div></div>' +
+      '<p class="small">Walk it to see for yourself.</p>' +
+      '<div class="act"><button data-a="walk"><b>👣 Walk it</b><span>See the area with your own eyes</span><em>1 h</em></button></div>' +
       '<button class="btn ghost" data-a="map">Back to the floor</button></div>'); return;
   }
-  var obs = st === 'mess' ? a.bad : a.good;
-  if (st === 'closed') obs = 'The visit was refused at the gate. "The molder is our supplier\'s business. We can send photos."';
-  var sub = '';
-  var drillNote = s.drill ? '<div class="note"><b>Drill · ' + a.drill + '</b>' + (s.drillText || '') + ' <br><span class="chip ' + LATENCY[st === 'closed' ? 'mt' : st] + '">' + LATLABEL[LATENCY[st]] + '</span></div>' : '';
-  var talkNote = s.talk ? '<div class="note"><b>Talked to ' + a.role + '</b>' + cap(a.role) + ' ' + (TALK[st === 'closed' ? 'fake' : st]) + '</div>' : '';
-  var thuNote = s.thu ? '<div class="note warn"><b>Thursday</b>' + (st === 'staged' ? a.thu : THU_GEN[st] || '') + '</div>' : '';
+  var obs = st === 'mess' ? a.bad : a.good, tone = st === 'mess' ? 'warn' : 'good';
+  if (st === 'closed') { obs = 'The visit was refused at the gate. "The molder is our supplier\'s business. We can send photos."'; tone = 'bad'; }
+  var drillBlock = s.drill ? '<div class="paper"><div class="pt">🔎 Drill · ' + a.drill + '</div><p>' + (s.drillText || '') + '</p>' + dialHtml(LATENCY[st === 'closed' ? 'fake' : st]) + '</div>' : '';
+  var talkBlock = s.talk ? '<div class="convo"><div class="speech you">What did you last reject, and what happened at month-end?</div><div class="who"><i>' + AIC[id] + '</i>' + cap(a.role) + ' ' + (TALK[st === 'closed' ? 'fake' : st]) + escortEyes + '</div></div>' : '';
+  var thuBlock = s.thu ? '<div class="split"><div><b>Day one</b>' + (st === 'mess' ? a.bad : a.good) + '</div><div class="t"><b>Thursday</b>' + (st === 'staged' ? a.thu : THU_GEN[st] || '') + '</div></div>' : '';
   var acts = '';
   if (st !== 'closed') {
     acts = '<div class="act">' +
-     '<button data-a="drill"' + (s.drill || !canDrill(a) ? ' disabled' : '') + '><b>' + a.drill + '</b><span>' + (canDrill(a) ? 'Ask for the evidence at their terminal' : 'Needs the agenda item you did not request') + '</span><em>' + (s.drill ? 'done' : '1 h') + '</em></button>' +
-     '<button data-a="talk"' + (s.talk || !canTalk(a) ? ' disabled' : '') + '><b>Talk to ' + a.role + '</b><span>' + (canTalk(a) ? 'Ask the floor directly, without the escort steering' : 'Needs the agenda item you did not request') + '</span><em>' + (s.talk ? 'done' : '1 h') + '</em></button></div>';
+     '<button data-a="drill"' + (s.drill || !canDrill(a) ? ' disabled' : '') + '><b>🔎 ' + a.drill + '</b><span>' + (canDrill(a) ? 'Ask for the evidence at their terminal' : 'Needs the agenda item you did not request') + '</span><em>' + (s.drill ? 'done' : '1 h') + '</em></button>' +
+     '<button data-a="talk"' + (s.talk || !canTalk(a) ? ' disabled' : '') + '><b>💬 Talk to ' + a.role + '</b><span>' + (canTalk(a) ? 'Ask the floor directly, without the escort steering' : 'Needs the agenda item you did not request') + '</span><em>' + (s.talk ? 'done' : '1 h') + '</em></button></div>';
   }
   el(hud() + '<div class="card"><h3>' + a.ch + (a.sub ? ' · ' + a.sub : '') + '</h3><h2>' + a.name + '</h2>' +
-    '<div class="claim">' + a.claim + '</div><div class="obs"><b style="color:var(--acc);font-size:11px;letter-spacing:.1em;text-transform:uppercase">You see</b><br>' + obs + '</div>' +
-    (msg ? '<div class="note"><b>Just now</b>' + msg + '</div>' : '') + drillNote + talkNote + thuNote + acts +
-    '<button class="btn ghost" data-a="map">Back to the floor</button></div>');
+    stage('<div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:26px" class="big-ic">' + AIC[id] + '</div><div style="position:absolute;left:12px;bottom:34px;font-size:30px">🧑‍💼</div>' + (st === 'mess' ? '<div class="j-blink" style="position:absolute;right:14px;top:10px;font-size:26px">🗑️</div>' : '')) +
+    '<div class="convo"><div class="who"><i>🧑‍💼</i> Your escort:</div><div class="speech">' + a.claim + '</div></div>' +
+    '<div class="note ' + tone + '"><b>You see</b>' + obs + '</div>' + (msg ? '<div class="note"><b>Just now</b>' + msg + '</div>' : '') +
+    drillBlock + talkBlock + thuBlock + acts + '<button class="btn ghost" data-a="map">Back to the floor</button></div>');
 }
-function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
 function doWalk() {
   var a = BYID[G.area], st = state(a);
@@ -366,21 +445,34 @@ function doWalk() {
   if (st === 'closed') { addNote(a.id, 'walk', 'Visit refused.'); G.red_seen = true; }
   else addNote(a.id, 'walk', st === 'mess' ? a.bad : a.good);
   if (G.arch.dark && a.id === 'dock') addNote(a.id, 'walk', 'Half the building is dark: a fixed-cost problem searching for a customer to fund it.');
-  afterAction(a.id, G.arch.dark && a.id === 'dock' ? 'Half the building is dark. That is a fixed-cost problem looking for a customer to fund it.' : null);
+  var msg = G.arch.dark && a.id === 'dock' ? 'Half the building is dark. That is a fixed-cost problem looking for a customer to fund it.' : null;
+  var over = (G.today >= HOURS_PER_DAY && G.day < DAYS) || left() <= 0;
+  afterAction(a.id, msg);
+  if (!over) { J.sfx('whoosh'); if (st === 'closed') { later(200, function () { J.hit($q('.stage'), 'bad', 'med'); }); } else if (st === 'mess') later(200, function () { J.hit($q('.stage'), 'bad', 'small'); }); else later(200, function () { J.hit($q('.stage'), 'good', 'small'); }); }
 }
 function doDrill() {
   var a = BYID[G.area], st = state(a), s = G.seen[a.id];
   if (left() < 1 || s.drill || !canDrill(a)) return;
   spend(1); s.drill = true; s.drillText = GEN[st] ? GEN[st](a) : GEN.mess(a);
   addNote(a.id, 'drill', s.drillText, LATENCY[st]);
+  var over = (G.today >= HOURS_PER_DAY && G.day < DAYS) || left() <= 0;
   afterAction(a.id);
+  if (!over) {
+    var lat = LATENCY[st], ms = lat === 'sec' ? 520 : lat === 'hr' ? 1450 : 2250;
+    J.sfx('scan');
+    later(ms, function () { var p = $q('.paper'); if (!p) return;
+      if (st === 'fake') { J.sfx('alarm'); J.hit(p, 'bad', 'med'); } else if (st === 'paper') { J.sfx('bad'); J.hit(p, 'neutral', 'small'); } else if (st === 'mess') { J.hit(p, 'neutral', 'small'); } else { J.sfx('ok'); J.burstAt(p, { n:14, pal:'acc', speed:200, up:true }); }
+    });
+  }
 }
 function doTalk() {
   var a = BYID[G.area], st = state(a), s = G.seen[a.id];
   if (left() < 1 || s.talk || !canTalk(a)) return;
   spend(1); s.talk = true;
   addNote(a.id, 'talk', cap(a.role) + ' ' + TALK[st === 'closed' ? 'fake' : st]);
+  var over = (G.today >= HOURS_PER_DAY && G.day < DAYS) || left() <= 0;
   afterAction(a.id);
+  if (!over) { J.sfx('select'); if (st === 'staged' || st === 'fake') later(250, function () { J.sfx('bad'); J.wiggle($q('.eyes') || $q('.convo')); }); }
 }
 function afterAction(id, msg) {
   if (G.today >= HOURS_PER_DAY && G.day < DAYS || left() <= 0) return screenNight();
@@ -398,28 +490,33 @@ function doThread() {
   else if (slow) text = 'The thread runs, but slowly. At <b>' + BYID[slow].name + '</b> the records are in a different format, and someone has to find them. Connected, not lived in.';
   else text = 'The thread runs dock to dock in 38 minutes. Every link is where the record says. Connected.';
   addNote(null, 'thread', text.replace(/<[^>]+>/g, ''));
-  G.lastThread = text;
+  G.lastThread = text; G.lastSnap = snap;
   if (G.today >= HOURS_PER_DAY && G.day < DAYS || left() <= 0) return screenThreadResult(true);
   screenThreadResult(false);
 }
 function screenThreadBlocked() {
   el(hud() + '<div class="card"><h3>Pull a thread</h3><h2>Not arranged</h2><div class="note warn"><b>No live drill on your agenda</b>You did not ask for a timed traceability drill, so nobody will drive the terminals for you.</div><button class="btn ghost" data-a="map">Back to the floor</button></div>');
+  J.sfx('bad');
 }
 function screenThreadResult(night) {
-  el(hud() + '<div class="card"><h3>The thread</h3><h2>One serial, dock to dock</h2><div class="note"><b>Result</b>' + G.lastThread + '</div><p class="small">The highest-yield exercise of the audit: it checks the connections, which the binders cannot fake and the tour cannot show.</p><button class="btn" data-a="' + (night ? 'night' : 'map') + '">' + (night ? 'End the day' : 'Back to the floor') + '</button></div>');
+  var path = ['dock','warehouse','smt','molding','battery','assembly','test','quality','packing'].map(function (id) { return AIC[id]; });
+  var stop = G.lastSnap ? ['dock','warehouse','smt','molding','battery','assembly','test','quality','packing'].indexOf(G.lastSnap) : -1;
+  var chain = path.map(function (ic, i) { var dead = stop >= 0 && i > stop; return '<span style="opacity:' + (dead ? .25 : 1) + ';font-size:22px;animation:jrise .3s ' + (i * 0.12) + 's both">' + ic + '</span>' + (i < path.length - 1 ? '<span style="color:' + (stop >= 0 && i >= stop ? 'var(--red)' : 'var(--acc)') + ';animation:jrise .3s ' + (i * 0.12 + .06) + 's both">' + (stop === i ? '✂️' : '→') + '</span>' : ''); }).join('');
+  el(hud() + '<div class="card"><h3>The thread</h3><h2>One serial, dock to dock</h2><div style="display:flex;flex-wrap:wrap;gap:2px;align-items:center;justify-content:center">' + chain + '</div><div class="note"><b>Result</b>' + G.lastThread + '</div><p class="small">The highest-yield exercise of the audit: it checks the connections, which the binders cannot fake and the tour cannot show.</p><button class="btn" data-a="' + (night ? 'night' : 'map') + '">' + (night ? 'End the day' : 'Back to the floor') + '</button></div>');
+  J.sfx('scan'); later(1300, function () { if (G.lastSnap) { J.sfx('bad'); J.hit($q('.card'), 'bad', 'med'); } else { J.sfx('good'); J.confetti(); } });
 }
 
-function toast(t) { var d = document.createElement('div'); d.textContent = t; d.style.cssText = 'position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0e1718;color:#eaf3f2;border:1px solid #2c4043;border-radius:12px;padding:10px 14px;font:600 13px system-ui;z-index:9'; document.body.appendChild(d); setTimeout(function () { d.remove(); }, 2200); }
+function toast(t) { var d = document.createElement('div'); d.textContent = t; d.style.cssText = 'position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0e1718;color:#eaf3f2;border:1px solid #2c4043;border-radius:12px;padding:10px 14px;font:600 13px system-ui;z-index:70'; document.body.appendChild(d); J.sfx('bad'); setTimeout(function () { d.remove(); }, 2200); }
 
 function screenNotebook() {
   G.phase = 'notebook';
   var c = { sec:0, hr:0, mt:0 }; G.notes.forEach(function (n) { if (n.lat) c[n.lat]++; });
   var fr = G.notes.filter(function (n) { return n.kind === 'friction'; });
   var unver = AREAS.filter(function (a) { return !G.seen[a.id].drill; }).map(function (a) { return a.name; });
-  el('<div class="card"><h3>Notebook</h3><h2>What you know</h2>' +
-   '<div class="note"><b>Latency profile</b><span class="chip sec">' + c.sec + ' in seconds</span> <span class="chip hr">' + c.hr + ' in an hour</span> <span class="chip mt">' + c.mt + ' needed a meeting</span></div>' +
+  el(topbar(false) + '<div class="card"><h3>Notebook</h3><h2>📓 What you know</h2>' +
+   '<div class="note"><b>Latency profile</b><span><span class="chip sec">' + c.sec + ' in seconds</span> <span class="chip hr">' + c.hr + ' in an hour</span> <span class="chip mt">' + c.mt + ' needed a meeting</span></span></div>' +
    '<p class="small">Fast answers mean lived systems. An hour means records exist but are not used. A meeting means records being created for you, maybe right now.</p>' +
-   '<div class="note warn"><b>Reluctance map</b>' + (fr.length ? fr.map(function (n) { return n.text; }).join('<br>') : 'No friction yet. Either the factory is open, or you have not asked.') + '</div>' +
+   '<div class="note warn"><b>Reluctance map</b>' + (fr.length ? fr.map(function (n) { return '⚠️ ' + n.text; }).join('<br>') : 'No friction yet. Either the factory is open, or you have not asked.') + '</div>' +
    '<div class="note"><b>Unverified list (no drill yet)</b>' + (unver.length ? unver.join(', ') : 'Nothing. Every area drilled.') + '</div>' +
    '<h3 style="margin-top:4px">Evidence log</h3>' +
    (G.notes.filter(function (n) { return n.kind !== 'friction'; }).map(function (n) { return '<div class="note"><b>' + (n.area ? BYID[n.area].name + ' · ' + n.kind : n.kind) + '</b>' + n.text + '</div>'; }).join('') || '<p class="small">Nothing recorded yet.</p>') +
@@ -430,16 +527,19 @@ function screenNight(forced) {
   G.phase = 'night';
   var endOfAudit = left() <= 0;
   var unver = AREAS.filter(function (a) { return !G.seen[a.id].drill; }).length;
-  el('<div class="card"><h3>' + (endOfAudit ? 'End of day 2' : 'End of day ' + G.day) + '</h3><h2>' + (endOfAudit ? 'The two days are over' : 'Evening notes') + '</h2>' +
+  el(topbar(false) + '<div class="card"><h3>' + (endOfAudit ? 'End of day 2' : 'End of day ' + G.day) + '</h3><h2>' + (endOfAudit ? 'The two days are over' : 'Evening notes') + '</h2>' +
+   stage('<div style="position:absolute;right:30px;top:18px;font-size:40px" class="j-float">🌙</div><div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:26px" class="big-ic">🏭</div>', 'dusk') +
    '<p>You have walked ' + AREAS.filter(function (a) { return G.seen[a.id].walk; }).length + ' of ' + AREAS.length + ' areas and run ' + AREAS.filter(function (a) { return G.seen[a.id].drill; }).length + ' drills. ' + unver + ' areas have no evidence behind them yet.</p>' +
    '<div class="lesson">Write it down tonight. The evening reconstruction loses the details that matter, and the factory you audited is the factory on its <b>best day</b>.</div>' +
    (endOfAudit ? '<button class="btn" data-a="thursdayoffer">Next</button>' : '<button class="btn" data-a="nextday">Start day 2</button>') +
    '<button class="btn ghost sm" data-a="notebook">Open the notebook</button></div>');
+  J.sfx('tick');
 }
 
 function screenThursdayOffer() {
   G.phase = 'thuoffer';
-  el('<div class="card"><h3>The second visit</h3><h2>Drop by on Thursday?</h2>' +
+  el(topbar(false) + '<div class="card"><h3>The second visit</h3><h2>Drop by on Thursday?</h2>' +
+   stage('<div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:26px" class="big-ic">📞</div>') +
    '<p>You are in the region again. Call a day ahead: <i>"I\'m in Dongguan Thursday. Two hours, no agenda, no meetings needed."</i></p>' +
    '<p>You get <b>two quick re-checks</b>. Whatever was staged will have relaxed. A reasonable factory accepts this without ceremony.</p>' +
    '<div class="row"><button class="btn" data-a="thursday">Go on Thursday</button><button class="btn ghost" data-a="toverdict">Skip it</button></div></div>');
@@ -447,20 +547,21 @@ function screenThursdayOffer() {
 function screenThursday() {
   G.phase = 'thu';
   var left2 = 2 - G.thu;
-  el('<div class="hud"><b>Thursday</b><div class="bar"><i style="width:' + (left2 * 50) + '%"></i></div><span>' + left2 + ' re-checks</span></div>' +
+  el(J.muteBtn() + '<div class="hud"><b>Thu</b><div class="pips16"><i class="' + (left2 >= 1 ? '' : 'off') + '"></i><i class="' + (left2 >= 2 ? '' : 'off') + '"></i></div><span>' + left2 + ' re-checks</span></div>' +
    '<div class="card"><h3>Unannounced-ish</h3><h2>Pick where to look</h2><p class="small">Compare it with what you saw on day one. The delta is the factory\'s unobserved state.</p>' +
-   '<div class="areas">' + AREAS.filter(function (a) { return G.seen[a.id].walk && state(a) !== 'closed'; }).map(function (a) { var done = G.seen[a.id].thu;
-     return '<button class="area" data-a="thuarea" data-id="' + a.id + '"' + (done || left2 <= 0 ? ' disabled style="opacity:.5"' : '') + '><div class="n">↺</div><div class="t"><b>' + a.name + '</b><span>' + (done ? 'checked' : a.ch) + '</span></div></button>'; }).join('') + '</div>' +
-   (G.thuMsg ? '<div class="note warn"><b>Just now</b>' + G.thuMsg + '</div>' : '') +
+   '<div class="plan" style="filter:saturate(.5) brightness(.9)">' + PLAN.map(function (idx) { var a = AREAS[idx]; if (!G.seen[a.id].walk || state(a) === 'closed') return '<div class="room locked" style="pointer-events:none"><div class="ri">·</div><b>' + a.name + '</b></div>'; var done = G.seen[a.id].thu;
+     return '<button class="room' + (done ? ' drilled' : '') + '" data-a="thuarea" data-id="' + a.id + '"' + (done || left2 <= 0 ? ' disabled style="opacity:.55"' : '') + '><div class="ri">' + AIC[a.id] + '</div><b>' + a.name + '</b><div class="st">' + (done ? '↺ checked' : '') + '</div></button>'; }).join('') + '</div>' +
+   (G.thuMsg ? '<div class="split">' + G.thuMsg + '</div>' : '') +
    '<button class="btn" data-a="toverdict">Make the call</button></div>');
 }
 function doThuArea(id) {
   if (G.thu >= 2 || G.seen[id].thu) return;
   var a = BYID[id], st = state(a); G.thu++; G.seen[id].thu = true;
   var t = st === 'staged' ? a.thu : (THU_GEN[st] || THU_GEN.paper);
-  G.thuMsg = '<b>' + a.name + '.</b> ' + t; addNote(id, 'thursday', t);
+  G.thuMsg = '<div><b>' + a.name + ' · day one</b>' + (st === 'mess' ? a.bad : a.good) + '</div><div class="t"><b>Thursday</b>' + t + '</div>'; addNote(id, 'thursday', t);
   if (st === 'staged') G.thuStaged = (G.thuStaged || 0) + 1;
   screenThursday();
+  var sp = $q('.split'); if (sp) { if (st === 'staged') { J.sfx('alarm'); J.hit(sp, 'bad', 'med'); } else { J.sfx('ok'); J.hit(sp, 'good', 'small'); } }
 }
 
 /* ---------- verdict ---------- */
@@ -469,16 +570,15 @@ function screenVerdict() {
   G.phase = 'verdict';
   AREAS.forEach(function (a) { if (!G.rating[a.id]) G.rating[a.id] = G.seen[a.id].walk ? '' : 'N'; });
   var allRated = AREAS.every(function (a) { return G.rating[a.id]; });
-  el('<div class="card"><h3>The scorecard</h3><h2>Rate each area</h2>' +
+  el(topbar(false) + '<div class="card"><h3>The scorecard</h3><h2>Rate each area</h2>' +
    '<div class="plain"><b>Verified</b> = you saw proof (a drill). <b>Claimed</b> = only their word, or records nobody uses. <b>Failed</b> = the evidence showed a problem. <b>Not examined</b> = you did not look.</div>' +
    AREAS.map(function (a) { var s = G.seen[a.id];
-     return '<div class="rate"><div class="h"><b>' + a.name + '</b><span class="small">' + (s.drill ? 'drilled' : s.walk ? 'walked only' : 'not visited') + (s.thu ? ' · rechecked' : '') + '</span></div><div class="seg">' +
+     return '<div class="rate"><div class="h"><b>' + AIC[a.id] + ' ' + a.name + '</b><span class="small">' + (s.drill ? 'drilled' : s.walk ? 'walked only' : 'not visited') + (s.thu ? ' · rechecked' : '') + '</span></div><div class="seg">' +
        RATINGS.map(function (r) { return '<button data-a="rate" data-id="' + a.id + '" data-r="' + r[0] + '" class="' + (G.rating[a.id] === r[0] ? 'on' : '') + '">' + r[1] + '</button>'; }).join('') + '</div></div>'; }).join('') +
    '<h3 style="margin-top:8px">Red lines</h3><p class="small">Findings that end an evaluation regardless of score. Tick only what you have found. A wrong accusation costs you.</p>' +
-   REDS.map(function (r) { return '<div class="check' + (G.reds[r.id] ? ' on' : '') + '" data-a="red" data-id="' + r.id + '"><i>✓</i><span>' + r.name + '</span></div>'; }).join('') +
+   REDS.map(function (r) { return '<div class="check' + (G.reds[r.id] ? ' on' : '') + '" data-a="red" data-id="' + r.id + '"><i>' + (G.reds[r.id] ? '⚠' : '') + '</i><span>' + r.name + '</span></div>'; }).join('') +
    '<h3 style="margin-top:8px">Your recommendation</h3>' +
-   '<div class="pick">' + [['proceed','Proceed','Qualify them as they are.'],['conditions','Proceed with conditions','Every finding that matters becomes a contract term.'],['decline','Decline','Walk away.']].map(function (v) {
-      return '<button data-a="vd" data-v="' + v[0] + '" class="' + (G.verdict === v[0] ? 'on' : '') + '"><b>' + v[1] + '</b><span>' + v[2] + '</span></button>'; }).join('') + '</div>' +
+   '<div class="vd">' + [['proceed','✅','Proceed'],['conditions','⚠️','Proceed with conditions'],['decline','⛔','Decline']].map(function (v) { return '<button data-a="vd" data-v="' + v[0] + '" class="' + (G.verdict === v[0] ? 'on' : '') + '"><i>' + v[1] + '</i>' + v[2] + '</button>'; }).join('') + '</div>' +
    '<button class="btn" data-a="submit"' + (!G.verdict || !allRated ? ' disabled' : '') + '>Submit the report</button></div>');
 }
 
@@ -511,17 +611,20 @@ function screenDebrief() {
   var truth = AREAS.map(function (a) { var st = state(a), r = G.rating[a.id];
     var T = { solid:'Real', paper:'Records exist, nobody uses them', staged:'Staged: hollow behind the showcase', mess:'Messy but honest', fake:'Falsified records', closed:'Refused access to the molder' }[st];
     var tag = st === 'staged' ? (G.seen[a.id].thu ? ' (you caught it on Thursday)' : G.thu ? '' : ' (only a second visit would show it)') : '';
-    return '<div class="reveal"><b>' + a.name + ' · ' + T + '</b><span class="small">You: ' + RATINGS.filter(function (x) { return x[0] === r; })[0][1] + (G.seen[a.id].drill ? '' : ', no drill') + tag + '</span></div>'; }).join('');
+    return '<div class="rowtruth"><i>' + AIC[a.id] + '</i><span><b><span class="dot ' + st + '"></span>' + a.name + ' · ' + T + '</b><br><span class="small" style="color:var(--muted)">You: ' + RATINGS.filter(function (x) { return x[0] === r; })[0][1] + (G.seen[a.id].drill ? '' : ', no drill') + tag + '</span></span></div>'; }).join('');
   var missed = '';
   if (arch.red === 'sub' && G.agenda.indexOf('sub') < 0) missed = '<div class="note bad"><b>What you missed</b>You never asked for subcontractor disclosure, so the refusal never surfaced. The factory was hiding where your tool would live. Ask in the agenda.</div>';
   if (arch.key === 'hollow' && G.desk.indexOf('fin') < 0) missed = '<div class="note bad"><b>What you missed</b>The finances were the story: a supplier suing for unpaid invoices and 120-day payment terms. Desk work disqualifies more candidates than site visits do.</div>';
-  el('<div class="card"><h3>Report submitted</h3><div class="stamp ' + stamp + '">' + stampTxt + '</div><div class="big">' + fmt(sc.total) + '</div>' +
-   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
-   '<div class="lines">' + sc.rows.map(function (r) { return '<div><span>' + r[0] + '</span><em class="' + (r[1] >= 0 ? 'pos' : 'neg') + '">' + (r[1] >= 0 ? '+' : '') + r[1] + '</em></div>'; }).join('') + '</div>' +
+  el(topbar(false) + '<div class="card"><h3>Report submitted</h3><div class="stamp ' + stamp + '" id="stp">' + stampTxt + '</div><div class="bigs" id="bigs">0</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800" class="j-pulse">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
+   '<div class="lines" id="led">' + sc.rows.map(function (r) { return '<div><span>' + r[0] + '</span><em class="' + (r[1] >= 0 ? 'pos' : 'neg') + '">' + (r[1] >= 0 ? '+' : '') + r[1] + '</em></div>'; }).join('') + '</div>' +
    '<div class="lesson"><b>What this factory was.</b> ' + arch.why + '</div>' + missed +
-   '<h3>What was really there</h3>' + truth +
+   '<h3>What was really there</h3><div id="tru">' + truth + '</div>' +
    HHL.next(114) +
    '<div class="row"><button class="btn" data-a="again">Audit another</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+  J.stamp($q('#stp'), stamp); J.count($q('#bigs'), 0, sc.total, 1200);
+  later(1300, function () { if (stamp === 'pass') { J.confetti(); J.sfx('win'); } else J.sfx(stamp === 'warn' ? 'ok' : 'lose'); });
+  J.stagger($app.querySelectorAll('#led div, #tru .rowtruth'), 50);
 }
 
 /* ---------- events ---------- */
@@ -531,12 +634,12 @@ $app.addEventListener('click', function (e) {
   switch (a) {
     case 'start': newGame(); screenBrief(); break;
     case 'desk': screenDesk(); break;
-    case 'deskpick': { var i = G.desk.indexOf(id); if (i >= 0) G.desk.splice(i, 1); else if (G.desk.length < 2) G.desk.push(id); screenDesk(); break; }
+    case 'deskpick': { var i = G.desk.indexOf(id); if (i >= 0) G.desk.splice(i, 1); else if (G.desk.length < 2) { G.desk.push(id); J.sfx('select'); } screenDesk(); if (i < 0) { var sl = $app.querySelectorAll('.slot.on'); if (sl.length) { J.pop(sl[sl.length - 1], 1.3); J.burstAt(sl[sl.length - 1], { n:10, pal:'acc', speed:160 }); } } break; }
     case 'agenda': screenAgenda(); break;
-    case 'agpick': { var j = G.agenda.indexOf(id); if (j >= 0) G.agenda.splice(j, 1); else if (G.agenda.length < 4) G.agenda.push(id); screenAgenda(); break; }
+    case 'agpick': { var j = G.agenda.indexOf(id); if (j >= 0) G.agenda.splice(j, 1); else if (G.agenda.length < 4) { G.agenda.push(id); J.sfx('select'); } screenAgenda(); if (j < 0) { var s2 = $app.querySelectorAll('.slot.on'); if (s2.length) { J.pop(s2[s2.length - 1], 1.3); J.burstAt(s2[s2.length - 1], { n:10, pal:'acc', speed:160 }); } } break; }
     case 'send': screenReply(); break;
     case 'arrive': case 'map': screenMap(); break;
-    case 'area': screenArea(id); break;
+    case 'area': goArea(id); break;
     case 'walk': doWalk(); break;
     case 'drill': doDrill(); break;
     case 'talk': doTalk(); break;
@@ -548,16 +651,14 @@ $app.addEventListener('click', function (e) {
     case 'thursday': screenThursday(); break;
     case 'thuarea': doThuArea(id); break;
     case 'toverdict': screenVerdict(); break;
-    case 'rate': G.rating[id] = b.dataset.r; screenVerdict(); break;
-    case 'red': G.reds[id] = !G.reds[id]; screenVerdict(); break;
-    case 'vd': G.verdict = b.dataset.v; screenVerdict(); break;
+    case 'rate': G.rating[id] = b.dataset.r; J.sfx('select'); screenVerdict(); break;
+    case 'red': G.reds[id] = !G.reds[id]; J.sfx(G.reds[id] ? 'bad' : 'select'); screenVerdict(); break;
+    case 'vd': G.verdict = b.dataset.v; J.sfx('confirm'); screenVerdict(); break;
     case 'submit': screenDebrief(); break;
     case 'again': newGame(); screenBrief(); break;
     case 'menu': screenTitle(); break;
   }
 });
-// night is reached when the day's hours run out
-var _afterAction = afterAction;
 newGame(); screenTitle();
 window.__f14 = { G:function () { return G; }, score:score, AREAS:AREAS, ARCH:ARCH };
 })();
