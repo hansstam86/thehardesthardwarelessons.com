@@ -60,6 +60,17 @@
       save(p);
       if (isBest) { if (p.name) flush(); try { toast(p.name || !live() ? 'Saved · see leaderboard' : 'New best · add your name to rank', '../leaderboard/'); } catch (e) {} }
     },
+    // Link this device to another device's player: adopt its id, name and bests (keeping the higher score per chapter).
+    adopt: function (code, cb) {
+      var pid = String(code || '').toLowerCase().replace(/[^0-9a-f]/g, '');
+      if (pid.length !== 32) return cb('That code should be 32 letters and digits (0-9, a-f).');
+      HHL.get('/me?pid=' + pid).then(function (r) {
+        if (r.error) return cb(r.error === 'unknown' ? 'No scores are saved under that code yet. Set a name and sync the other device first.' : 'Invalid code.');
+        var p = profile();
+        for (var ch in r.bests) if (!(p.best[ch] >= r.bests[ch])) p.best[ch] = r.bests[ch];
+        p.pid = pid; p.name = r.name; p.synced = null; save(p); flush(); cb(null);
+      }).catch(function () { cb('Could not reach the leaderboard.'); });
+    },
     get: function (path) { return fetch(API + path).then(function (r) { return r.json(); }); },
     post: post
   };

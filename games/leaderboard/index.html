@@ -60,11 +60,20 @@
   <div class="badges" id="badges"></div>
   <div class="actions"><button id="share">Share scorecard</button><button class="ghost" id="dl">Download image</button></div>
 
+  <h2>Play on another device</h2>
+  <div class="card">
+    <p class="hint" style="margin:0 0 .6rem">Your sync code. Keep it private: anyone with it can post as you. Enter it on your other device to share one profile and your best scores.</p>
+    <div class="row"><input id="code" readonly><button class="ghost" id="copy">Copy</button></div>
+    <p class="hint" id="codeHint">Needs a saved name first, so the server knows you.</p>
+    <div class="row" style="margin-top:1rem"><input id="link" placeholder="Paste a code from another device" autocomplete="off" autocapitalize="off" spellcheck="false"><button id="linkBtn">Link</button></div>
+    <p class="hint" id="linkHint">Linking replaces this device's profile with that one. Higher local scores are kept.</p>
+  </div>
+
   <h2>Global ranking</h2>
   <div class="tabs" id="tabs"></div>
   <div id="board"></div>
 </main>
-<script src="../hhl.js?v=3"></script>
+<script src="../hhl.js?v=4"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -165,10 +174,20 @@
 
   function status() {
     var q = HHL.profile();
-    $('status').textContent = !q.name ? 'Set a name to post your scores.' : HHL.unsynced() ? 'Posting your scores…' + (q.lastPost && q.lastPost !== 'ok' ? ' (' + q.lastPost + ')' : '') : Object.keys(q.best).length ? 'All scores posted.' : 'Play a game to get on the board.';
+    $('status').textContent = q.lastPost === 'name' ? 'That name is not allowed. Please pick another.' : !q.name ? 'Set a name to post your scores.' : HHL.unsynced() ? 'Posting your scores…' + (q.lastPost && q.lastPost !== 'ok' ? ' (' + q.lastPost + ')' : '') : Object.keys(q.best).length ? 'All scores posted.' : 'Play a game to get on the board.';
   }
+  function showCode() { var q = HHL.profile(); $('code').value = q.pid.replace(/(.{4})(?=.)/g, '$1-'); }
+  $('copy').onclick = function () { var c = $('code'); c.select(); try { navigator.clipboard.writeText(c.value); } catch (e) { document.execCommand('copy'); } $('codeHint').textContent = 'Copied.'; };
+  $('linkBtn').onclick = function () {
+    $('linkHint').textContent = 'Linking…';
+    HHL.adopt($('link').value, function (err) {
+      if (err) { $('linkHint').textContent = err; return; }
+      P = HHL.profile(); $('link').value = ''; $('name').value = P.name; $('linkHint').textContent = 'Linked. Welcome back, ' + P.name + '.';
+      showCode(); renderBadges(); status(); setTimeout(loadBoard, 1500);
+    });
+  };
   var _flush = HHL.flush; HHL.flush = function () { _flush(function () { status(); loadBoard(); }); status(); };
-  renderBadges(); renderTabs(); loadBoard(); status(); HHL.flush(); setInterval(status, 2000);
+  showCode(); renderBadges(); renderTabs(); loadBoard(); status(); HHL.flush(); setInterval(status, 2000);
 })();
 </script>
 </body>

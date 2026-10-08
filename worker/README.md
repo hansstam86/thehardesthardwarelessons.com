@@ -9,3 +9,5 @@ npx wrangler deploy                   # serves api.thehardesthardwarelessons.com
 `API` at the top of `games/hhl.js` points at it.
 
 Scores are client-reported: the API bounds them per chapter, limits writes to 1 per 5s per player and keeps one row per player per chapter. Good enough for a casual board, not tamper-proof.
+
+Endpoints: `POST /score` (single or `bests` set), `GET /top?ch=all|1-6&pid=`, `GET /me?pid=` (device sync; the player id is the secret). Names pass a profanity filter in `src/index.js`.
