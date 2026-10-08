@@ -19,19 +19,21 @@ export default {
 
     if (req.method === 'POST' && url.pathname === '/score') {
       let b; try { b = await req.json(); } catch { return json(req, { error: 'bad json' }, 400); }
-      const ch = Number(b.ch), score = Math.round(Number(b.score)), name = clean(b.name), pid = String(b.pid || '');
-      if (!/^[0-9a-f]{32}$/.test(pid) || !MAX[ch] || !name || !(score >= 0) || score > MAX[ch]) return json(req, { error: 'invalid' }, 400);
+      const name = clean(b.name), pid = String(b.pid || '');
+      // accept one score {ch,score} or a full set {bests:{ch:score}}
+      const entries = b.bests && typeof b.bests === 'object' ? Object.entries(b.bests) : [[b.ch, b.score]];
+      const list = entries.map(([c, v]) => [Number(c), Math.round(Number(v))]).filter(([c, v]) => MAX[c] && v >= 0 && v <= MAX[c]);
+      if (!/^[0-9a-f]{32}$/.test(pid) || !name || !list.length) return json(req, { error: 'invalid' }, 400);
 
-      // rate limit: at most 1 write per 5s per player
+      // rate limit: at most 1 write per 2s per player
       const last = await env.DB.prepare('SELECT updated FROM players WHERE pid=?').bind(pid).first();
-      if (last && now - last.updated < 5000) return json(req, { error: 'slow down' }, 429);
+      if (last && now - last.updated < 2000) return json(req, { error: 'slow down' }, 429);
 
       await env.DB.batch([
         env.DB.prepare('INSERT INTO players (pid,name,updated) VALUES (?,?,?) ON CONFLICT(pid) DO UPDATE SET name=excluded.name, updated=excluded.updated').bind(pid, name, now),
-        env.DB.prepare('INSERT INTO scores (pid,ch,score,updated) VALUES (?,?,?,?) ON CONFLICT(pid,ch) DO UPDATE SET score=MAX(score,excluded.score), updated=CASE WHEN excluded.score>score THEN excluded.updated ELSE updated END').bind(pid, ch, score, now),
+        ...list.map(([ch, score]) => env.DB.prepare('INSERT INTO scores (pid,ch,score,updated) VALUES (?,?,?,?) ON CONFLICT(pid,ch) DO UPDATE SET score=MAX(score,excluded.score), updated=CASE WHEN excluded.score>score THEN excluded.updated ELSE updated END').bind(pid, ch, score, now)),
       ]);
-      const rank = await env.DB.prepare('SELECT COUNT(*)+1 AS r FROM scores WHERE ch=? AND score > (SELECT score FROM scores WHERE pid=? AND ch=?)').bind(ch, pid, ch).first();
-      return json(req, { ok: true, rank: rank.r });
+      return json(req, { ok: true, saved: list.length });
     }
 
     if (req.method === 'GET' && url.pathname === '/top') {

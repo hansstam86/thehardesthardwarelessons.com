@@ -25,21 +25,23 @@
       .then(function (r) { return r.json().catch(function () { return { error: 'http ' + r.status }; }); });
   }
   var flushing = false;
-  // Post queued scores one at a time; a score leaves the queue only after the server accepts it.
+  // Send every local best in one request. The server keeps the max per chapter, so repeating is harmless.
+  // p.synced remembers the last name+bests the server accepted.
+  function snapshot(p) { return JSON.stringify([p.name, p.best]); }
   function flush(done) {
     if (!live()) return;
     if (flushing) { if (done) setTimeout(function () { flush(done); }, 1000); return; }
-    var p = profile(); if (!p.name || !p.pending.length) { if (done) done(); return; }
+    var p = profile(); if (!p.name || !Object.keys(p.best).length) { if (done) done(); return; }
     flushing = true;
-    var s = p.pending[0];
-    post('/score', { pid: p.pid, name: p.name, ch: s.ch, score: s.score }).then(function (r) {
+    post('/score', { pid: p.pid, name: p.name, bests: p.best }).then(function (r) {
       var q = profile();
-      if (r.ok || r.error === 'invalid') { q.pending = q.pending.filter(function (x) { return x !== s && !(x.ch === s.ch && x.score <= s.score); }); }
-      else if (r.error === 'slow down') { flushing = false; return setTimeout(function () { flush(done); }, 5500); }
-      q.lastPost = r.ok ? 'ok' : (r.error || 'error'); save(q);
-      flushing = false; flush(done);
-    }).catch(function () { flushing = false; var q = profile(); q.lastPost = 'network'; save(q); if (done) done(); });
+      if (r.ok) { q.synced = snapshot(p); q.lastPost = 'ok'; } else { q.lastPost = r.error || 'error'; }
+      save(q); flushing = false;
+      if (r.error === 'slow down') return setTimeout(function () { flush(done); }, 2500);
+      if (done) done();
+    }).catch(function (e) { flushing = false; var q = profile(); q.lastPost = 'network: ' + e; save(q); if (done) done(); });
   }
+  function unsynced() { var p = profile(); return p.name && Object.keys(p.best).length && p.synced !== snapshot(p); }
   function toast(msg, href) {
     var d = document.createElement('a');
     d.textContent = msg; d.href = href || '../leaderboard/';
@@ -47,7 +49,7 @@
     document.body.appendChild(d); setTimeout(function () { d.remove(); }, 6000);
   }
   window.HHL = {
-    CH: CH, API: API, live: live, profile: profile, save: save, flush: flush,
+    CH: CH, API: API, live: live, profile: profile, save: save, flush: flush, unsynced: unsynced,
     // call once per finished run with the final score
     submit: function (ch, score) {
       score = Math.round(Number(score)); if (!(score >= 0)) return;
@@ -55,7 +57,6 @@
       p.plays[ch] = (p.plays[ch] || 0) + 1;
       var isBest = !(p.best[ch] >= score);
       if (isBest) { p.best[ch] = score; p.bestAt = p.bestAt || {}; p.bestAt[ch] = Date.now(); }
-      if (isBest) p.pending.push({ ch: ch, score: score, t: Date.now() });
       save(p);
       if (isBest) { if (p.name) flush(); try { toast(p.name || !live() ? 'Saved · see leaderboard' : 'New best · add your name to rank', '../leaderboard/'); } catch (e) {} }
     },
