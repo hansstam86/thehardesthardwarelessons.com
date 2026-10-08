@@ -5,8 +5,11 @@
   var CH = {
     1: ['The Development Journey', '#5ab0ff', 'ch1-journey'], 2: ['Prototyping', '#b388ff', 'ch2-prototyping'],
     3: ['Project Set-up', '#3ddc84', 'ch3-setup'], 4: ['EVT', '#f5c518', 'ch4-evt'],
-    5: ['DVT', '#ff7a45', 'ch5-dvt'], 6: ['PVT', '#ff5a8a', 'ch6-pvt']
+    5: ['DVT', '#ff7a45', 'ch5-dvt'], 6: ['PVT', '#ff5a8a', 'ch6-pvt'],
+    114: ['The Audit', '#3dd6c6', 'f14-audit']
   };
+  var ORDER = [1, 2, 3, 4, 5, 6, 114];
+  function chLabel(n) { return n >= 100 ? 'Factory ch. ' + (n - 100) : 'Chapter ' + n; }
   var K = 'hhl.profile';
   function load() { try { return JSON.parse(localStorage.getItem(K)) || {}; } catch (e) { return {}; } }
   function save(p) { try { localStorage.setItem(K, JSON.stringify(p)); } catch (e) {} }
@@ -49,7 +52,7 @@
     document.body.appendChild(d); setTimeout(function () { d.remove(); }, 6000);
   }
   window.HHL = {
-    CH: CH, API: API, live: live, profile: profile, save: save, flush: flush, unsynced: unsynced,
+    CH: CH, ORDER: ORDER, chLabel: chLabel, API: API, live: live, profile: profile, save: save, flush: flush, unsynced: unsynced,
     // call once per finished run with the final score
     submit: function (ch, score) {
       score = Math.round(Number(score)); if (!(score >= 0)) return;
@@ -82,19 +85,20 @@
     3: ['If a requirement cannot be tested, it is a wish. The critical path sets the date; contingency protects it.', [['prd', 'PRD'], ['trd', 'TRD'], ['critical-path', 'Critical path'], ['contingency', 'Contingency']], ['testable-requirements', 'Testable requirements checklist']],
     4: ['Every issue needs one owner, quickly. Problems between two teams are the ones nobody owns.', [['evt', 'EVT'], ['interface-issue', 'Interface issue'], ['open-issue', 'Open issue']], ['gate-checklist', 'Gate readiness checklist']],
     5: ['Steel can be cut away but never put back. Release tooling on evidence, not because the schedule says so.', [['dvt', 'DVT'], ['tooling', 'Tooling'], ['lab-slot', 'Lab slot'], ['certification', 'Certification']], ['tooling-release', 'Tooling release checklist']],
-    6: ['Find the product\'s limits on your own terms, before a customer finds them for you.', [['pvt', 'PVT'], ['halt', 'HALT'], ['readiness-gate', 'Readiness gate'], ['yield', 'Yield']], ['gate-checklist', 'Gate readiness checklist']]
+    6: ['Find the product\'s limits on your own terms, before a customer finds them for you.', [['pvt', 'PVT'], ['halt', 'HALT'], ['readiness-gate', 'Readiness gate'], ['yield', 'Yield']], ['gate-checklist', 'Gate readiness checklist']],
+    114: ['The audit is the one moment the whole relationship is still free. You see the factory on its best day, so everything you find is a floor, and every finding that matters must become a contract term, or it becomes a hope.', [['audit', 'Factory audit'], ['evidence-standard', 'Evidence standard'], ['reluctance-map', 'Reluctance map'], ['red-line', 'Red line'], ['capa', 'CAPA']], null]
   };
   var A = 'style="color:#e8c547" target="_blank" rel="noopener"';
   HHL.next = function (ch) {
     var L = LEARN[ch]; if (!L) return '';
-    var nx = CH[ch + 1], up = ch < 6;
+    var nx = CH[ch + 1], up = ch < 6; var tpl = L[2];
     return '<div style="margin:14px 0 6px;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.04);font-size:13px;line-height:1.5;text-align:left">' +
       '<div style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.7;margin-bottom:4px">Remember this</div>' +
       '<div style="font-size:15px;font-weight:600;margin-bottom:10px">' + L[0] + '</div>' +
       '<div style="opacity:.85">Terms in this game: ' + L[1].map(function (t) { return '<a href="/glossary/#' + t[0] + '" ' + A + '>' + t[1] + '</a>'; }).join(', ') + '</div>' +
-      '<div style="opacity:.85;margin-top:4px">Free: <a href="/templates/' + L[2][0] + '/" ' + A + '>' + L[2][1] + '</a> (print or PDF)</div>' +
+      (tpl ? '<div style="opacity:.85;margin-top:4px">Free: <a href="/templates/' + tpl[0] + '/" ' + A + '>' + tpl[1] + '</a> (print or PDF)</div>' : '') +
       (up ? '<div style="margin-top:10px"><a href="../' + nx[2] + '/" style="color:#e8c547;font-weight:700">Next: Chapter ' + (ch + 1) + ', ' + nx[0] + ' →</a></div>'
           : '<div style="margin-top:10px"><a href="../leaderboard/" style="color:#e8c547;font-weight:700">See your scorecard and the leaderboard →</a></div>') +
-      '<div style="margin-top:6px;opacity:.85">One lesson a week, free: <a href="/subscribe/" ' + A + '>subscribe by email</a> · <a href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" ' + A + '>Get the book</a></div></div>';
+      '<div style="margin-top:6px;opacity:.85">One lesson a week, free: <a href="/subscribe/" ' + A + '>subscribe by email</a> · <a href="' + (ch >= 100 ? 'https://hansolo42.gumroad.com/l/cmysdx' : 'https://hansolo42.gumroad.com/l/thehardesthardwarelessons') + '" ' + A + '>Get the book</a></div></div>';
   };
 })();

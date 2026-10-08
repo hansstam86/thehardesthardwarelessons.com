@@ -73,7 +73,7 @@
   <div class="tabs" id="tabs"></div>
   <div id="board"></div>
 </main>
-<script src="../hhl.js?v=6"></script>
+<script src="../hhl.js?v=7"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -83,32 +83,32 @@
 
   // Fold in bests saved by the games before the shared profile existed.
   (function migrate() {
-    for (var n = 1; n <= 6; n++) {
+    HHL.ORDER.forEach(function (n) {
       try { for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i);
         if (k && k.indexOf('hhl.ch' + n + '.') === 0 && /best/i.test(k)) { var v = Math.round(parseFloat(String(localStorage.getItem(k)).replace(/[^0-9.\-]/g, '')));
           if (v >= 0 && !(P.best[n] >= v)) { P.best[n] = v; } } } } catch (e) {}
-    }
+    });
     HHL.save(P);
   })();
 
-  function total() { var t = 0, g = 0; for (var n = 1; n <= 6; n++) if (P.best[n] != null) { t += P.best[n]; g++; } return { t: t, g: g }; }
+  function total() { var t = 0, g = 0; HHL.ORDER.forEach(function (n) { if (P.best[n] != null) { t += P.best[n]; g++; } }); return { t: t, g: g }; }
 
   function renderBadges() {
     var b = $('badges'); b.textContent = '';
-    for (var n = 1; n <= 6; n++) {
+    HHL.ORDER.forEach(function (n) {
       var played = P.best[n] != null, a = el('a', 'badge' + (played ? '' : ' off'));
       a.href = '../' + CH[n][2] + '/'; a.style.setProperty('--c', CH[n][1]);
-      a.appendChild(el('div', 'k', 'Chapter ' + n)); a.appendChild(el('div', 'n', CH[n][0]));
+      a.appendChild(el('div', 'k', HHL.chLabel(n))); a.appendChild(el('div', 'n', CH[n][0]));
       a.appendChild(el('div', 'v', played ? fmt(P.best[n]) : '—'));
       a.appendChild(el('div', 'm', played ? (P.plays[n] || 1) + ' run' + ((P.plays[n] || 1) > 1 ? 's' : '') : 'Not played yet'));
       b.appendChild(a);
-    }
+    });
   }
 
   function renderTabs() {
     var t = $('tabs'); t.textContent = '';
-    ['all', 1, 2, 3, 4, 5, 6].forEach(function (k) {
-      var x = el('button', k === cur ? 'on' : '', k === 'all' ? 'Overall' : 'Ch ' + k);
+    ['all'].concat(HHL.ORDER).forEach(function (k) {
+      var x = el('button', k === cur ? 'on' : '', k === 'all' ? 'Overall' : (k >= 100 ? 'F' + (k - 100) : 'Ch ' + k));
       x.onclick = function () { cur = k; renderTabs(); loadBoard(); }; t.appendChild(x);
     });
   }
@@ -124,7 +124,7 @@
       r.rows.forEach(function (x, i) {
         var tr = el('tr', x.id === mine ? 'me' : '');
         tr.appendChild(el('td', 'r', i + 1)); tr.appendChild(el('td', '', x.name));
-        tr.appendChild(el('td', 's', fmt(x.score) + (cur === 'all' ? ' · ' + x.games + '/6' : '')));
+        tr.appendChild(el('td', 's', fmt(x.score) + (cur === 'all' ? ' · ' + x.games + '/' + HHL.ORDER.length : '')));
         tb.appendChild(tr);
       });
       d.appendChild(tb);
@@ -142,28 +142,28 @@
 
   // Scorecard image for sharing.
   function card() {
-    var W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
+    var rows = Math.ceil(HHL.ORDER.length / 2), W = 1080, H = 470 + rows * 240 + 120, c = document.createElement('canvas'); c.width = W; c.height = H;
     var g = c.getContext('2d'), tt = total();
     g.fillStyle = '#0f0f0f'; g.fillRect(0, 0, W, H);
     var gr = g.createRadialGradient(W * .6, 200, 0, W * .6, 200, 800); gr.addColorStop(0, '#2a2000'); gr.addColorStop(1, '#0f0f0f'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
     g.fillStyle = '#e8c547'; g.font = '600 30px sans-serif'; g.fillText('THE HARDEST HARDWARE LESSONS', 70, 110);
     g.fillStyle = '#fff'; g.font = '64px Georgia, serif'; g.fillText(P.name || 'Hardware player', 70, 210);
     g.fillStyle = '#e8c547'; g.font = '700 120px sans-serif'; g.fillText(fmt(tt.t), 70, 350);
-    g.fillStyle = '#888'; g.font = '30px sans-serif'; g.fillText('total across ' + tt.g + ' of 6 games', 70, 400);
-    for (var n = 1; n <= 6; n++) {
-      var col = (n - 1) % 2, row = Math.floor((n - 1) / 2), x = 70 + col * 480, y = 470 + row * 240, ok = P.best[n] != null;
+    g.fillStyle = '#888'; g.font = '30px sans-serif'; g.fillText('total across ' + tt.g + ' of ' + HHL.ORDER.length + ' games', 70, 400);
+    HHL.ORDER.forEach(function (n, idx) {
+      var col = idx % 2, row = Math.floor(idx / 2), x = 70 + col * 480, y = 470 + row * 240, ok = P.best[n] != null;
       g.fillStyle = '#1e1e1e'; g.fillRect(x, y, 460, 210); g.fillStyle = CH[n][1]; g.globalAlpha = ok ? 1 : .35; g.fillRect(x, y, 8, 210);
-      g.font = '600 24px sans-serif'; g.fillText('CHAPTER ' + n, x + 34, y + 50);
+      g.font = '600 24px sans-serif'; g.fillText(HHL.chLabel(n).toUpperCase(), x + 34, y + 50);
       g.fillStyle = '#fff'; g.font = '30px Georgia, serif'; g.fillText(CH[n][0], x + 34, y + 94);
       g.font = '700 64px sans-serif'; g.fillText(ok ? fmt(P.best[n]) : '—', x + 34, y + 170); g.globalAlpha = 1;
-    }
-    g.fillStyle = '#888'; g.font = '28px sans-serif'; g.fillText('Play free: thehardesthardwarelessons.com/games', 70, 1290);
+    });
+    g.fillStyle = '#888'; g.font = '28px sans-serif'; g.fillText('Play free: thehardesthardwarelessons.com/games', 70, H - 60);
     return c;
   }
   function blob() { return new Promise(function (res) { card().toBlob(res, 'image/png'); }); }
   $('dl').onclick = function () { blob().then(function (b) { var a = el('a'); a.href = URL.createObjectURL(b); a.download = 'hardware-lessons-scorecard.png'; a.click(); }); };
   $('share').onclick = function () {
-    var tt = total(), text = 'I scored ' + fmt(tt.t) + ' across ' + tt.g + '/6 Hardest Hardware Lessons games. Beat me:';
+    var tt = total(), text = 'I scored ' + fmt(tt.t) + ' across ' + tt.g + '/' + HHL.ORDER.length + ' Hardest Hardware Lessons games. Beat me:';
     blob().then(function (b) {
       var f = new File([b], 'scorecard.png', { type: 'image/png' }), data = { text: text, url: 'https://thehardesthardwarelessons.com/games/', files: [f] };
       if (navigator.canShare && navigator.canShare(data)) return navigator.share(data);

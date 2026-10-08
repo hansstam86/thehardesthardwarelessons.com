@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a1c">
+<title>The Audit — The Hardest Factory Lessons</title>
+<meta name="description" content="A free game: two days to audit a factory. Pull the evidence, read the reluctance map, spot the staged areas, then decide whether to qualify it. From The Hardest Factory Lessons, Chapter 14.">
+<style>
+:root{
+  --bg:#101a1c; --ink:#eaf3f2; --muted:#93a9a8; --panel:#182427; --panel2:#1e2e31; --rule:#2c4043;
+  --acc:#3dd6c6; --red:#ff5a4e; --green:#3ddc84; --amber:#ff9f43; --gold:#f5c518;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-text-size-adjust:100%}
+body{padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 28px)}
+#app{width:min(480px,100%);margin:0 auto;display:grid;gap:12px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.back{color:var(--muted);text-decoration:none;font:600 14px/1 var(--font);padding:10px 8px;margin-left:-8px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:20px 18px;display:grid;gap:13px;animation:pop .28s ease both}
+@keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+h1{margin:0;font-size:34px;line-height:1.05;font-weight:800;letter-spacing:-.01em} h1 span{color:var(--acc)}
+h2{margin:0;font-size:22px;font-weight:800}
+h3{margin:0;font:700 11px/1.3 var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+p{margin:0;color:var(--muted);font-size:15px;line-height:1.45} p b,li b{color:var(--ink);font-weight:600}
+.small{font-size:12.5px} .plain{border-left:3px solid var(--rule);padding:2px 0 2px 10px;font-size:13px;color:#cfdddc}
+.btn{appearance:none;border:0;border-radius:14px;padding:15px 16px;font:800 16px/1.1 var(--font);background:var(--acc);color:#07201d;width:100%;min-height:50px;cursor:pointer}
+.btn:active{transform:scale(.97)} .btn:disabled{opacity:.35;pointer-events:none}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule);font-weight:700}
+.btn.sm{padding:10px 12px;min-height:40px;font-size:14px;border-radius:11px}
+.row{display:flex;gap:10px} .row>*{flex:1}
+.hud{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:10px 12px}
+.hud b{font-size:14px} .bar{height:8px;background:#0e1718;border-radius:6px;overflow:hidden} .bar i{display:block;height:100%;background:var(--acc);transition:width .3s}
+.hud span{font:700 12px/1 var(--font);color:var(--muted);font-variant-numeric:tabular-nums}
+.areas{display:grid;gap:8px}
+.area{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:12px;text-align:left;color:var(--ink);font:inherit;width:100%;cursor:pointer}
+.area:active{transform:scale(.985)} .area.locked{opacity:.55}
+.area .n{width:34px;height:34px;border-radius:10px;background:var(--panel2);display:grid;place-items:center;font:800 13px var(--font);color:var(--acc)}
+.area .t b{display:block;font-size:15px} .area .t span{font-size:12px;color:var(--muted)}
+.tags{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.tag{font:700 10px/1 var(--font);letter-spacing:.05em;text-transform:uppercase;padding:4px 6px;border-radius:6px;background:var(--panel2);color:var(--muted)}
+.tag.w{color:var(--acc)} .tag.d{color:var(--gold)} .tag.p{color:#b9a1ff}
+.chip{display:inline-block;font:800 11px/1 var(--font);letter-spacing:.06em;text-transform:uppercase;padding:5px 8px;border-radius:7px}
+.chip.sec{background:rgba(61,220,132,.16);color:var(--green)} .chip.hr{background:rgba(255,159,67,.16);color:var(--amber)} .chip.mt{background:rgba(255,90,78,.16);color:var(--red)}
+.claim{background:var(--panel2);border-radius:12px;padding:12px;font-style:italic;color:#d6e4e3;font-size:14px}
+.obs{background:#0e1718;border-radius:12px;padding:12px;font-size:14px;color:#d6e4e3;line-height:1.45}
+.act{display:grid;gap:8px}
+.act button{display:grid;grid-template-columns:1fr auto;gap:2px 10px;text-align:left;border:1px solid var(--rule);background:var(--panel2);border-radius:13px;padding:12px;color:var(--ink);font:inherit;cursor:pointer}
+.act button:active{transform:scale(.985)} .act button:disabled{opacity:.4;pointer-events:none}
+.act button b{font-size:15px} .act button span{font-size:12px;color:var(--muted);grid-column:1} .act button em{grid-row:1/3;grid-column:2;font:800 13px var(--font);color:var(--acc);font-style:normal;align-self:center}
+.pick{display:grid;gap:8px}
+.pick button{display:grid;gap:3px;text-align:left;border:1px solid var(--rule);background:var(--panel2);border-radius:13px;padding:12px;color:var(--ink);font:inherit;cursor:pointer}
+.pick button.on{border-color:var(--acc);background:#16363a} .pick button b{font-size:15px} .pick button span{font-size:12.5px;color:var(--muted);line-height:1.35}
+.note{display:grid;gap:3px;background:#0e1718;border-radius:12px;padding:11px 12px;font-size:13.5px;line-height:1.4;color:#d6e4e3}
+.note b{color:var(--acc);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.note.warn b{color:var(--amber)} .note.bad b{color:var(--red)}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.seg button{border:1px solid var(--rule);background:var(--panel2);color:var(--muted);border-radius:9px;padding:9px 2px;font:700 12px var(--font);cursor:pointer}
+.seg button.on{color:#07201d;border-color:transparent} .seg button.on[data-r=V]{background:var(--green)} .seg button.on[data-r=C]{background:var(--amber)} .seg button.on[data-r=F]{background:var(--red)} .seg button.on[data-r=N]{background:#8aa0a0}
+.rate{display:grid;gap:7px;padding:10px 0;border-top:1px solid var(--rule)} .rate:first-of-type{border-top:0}
+.rate .h{display:flex;justify-content:space-between;align-items:center;gap:8px} .rate .h b{font-size:14px}
+.check{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:9px 0;border-top:1px solid var(--rule);font-size:14px;color:#d6e4e3;cursor:pointer}
+.check i{width:22px;height:22px;border:2px solid var(--rule);border-radius:6px;display:grid;place-items:center;font-style:normal;font-size:14px;color:transparent}
+.check.on i{border-color:var(--red);background:var(--red);color:#fff}
+.big{font:900 56px/1 var(--font);text-align:center;color:var(--acc);font-variant-numeric:tabular-nums}
+.stamp{justify-self:center;font:900 24px/1 var(--font);letter-spacing:.06em;padding:8px 14px;border:4px solid currentColor;border-radius:8px;transform:rotate(-4deg)}
+.stamp.pass{color:var(--green)} .stamp.fail{color:var(--red)} .stamp.warn{color:var(--amber)}
+.lines{display:grid;gap:6px} .lines div{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:#d6e4e3;padding:7px 0;border-top:1px solid var(--rule)} .lines div:first-child{border-top:0}
+.lines em{font-style:normal;font-weight:800;font-variant-numeric:tabular-nums} .lines em.pos{color:var(--green)} .lines em.neg{color:var(--red)}
+.lesson{background:#0e1718;border-radius:12px;padding:12px;color:#e3efee;font-size:14.5px;line-height:1.5}
+.reveal{display:grid;gap:4px;padding:9px 0;border-top:1px solid var(--rule);font-size:13.5px;color:#d6e4e3} .reveal b{font-size:14px}
+.tabs{display:flex;gap:6px} .tabs button{flex:1}
+a{color:var(--acc)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="../hhl.js?v=7"></script>
+<script>
+(function () {
+'use strict';
+var $app = document.getElementById('app');
+var HOURS_PER_DAY = 8, DAYS = 2;
+
+/* ---------- content ---------- */
+// state of an area: solid (real), paper (records exist, unused), staged (hollow behind a showcase), mess (honest but poor), fake (falsified)
+var AREAS = [
+ { id:'dock', name:'Dock & Receiving', ch:'Ch. 2', role:'the IQC inspector', gate:null,
+   claim:'"Every lot is inspected on arrival. We reject on sight."',
+   good:'A clean dock. A quarantine cage with yellow tape and tagged reels, forklifts parked in their lanes.',
+   bad:'Pallets sit outside under an awning. Uncoated metal parts rust on the dock, and the quarantine cage is being used as a shelf.',
+   drill:'Five-minute MSD audit', what:'The dry-cabinet log',
+   d:{ solid:'Floor-life stickers match the log, and one correction is initialled.', mess:'Three reels are past floor life. They are tagged and quarantined, which is the honest part.', fake:'A sticker says a reel was opened an hour ago. The log says last Tuesday.' },
+   thu:'The extinguisher is back in a cupboard, pallets are outside again, and the log stopped on the day you left.' },
+ { id:'warehouse', name:'Warehouse', ch:'Ch. 3', role:'a picker', gate:'flow',
+   claim:'"FIFO, fully scanned. Nothing is ever lost."',
+   good:'Tidy aisles, labelled locations, a barcode on every shelf.',
+   bad:'Piles of reels in the aisles, a shelf of unlabelled boxes, a forklift stuck behind a stack.',
+   drill:'Ten-location count', what:'The location count',
+   d:{ solid:'Nine of ten match. The tenth moved an hour ago and was already corrected in the system.', mess:'Four of ten are wrong. The system puts stock in locations that are empty.', fake:'Ten of ten match, and every shelf is in datecode order, newest at the front. Someone rearranged it last night.' },
+   thu:'Datecodes are mixed again, new reels are stacked in front of old ones, and the humidity sensor now hangs by the AC vent.' },
+ { id:'smt', name:'SMT line', ch:'Ch. 4', role:'a line operator', gate:null, driller:'live',
+   claim:'"99.8% first-pass yield. The AOI catches everything."',
+   good:'Placement machines ticking, a green number above the line, a calm operator at the feeder.',
+   bad:'The line runs, but three feeders are taped over and an operator hand-places parts at one corner.',
+   drill:'Yield report vs the live AOI screen', what:'The yield report',
+   d:{ solid:'The report matches the AOI screens, with first-pass and after-rework yield side by side.', mess:'The report only shows after-rework yield. First-pass is 91%, and they tell you so.', fake:'The report was printed this morning. The AOI screen runs a different program from the one in the record.' },
+   thu:'A different AOI program is loaded and the paste log has three missed entries. The green number is the same.' },
+ { id:'molding', name:'Molding shop', sub:'subcontractor', ch:'Ch. 5', role:'the molding supervisor', gate:'sub',
+   claim:'"Your tool is safe with our partner. That is their business."',
+   good:'Presses running, and your tool carries your ownership plate on the base.',
+   bad:'Presses are idle, and a tool with no ownership plate sits on the floor next to a part with flash.',
+   drill:'Shot counter vs the maintenance log', what:'The shot-count record',
+   d:{ solid:'The counter reads 41,200 and the log shows the last clean at 40,000.', mess:'The counter is well past the last logged maintenance. They admit it is overdue.', fake:'The log shows a perfect clean every 10,000 shots in one handwriting. The counter says otherwise.' },
+   thu:'The tool is on the floor again, 30,000 shots have run since your visit, and no maintenance was done.' },
+ { id:'battery', name:'Battery pack line', ch:'Ch. 6', role:'the pack-line lead', gate:null,
+   claim:'"Cells come from approved suppliers only. Safe, always."',
+   good:'A steel charging rack, extinguishers at the door, a sensor logging the aging room.',
+   bad:'Aging racks are crowded, labels are peeling, and cells are stacked past the rack\'s marking.',
+   drill:'Aging-rack census vs the records', what:'The aging record',
+   d:{ solid:'The rack census matches the record, down to the cell lot.', mess:'Two racks are not in the record. They explain, and re-log them in front of you.', fake:'The record shows every rack aged 24 hours. Two racks were loaded this morning.' },
+   thu:'The aging room is "being renovated" and the door is padlocked. The racks you saw are not there.' },
+ { id:'assembly', name:'Assembly lines', ch:'Ch. 7–9', role:'a line supervisor', gate:null,
+   claim:'"Every operator is trained. Every station has an instruction."',
+   good:'Operators work in a steady rhythm, instructions are at each station, and WIP stays low.',
+   bad:'WIP piles up before one station, and operators follow memory, not the sheets.',
+   drill:'Skill matrix vs the people at the station', what:'The skill matrix',
+   d:{ solid:'The two operators you pick match the matrix, hire dates and certifications included.', mess:'Half the operators at the station joined last month. The matrix does not say so, but they do.', fake:'Training records were signed in one pen on one date for six months of sessions.' },
+   thu:'There is no instruction at the station, and new operators learn from their neighbour.' },
+ { id:'test', name:'Test stations', ch:'Ch. 10', role:'the test engineer', gate:null,
+   claim:'"Every unit is tested at 100% coverage."',
+   good:'Racks of fixtures run in sequence, and a screen shows a 99.6% pass rate.',
+   bad:'A fixture cable is held with tape, and the retest counter is high.',
+   drill:'Fixture log, golden-unit trend and a known-bad unit', what:'The fixture log',
+   d:{ solid:'The known-bad unit is caught at once, and the golden trend has a visible dip with a note beside it.', mess:'The known-bad unit passes the first time and fails on the retest. The counter is high, but honest.', fake:'The golden-unit trend is a perfectly flat line, and the known-bad unit never reaches the station.' },
+   thu:'The retest counter has been reset to zero and the program version changed on Monday.' },
+ { id:'quality', name:'Quality office', ch:'Ch. 11', role:'the quality manager', gate:null, driller:'records', talker:'qm',
+   claim:'"We have the full ISO system. CAPA closes every root cause."',
+   good:'Certificate plaques in the lobby, a tidy office, binders in a row.',
+   bad:'A small office, a whiteboard of open 8Ds, and a stack of unsigned holds.',
+   drill:'Walk one CAPA from the 8D to the station', what:'The CAPA record',
+   d:{ solid:'The 8D names a root cause (a fixture wear limit), and the station has the fix.', mess:'The 8D says "operator retrained" and the fix is not at the station. They know it and say so.', fake:'The 8D is dated yesterday for a problem from March, and the fix photo is from a different station.' },
+   thu:'The hold register is empty again at month-end, and the quality manager is "travelling".' },
+ { id:'packing', name:'Packing & finished goods', ch:'Ch. 12', role:'the shipping lead', gate:'flow',
+   claim:'"Scan gates on every box. Nothing leaves unchecked."',
+   good:'Clean packing stations, scan gates, and a labelled finished-goods area.',
+   bad:'Pallets sit in the aisle for weeks, and older stock is stacked behind the new.',
+   drill:'Serial-to-shipment drill', what:'The shipment record',
+   d:{ solid:'A serial from last month is found in seconds, to the pallet.', mess:'The serial takes forty minutes. The pallet is in the aisle, and they say so.', fake:'The serial is found instantly, but the ship date is a Sunday and the carton label is from a later revision.' },
+   thu:'The pre-ship staging area is empty, and two label versions are on the shelf.' }
+];
+var BYID = {}; AREAS.forEach(function (a) { BYID[a.id] = a; });
+
+var GEN = {
+  paper:  function (a) { return a.what + ' exists, but it is filled in in blocks and nobody on the floor consults it. It took an hour to find.'; },
+  staged: function (a) { return a.what + ' is immaculate and instantly at hand. The binder tabs are still stiff. Someone prepared this last night.'; },
+  solid:  function (a) { return a.what + ' is current to this morning, with a coffee ring on the page. ' + a.d.solid; },
+  mess:   function (a) { return a.what + ' is behind. It is messy, but nothing has been rewritten to impress you. ' + a.d.mess; },
+  fake:   function (a) { return a.what + ' is complete for months, and contradicts what you can see. ' + a.d.fake; }
+};
+var LATENCY = { solid:'sec', mess:'sec', staged:'sec', paper:'hr', fake:'mt' };
+var LATLABEL = { sec:'Answered in seconds', hr:'Took an hour', mt:'Needed a meeting' };
+var TALK = {
+  solid:  'tells you the last thing they rejected, who signed it, and what happened at month-end. There is detail, and a small complaint.',
+  paper:  'describes the procedure fluently. Asked for the last exception, they have to think. No example comes.',
+  staged: 'answers in a polished loop. Your escort\'s translation of a long answer is one short sentence.',
+  mess:   'is frank about what is broken and what they have asked for. Nobody has listened yet.',
+  fake:   'glances at the escort before every answer. The translation delay is longer than the sentence deserved.'
+};
+var THU_GEN = { solid:'Exactly as on your first visit. The discipline is still there on a random Thursday.', paper:'Same as before: the records exist, and nobody uses them.', mess:'Same mess, same honesty. What you saw was the real state.', fake:'The paperwork is still immaculate, and still in the same pen.' };
+
+var NAMES = ['Lianxing Precision', 'Rui Tai Electronics', 'Dongyue Smart Manufacturing', 'Meijie Technology', 'Hongcheng Electronics', 'Yuanda Intelligent'];
+// archetypes: area states, desk-phase findings, truth
+var ARCH = [
+ { key:'showcase', verdict:'decline', red:'falsified',
+   why:'A showcase factory. Great lobby, staged areas, and falsified quality records. A factory that falsifies small things under audit will falsify large things under production pressure.',
+   st:{ dock:'paper', warehouse:'mess', smt:'staged', molding:'paper', battery:'staged', assembly:'staged', test:'staged', quality:'fake', packing:'paper' },
+   desk:{ entity:['The operating company and the quoting company are different names, but a disclosed group structure. Fine.','ok'], fin:['Credit signals look normal. They want 40% upfront, which is common.','ok'], refs:['Only references the factory nominated. Everyone confirms they are good. Nobody has a recovery story.','warn'] },
+   friction:{ records:'"Those records are confidential."', qm:'Every conversation with the account manager present.', live:'"The changeover schedule is not fixed that week."', flow:'Annotated: all areas ready.', sub:'Annotated: "our partner site is arranged".' } },
+ { key:'modest', verdict:'conditions', red:null,
+   why:'A modest, honest factory. Plain building, real systems, and a couple of untidy areas that need contract conditions. A modest factory whose Thursday matches its showcase is a good marriage.',
+   st:{ dock:'solid', warehouse:'mess', smt:'solid', molding:'solid', battery:'solid', assembly:'solid', test:'solid', quality:'paper', packing:'mess' },
+   desk:{ entity:['A holding company in front of the operating factory, disclosed and understood.','ok'], fin:['Pays its suppliers in 60 days. Utilisation is high.','ok'], refs:['Two customers you found yourself. Both tell a real recovery story: a quality escape, disclosed early, contained.','ok'] },
+   friction:{ flow:'Annotated: all areas available.', records:'Annotated: five documents arranged.', qm:'Annotated: the quality manager is free on Tuesday.', live:'Annotated: changeover on Tuesday morning.', sub:'Annotated: molder visit arranged.' } },
+ { key:'spiky', verdict:'conditions', red:null,
+   why:'A spiky factory: excellent SMT and test, chaotic warehouse and shipping. Honest, but the unglamorous areas predict Part Three better than the showcase does. Proceed, with conditions written into the contract.',
+   st:{ dock:'paper', warehouse:'mess', smt:'solid', molding:'paper', battery:'solid', assembly:'paper', test:'solid', quality:'paper', packing:'mess' },
+   desk:{ entity:['A single entity, assets on the balance sheet, no pledges.','ok'], fin:['Slightly slow payer to distributors (90 days), but stable.','ok'], refs:['One reference is glowing. One says shipping labels were wrong twice and they fixed it.','ok'] },
+   friction:{ flow:'"The warehouse is being reorganised."', records:'Annotated: five documents arranged.', qm:'Annotated.', live:'Annotated: changeover Tuesday.', sub:'Annotated.' } },
+ { key:'hollow', verdict:'decline', red:null,
+   why:'A hollow factory. Half the building is dark, suppliers are paid in 120 days, and the systems exist only on paper. Your tooling would sit behind a bankruptcy administrator\'s fence.',
+   st:{ dock:'paper', warehouse:'paper', smt:'paper', molding:'paper', battery:'mess', assembly:'mess', test:'paper', quality:'paper', packing:'mess' },
+   desk:{ entity:['Entity is three years old; the factory claims fifteen years of heritage. There may be a story.','warn'], fin:['A supplier is suing for unpaid invoices. They ask for 70% upfront. Distributors say they pay in 120 days.','bad'], refs:['Two customers, both long gone. Nobody picks up.','warn'] },
+   friction:{ flow:'Annotated.', records:'Annotated.', qm:'Annotated.', live:'Annotated.', sub:'Annotated.' }, dark:true },
+ { key:'closed', verdict:'decline', red:'sub',
+   why:'A closed-door factory. The building is good, but the CM will not disclose or open its subcontractors. That is a control position over your visibility into where your product is made.',
+   st:{ dock:'solid', warehouse:'paper', smt:'solid', molding:'closed', battery:'solid', assembly:'solid', test:'solid', quality:'solid', packing:'paper' },
+   desk:{ entity:['A clean group structure, disclosed.','ok'], fin:['Strong. Pays suppliers in 45 days.','ok'], refs:['Good references. One mentions "we never saw the molder".','warn'] },
+   friction:{ flow:'Annotated.', records:'Annotated.', qm:'Annotated.', live:'Annotated.', sub:'"Our suppliers are our business."' } }
+];
+
+var DEMANDS = [
+ { id:'flow', name:'Walk every area, in flow order', sub:'Opens the warehouse and shipping, which the tour usually skips.' },
+ { id:'records', name:'The five quality records, on request', sub:'Needed to run the CAPA drill in the quality office.' },
+ { id:'qm', name:'The quality manager, without sales', sub:'Lets you talk to the quality manager alone.' },
+ { id:'live', name:'A live changeover and a timed traceability drill', sub:'Needed for the SMT yield check and for pulling a thread.' },
+ { id:'sub', name:'Disclose every subcontractor and arrange visits', sub:'Needed to visit the molder, who holds your tool.' }
+];
+var DESK = [
+ { id:'entity', name:'The entity', sub:'Who owns the assets, who signs the contract, who holds your tooling.' },
+ { id:'fin', name:'The finances', sub:'Credit signals, litigation, payment terms, utilisation.' },
+ { id:'refs', name:'The references', sub:'Ask about the recovery story, not about how good they are.' }
+];
+var REDS = [
+ { id:'falsified', name:'Falsified records, of any kind' },
+ { id:'power', name:'Quality without power (holds never held, QM bonused on shipments)' },
+ { id:'sub', name:'Refusal of subcontractor disclosure or access' },
+ { id:'refs', name:'Refusal of reference checks' },
+ { id:'safety', name:'Battery or safety disqualifiers' },
+ { id:'labour', name:'Child or forced labour, EHS floor violations' }
+];
+
+/* ---------- state ---------- */
+var G = null;
+var store = { get:function (k, d) { try { var v = localStorage.getItem('hhl.ch114.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set:function (k, v) { try { localStorage.setItem('hhl.ch114.' + k, JSON.stringify(v)); } catch (e) {} } };
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function fmt(n) { return Number(n).toLocaleString('en'); }
+function el(h) { $app.innerHTML = h; window.scrollTo(0, 0); }
+
+function newGame() {
+  var arch = pick(ARCH);
+  G = { arch:arch, name:pick(NAMES), hours:DAYS * HOURS_PER_DAY, used:0, day:1, today:0, desk:[], agenda:[], seen:{}, notes:[], thu:0, thuDone:{},
+        rating:{}, reds:{}, verdict:null, area:null, threads:0, phase:'title' };
+  AREAS.forEach(function (a) { G.seen[a.id] = { walk:false, drill:false, talk:false, thu:false }; });
+}
+function state(a) { var s = G.arch.st[a.id]; return s === 'closed' ? 'closed' : s; }
+function unlocked(a) {
+  if (a.gate === 'flow') return G.agenda.indexOf('flow') >= 0;
+  if (a.gate === 'sub') return G.agenda.indexOf('sub') >= 0;
+  return true;
+}
+function canDrill(a) { return !a.driller || G.agenda.indexOf(a.driller) >= 0; }
+function canTalk(a) { return !a.talker || G.agenda.indexOf(a.talker) >= 0; }
+function spend(h) { G.used += h; G.today += h; }
+function left() { return G.hours - G.used; }
+function addNote(area, kind, text, lat) { G.notes.push({ area:area, kind:kind, text:text, lat:lat || null }); }
+
+/* ---------- screens ---------- */
+function screenTitle() {
+  G.phase = 'title';
+  el('<div class="top"><a class="back" href="../">← Games</a></div>' +
+   '<div class="card"><h3>Chapter 14 · The Hardest Factory Lessons</h3><h1>The <span>Audit</span></h1>' +
+   '<p class="small"><i>From The Hardest Factory Lessons</i></p>' +
+   '<p>You have two days at a candidate factory that could build your product for years. The tour will show you a good performance. <b>Find out what is real.</b></p>' +
+   '<div class="plain"><b>In plain English:</b> before you sign with a factory, you visit it, check its records, and talk to its people, then decide whether to work with it. <b>Goal:</b> find the truth behind the tour, and make the right call.</div>' +
+   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55">' +
+   '<li><b>Desk work</b> before you fly, then an <b>agenda</b> that doubles as a test.</li>' +
+   '<li><b>16 hours on site.</b> Walk, run drills, talk to the floor. You cannot check everything.</li>' +
+   '<li><b>Evidence beats assurance.</b> Only mark an area Verified if you saw proof.</li>' +
+   '<li>Then decide: proceed, proceed with conditions, or decline.</li></ul>' +
+   '<button class="btn" data-a="start">Start the audit</button>' +
+   '<p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factory is fictional.</p></div>');
+}
+
+function screenBrief() {
+  G.phase = 'brief';
+  el('<div class="top"><a class="back" href="../">← Games</a></div>' +
+   '<div class="card"><h3>The candidate</h3><h2>' + G.name + '</h2>' +
+   '<p>A contract manufacturer in Dongguan, shortlisted to build your <b>battery-powered smart device</b>. It was recommended by a friend and has a good website. You have not seen it yet.</p>' +
+   '<div class="note"><b>The rule of the audit</b>Every claim is tested against a document or an observation. A claim that cannot be tested is recorded as a claim.</div>' +
+   '<p class="small">Whatever you find is a floor, not a ceiling. You are seeing the factory on its best day.</p>' +
+   '<button class="btn" data-a="desk">Start with desk work</button></div>');
+}
+
+function screenDesk() {
+  G.phase = 'desk';
+  var n = G.desk.length;
+  el('<div class="card"><h3>Before you fly · ' + n + ' of 2</h3><h2>Desk work</h2>' +
+   '<p>The cheapest findings come from a desk, and they disqualify more candidates than site visits. You have time for <b>two</b> of these.</p>' +
+   '<div class="pick">' + DESK.map(function (d) { var on = G.desk.indexOf(d.id) >= 0;
+      return '<button data-a="deskpick" data-id="' + d.id + '" class="' + (on ? 'on' : '') + '"><b>' + d.name + '</b><span>' + d.sub + '</span></button>'; }).join('') + '</div>' +
+   G.desk.map(function (id) { var r = G.arch.desk[id], d = DESK.filter(function (x) { return x.id === id; })[0];
+      return '<div class="note ' + (r[1] === 'bad' ? 'bad' : r[1] === 'warn' ? 'warn' : '') + '"><b>' + d.name + '</b>' + r[0] + '</div>'; }).join('') +
+   '<button class="btn" data-a="agenda"' + (n < 2 ? ' disabled' : '') + '>Next: write the agenda</button></div>');
+}
+
+function screenAgenda() {
+  G.phase = 'agenda';
+  var n = G.agenda.length;
+  el('<div class="card"><h3>The agenda · ' + n + ' of 4</h3><h2>Send the agenda</h2>' +
+   '<p>The agenda is the first probe. Ask for four of these. A factory that gets in the way of the others is telling you something.</p>' +
+   '<div class="pick">' + DEMANDS.map(function (d) { var on = G.agenda.indexOf(d.id) >= 0;
+      return '<button data-a="agpick" data-id="' + d.id + '" class="' + (on ? 'on' : '') + '"><b>' + d.name + '</b><span>' + d.sub + '</span></button>'; }).join('') + '</div>' +
+   '<button class="btn" data-a="send"' + (n !== 4 ? ' disabled' : '') + '>Send the agenda</button></div>');
+}
+
+function screenReply() {
+  G.phase = 'reply';
+  var f = G.arch.friction, asked = G.agenda, skipped = DEMANDS.filter(function (d) { return asked.indexOf(d.id) < 0; });
+  var rows = asked.map(function (id) { var d = DEMANDS.filter(function (x) { return x.id === id; })[0]; return '<div class="note ' + (/^Annotated/.test(f[id]) ? '' : 'warn') + '"><b>' + d.name + '</b>' + f[id] + '</div>'; }).join('');
+  asked.forEach(function (id) { if (!/^Annotated/.test(f[id])) { addNote(null, 'friction', DEMANDS.filter(function (x) { return x.id === id; })[0].name + ': ' + f[id]); } });
+  var out = skipped.map(function (d) { return d.name; });
+  el('<div class="card"><h3>Their reply</h3><h2>Read it as data</h2>' +
+   '<p>A confident factory annotates the agenda. A factory with something to manage returns friction. Each friction goes on your <b>reluctance map</b>.</p>' + rows +
+   '<p class="small">You did not ask for: ' + out.join('; ').toLowerCase() + '. Those parts of the audit may be closed to you.</p>' +
+   '<button class="btn" data-a="arrive">Fly to Dongguan</button></div>');
+}
+
+function hud() {
+  var d = G.day, tl = Math.max(0, HOURS_PER_DAY - G.today);
+  return '<div class="hud"><b>Day ' + (G.phase === 'thu' ? 'Thursday' : d) + '</b><div class="bar"><i style="width:' + Math.round(100 * left() / G.hours) + '%"></i></div><span>' + left() + ' h left</span></div>';
+}
+
+function screenMap() {
+  G.phase = 'map';
+  if (left() <= 0) return screenNight(true);
+  el(hud() +
+   '<div class="card"><h3>The floor · ' + G.name + '</h3>' +
+   '<p class="small">Walking an area costs 1 hour. Drills and conversations cost 1 hour each. Areas are listed in flow order.</p>' +
+   '<div class="areas">' + AREAS.map(function (a, i) { var s = G.seen[a.id], ul = unlocked(a);
+     var tags = (s.walk ? '<span class="tag w">walked</span>' : '') + (s.drill ? '<span class="tag d">drilled</span>' : '') + (s.talk ? '<span class="tag p">talked</span>' : '');
+     return '<button class="area' + (ul ? '' : ' locked') + '" data-a="area" data-id="' + a.id + '"><div class="n">' + (i + 1) + '</div><div class="t"><b>' + a.name + '</b><span>' + (a.sub ? a.sub + ' · ' : '') + a.ch + (ul ? '' : ' · not on this trip') + '</span></div><div class="tags">' + tags + '</div></button>'; }).join('') + '</div>' +
+   '<div class="row"><button class="btn ghost sm" data-a="thread">Pull a thread · 2 h</button><button class="btn ghost sm" data-a="notebook">Notebook (' + G.notes.length + ')</button></div>' +
+   '<button class="btn ghost sm" data-a="toverdict">I am done: make the call</button></div>');
+}
+
+function screenArea(id, msg) {
+  var a = BYID[id], s = G.seen[id], st = state(a); G.area = id; G.phase = 'area';
+  var ul = unlocked(a), body = '';
+  if (!ul) {
+    body = '<div class="note warn"><b>Not on this trip</b>' + (a.gate === 'sub' ? 'The molding is at a partner site. You did not ask for subcontractor disclosure and visits, so it was never arranged. The shop that holds your tool is out of reach.' : 'The escort says it is being reorganised, and suggests the next visit. You did not ask to walk every area in order.') + '</div>';
+    el(hud() + '<div class="card"><h3>' + a.ch + '</h3><h2>' + a.name + '</h2>' + body + '<button class="btn ghost" data-a="map">Back to the floor</button></div>'); return;
+  }
+  if (!s.walk) {
+    el(hud() + '<div class="card"><h3>' + a.ch + (a.sub ? ' · ' + a.sub : '') + '</h3><h2>' + a.name + '</h2>' +
+      '<div class="claim">' + a.claim + '</div>' +
+      '<p class="small">Your escort says this on the way in. Walk it to see for yourself.</p>' +
+      '<div class="act"><button data-a="walk"><b>Walk it</b><span>See the area with your own eyes</span><em>1 h</em></button></div>' +
+      '<button class="btn ghost" data-a="map">Back to the floor</button></div>'); return;
+  }
+  var obs = st === 'mess' ? a.bad : a.good;
+  if (st === 'closed') obs = 'The visit was refused at the gate. "The molder is our supplier\'s business. We can send photos."';
+  var sub = '';
+  var drillNote = s.drill ? '<div class="note"><b>Drill · ' + a.drill + '</b>' + (s.drillText || '') + ' <br><span class="chip ' + LATENCY[st === 'closed' ? 'mt' : st] + '">' + LATLABEL[LATENCY[st]] + '</span></div>' : '';
+  var talkNote = s.talk ? '<div class="note"><b>Talked to ' + a.role + '</b>' + cap(a.role) + ' ' + (TALK[st === 'closed' ? 'fake' : st]) + '</div>' : '';
+  var thuNote = s.thu ? '<div class="note warn"><b>Thursday</b>' + (st === 'staged' ? a.thu : THU_GEN[st] || '') + '</div>' : '';
+  var acts = '';
+  if (st !== 'closed') {
+    acts = '<div class="act">' +
+     '<button data-a="drill"' + (s.drill || !canDrill(a) ? ' disabled' : '') + '><b>' + a.drill + '</b><span>' + (canDrill(a) ? 'Ask for the evidence at their terminal' : 'Needs the agenda item you did not request') + '</span><em>' + (s.drill ? 'done' : '1 h') + '</em></button>' +
+     '<button data-a="talk"' + (s.talk || !canTalk(a) ? ' disabled' : '') + '><b>Talk to ' + a.role + '</b><span>' + (canTalk(a) ? 'Ask the floor directly, without the escort steering' : 'Needs the agenda item you did not request') + '</span><em>' + (s.talk ? 'done' : '1 h') + '</em></button></div>';
+  }
+  el(hud() + '<div class="card"><h3>' + a.ch + (a.sub ? ' · ' + a.sub : '') + '</h3><h2>' + a.name + '</h2>' +
+    '<div class="claim">' + a.claim + '</div><div class="obs"><b style="color:var(--acc);font-size:11px;letter-spacing:.1em;text-transform:uppercase">You see</b><br>' + obs + '</div>' +
+    (msg ? '<div class="note"><b>Just now</b>' + msg + '</div>' : '') + drillNote + talkNote + thuNote + acts +
+    '<button class="btn ghost" data-a="map">Back to the floor</button></div>');
+}
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function doWalk() {
+  var a = BYID[G.area], st = state(a);
+  if (left() < 1) return;
+  spend(1); G.seen[a.id].walk = true;
+  if (st === 'closed') { addNote(a.id, 'walk', 'Visit refused.'); G.red_seen = true; }
+  else addNote(a.id, 'walk', st === 'mess' ? a.bad : a.good);
+  if (G.arch.dark && a.id === 'dock') addNote(a.id, 'walk', 'Half the building is dark: a fixed-cost problem searching for a customer to fund it.');
+  afterAction(a.id, G.arch.dark && a.id === 'dock' ? 'Half the building is dark. That is a fixed-cost problem looking for a customer to fund it.' : null);
+}
+function doDrill() {
+  var a = BYID[G.area], st = state(a), s = G.seen[a.id];
+  if (left() < 1 || s.drill || !canDrill(a)) return;
+  spend(1); s.drill = true; s.drillText = GEN[st] ? GEN[st](a) : GEN.mess(a);
+  addNote(a.id, 'drill', s.drillText, LATENCY[st]);
+  afterAction(a.id);
+}
+function doTalk() {
+  var a = BYID[G.area], st = state(a), s = G.seen[a.id];
+  if (left() < 1 || s.talk || !canTalk(a)) return;
+  spend(1); s.talk = true;
+  addNote(a.id, 'talk', cap(a.role) + ' ' + TALK[st === 'closed' ? 'fake' : st]);
+  afterAction(a.id);
+}
+function afterAction(id, msg) {
+  if (G.today >= HOURS_PER_DAY && G.day < DAYS || left() <= 0) return screenNight();
+  screenArea(id, msg);
+}
+
+function doThread() {
+  if (left() < 2) return toast('Pulling a thread takes 2 hours. You do not have them.');
+  if (G.agenda.indexOf('live') < 0) return screenThreadBlocked();
+  spend(2); G.threads++;
+  var order = ['dock','warehouse','smt','molding','battery','assembly','test','quality','packing'], snap = null, slow = null;
+  order.forEach(function (id) { var s = G.arch.st[id]; if (s === 'closed') return; if (!snap && (s === 'mess' || s === 'fake')) snap = id; if (!slow && (s === 'paper' || s === 'staged')) slow = id; });
+  var text;
+  if (snap) text = 'You walk one serial from last month\'s shipments backwards, at their terminals. It snaps in <b>' + BYID[snap].name + '</b>: ' + (G.arch.st[snap] === 'fake' ? 'a lot number in the record was created after the date on it.' : 'the record is behind and the link is missing. They say so.');
+  else if (slow) text = 'The thread runs, but slowly. At <b>' + BYID[slow].name + '</b> the records are in a different format, and someone has to find them. Connected, not lived in.';
+  else text = 'The thread runs dock to dock in 38 minutes. Every link is where the record says. Connected.';
+  addNote(null, 'thread', text.replace(/<[^>]+>/g, ''));
+  G.lastThread = text;
+  if (G.today >= HOURS_PER_DAY && G.day < DAYS || left() <= 0) return screenThreadResult(true);
+  screenThreadResult(false);
+}
+function screenThreadBlocked() {
+  el(hud() + '<div class="card"><h3>Pull a thread</h3><h2>Not arranged</h2><div class="note warn"><b>No live drill on your agenda</b>You did not ask for a timed traceability drill, so nobody will drive the terminals for you.</div><button class="btn ghost" data-a="map">Back to the floor</button></div>');
+}
+function screenThreadResult(night) {
+  el(hud() + '<div class="card"><h3>The thread</h3><h2>One serial, dock to dock</h2><div class="note"><b>Result</b>' + G.lastThread + '</div><p class="small">The highest-yield exercise of the audit: it checks the connections, which the binders cannot fake and the tour cannot show.</p><button class="btn" data-a="' + (night ? 'night' : 'map') + '">' + (night ? 'End the day' : 'Back to the floor') + '</button></div>');
+}
+
+function toast(t) { var d = document.createElement('div'); d.textContent = t; d.style.cssText = 'position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#0e1718;color:#eaf3f2;border:1px solid #2c4043;border-radius:12px;padding:10px 14px;font:600 13px system-ui;z-index:9'; document.body.appendChild(d); setTimeout(function () { d.remove(); }, 2200); }
+
+function screenNotebook() {
+  G.phase = 'notebook';
+  var c = { sec:0, hr:0, mt:0 }; G.notes.forEach(function (n) { if (n.lat) c[n.lat]++; });
+  var fr = G.notes.filter(function (n) { return n.kind === 'friction'; });
+  var unver = AREAS.filter(function (a) { return !G.seen[a.id].drill; }).map(function (a) { return a.name; });
+  el('<div class="card"><h3>Notebook</h3><h2>What you know</h2>' +
+   '<div class="note"><b>Latency profile</b><span class="chip sec">' + c.sec + ' in seconds</span> <span class="chip hr">' + c.hr + ' in an hour</span> <span class="chip mt">' + c.mt + ' needed a meeting</span></div>' +
+   '<p class="small">Fast answers mean lived systems. An hour means records exist but are not used. A meeting means records being created for you, maybe right now.</p>' +
+   '<div class="note warn"><b>Reluctance map</b>' + (fr.length ? fr.map(function (n) { return n.text; }).join('<br>') : 'No friction yet. Either the factory is open, or you have not asked.') + '</div>' +
+   '<div class="note"><b>Unverified list (no drill yet)</b>' + (unver.length ? unver.join(', ') : 'Nothing. Every area drilled.') + '</div>' +
+   '<h3 style="margin-top:4px">Evidence log</h3>' +
+   (G.notes.filter(function (n) { return n.kind !== 'friction'; }).map(function (n) { return '<div class="note"><b>' + (n.area ? BYID[n.area].name + ' · ' + n.kind : n.kind) + '</b>' + n.text + '</div>'; }).join('') || '<p class="small">Nothing recorded yet.</p>') +
+   '<button class="btn" data-a="map">Back to the floor</button></div>');
+}
+
+function screenNight(forced) {
+  G.phase = 'night';
+  var endOfAudit = left() <= 0;
+  var unver = AREAS.filter(function (a) { return !G.seen[a.id].drill; }).length;
+  el('<div class="card"><h3>' + (endOfAudit ? 'End of day 2' : 'End of day ' + G.day) + '</h3><h2>' + (endOfAudit ? 'The two days are over' : 'Evening notes') + '</h2>' +
+   '<p>You have walked ' + AREAS.filter(function (a) { return G.seen[a.id].walk; }).length + ' of ' + AREAS.length + ' areas and run ' + AREAS.filter(function (a) { return G.seen[a.id].drill; }).length + ' drills. ' + unver + ' areas have no evidence behind them yet.</p>' +
+   '<div class="lesson">Write it down tonight. The evening reconstruction loses the details that matter, and the factory you audited is the factory on its <b>best day</b>.</div>' +
+   (endOfAudit ? '<button class="btn" data-a="thursdayoffer">Next</button>' : '<button class="btn" data-a="nextday">Start day 2</button>') +
+   '<button class="btn ghost sm" data-a="notebook">Open the notebook</button></div>');
+}
+
+function screenThursdayOffer() {
+  G.phase = 'thuoffer';
+  el('<div class="card"><h3>The second visit</h3><h2>Drop by on Thursday?</h2>' +
+   '<p>You are in the region again. Call a day ahead: <i>"I\'m in Dongguan Thursday. Two hours, no agenda, no meetings needed."</i></p>' +
+   '<p>You get <b>two quick re-checks</b>. Whatever was staged will have relaxed. A reasonable factory accepts this without ceremony.</p>' +
+   '<div class="row"><button class="btn" data-a="thursday">Go on Thursday</button><button class="btn ghost" data-a="toverdict">Skip it</button></div></div>');
+}
+function screenThursday() {
+  G.phase = 'thu';
+  var left2 = 2 - G.thu;
+  el('<div class="hud"><b>Thursday</b><div class="bar"><i style="width:' + (left2 * 50) + '%"></i></div><span>' + left2 + ' re-checks</span></div>' +
+   '<div class="card"><h3>Unannounced-ish</h3><h2>Pick where to look</h2><p class="small">Compare it with what you saw on day one. The delta is the factory\'s unobserved state.</p>' +
+   '<div class="areas">' + AREAS.filter(function (a) { return G.seen[a.id].walk && state(a) !== 'closed'; }).map(function (a) { var done = G.seen[a.id].thu;
+     return '<button class="area" data-a="thuarea" data-id="' + a.id + '"' + (done || left2 <= 0 ? ' disabled style="opacity:.5"' : '') + '><div class="n">↺</div><div class="t"><b>' + a.name + '</b><span>' + (done ? 'checked' : a.ch) + '</span></div></button>'; }).join('') + '</div>' +
+   (G.thuMsg ? '<div class="note warn"><b>Just now</b>' + G.thuMsg + '</div>' : '') +
+   '<button class="btn" data-a="toverdict">Make the call</button></div>');
+}
+function doThuArea(id) {
+  if (G.thu >= 2 || G.seen[id].thu) return;
+  var a = BYID[id], st = state(a); G.thu++; G.seen[id].thu = true;
+  var t = st === 'staged' ? a.thu : (THU_GEN[st] || THU_GEN.paper);
+  G.thuMsg = '<b>' + a.name + '.</b> ' + t; addNote(id, 'thursday', t);
+  if (st === 'staged') G.thuStaged = (G.thuStaged || 0) + 1;
+  screenThursday();
+}
+
+/* ---------- verdict ---------- */
+var RATINGS = [['V','Verified'],['C','Claimed'],['F','Failed'],['N','Not examined']];
+function screenVerdict() {
+  G.phase = 'verdict';
+  AREAS.forEach(function (a) { if (!G.rating[a.id]) G.rating[a.id] = G.seen[a.id].walk ? '' : 'N'; });
+  var allRated = AREAS.every(function (a) { return G.rating[a.id]; });
+  el('<div class="card"><h3>The scorecard</h3><h2>Rate each area</h2>' +
+   '<div class="plain"><b>Verified</b> = you saw proof (a drill). <b>Claimed</b> = only their word, or records nobody uses. <b>Failed</b> = the evidence showed a problem. <b>Not examined</b> = you did not look.</div>' +
+   AREAS.map(function (a) { var s = G.seen[a.id];
+     return '<div class="rate"><div class="h"><b>' + a.name + '</b><span class="small">' + (s.drill ? 'drilled' : s.walk ? 'walked only' : 'not visited') + (s.thu ? ' · rechecked' : '') + '</span></div><div class="seg">' +
+       RATINGS.map(function (r) { return '<button data-a="rate" data-id="' + a.id + '" data-r="' + r[0] + '" class="' + (G.rating[a.id] === r[0] ? 'on' : '') + '">' + r[1] + '</button>'; }).join('') + '</div></div>'; }).join('') +
+   '<h3 style="margin-top:8px">Red lines</h3><p class="small">Findings that end an evaluation regardless of score. Tick only what you have found. A wrong accusation costs you.</p>' +
+   REDS.map(function (r) { return '<div class="check' + (G.reds[r.id] ? ' on' : '') + '" data-a="red" data-id="' + r.id + '"><i>✓</i><span>' + r.name + '</span></div>'; }).join('') +
+   '<h3 style="margin-top:8px">Your recommendation</h3>' +
+   '<div class="pick">' + [['proceed','Proceed','Qualify them as they are.'],['conditions','Proceed with conditions','Every finding that matters becomes a contract term.'],['decline','Decline','Walk away.']].map(function (v) {
+      return '<button data-a="vd" data-v="' + v[0] + '" class="' + (G.verdict === v[0] ? 'on' : '') + '"><b>' + v[1] + '</b><span>' + v[2] + '</span></button>'; }).join('') + '</div>' +
+   '<button class="btn" data-a="submit"' + (!G.verdict || !allRated ? ' disabled' : '') + '>Submit the report</button></div>');
+}
+
+var PTS = { solid:{V:40,C:20,F:0,N:8}, paper:{V:0,C:40,F:20,N:8}, staged:{V:0,C:40,F:40,N:8}, mess:{V:0,C:10,F:40,N:8}, fake:{V:0,C:10,F:40,N:8}, closed:{V:0,C:10,F:40,N:8} };
+var VPTS = { decline:{decline:350,conditions:0,proceed:0}, conditions:{conditions:350,decline:120,proceed:100} };
+function score() {
+  var rows = [], total = 0, arch = G.arch;
+  var vp = VPTS[arch.verdict][G.verdict]; rows.push(['Recommendation: ' + label(G.verdict) + ' (correct: ' + label(arch.verdict) + ')', vp]); total += vp;
+  var ticked = Object.keys(G.reds).filter(function (k) { return G.reds[k]; }), rp = 0;
+  if (arch.red) { var hit = ticked.indexOf(arch.red) >= 0; rp = hit ? 150 : 0; var wrong = ticked.filter(function (k) { return k !== arch.red; }).length; rp = Math.max(0, rp - 30 * wrong); }
+  else { rp = Math.max(0, 150 - 30 * ticked.length); }
+  rows.push(['Red-line check', rp]); total += rp;
+  var ap = 0, penal = 0;
+  AREAS.forEach(function (a) { var st = state(a), r = G.rating[a.id]; ap += PTS[st][r]; if (r === 'V' && !G.seen[a.id].drill) penal += 20; });
+  rows.push(['Scorecard accuracy', ap]); total += ap;
+  if (penal) { rows.push(['Verified without evidence (claims scored as proof)', -penal]); total -= penal; }
+  var hp = Math.min(Math.max(0, left()), 10) * 5; rows.push(['Hours left unspent (up to 10)', hp]); total += hp;
+  var tp = G.thu >= 2 ? 40 : G.thu === 1 ? 20 : 0; if (tp) { rows.push(['Second visit', tp]); total += tp; }
+  return { rows:rows, total:Math.max(0, total) };
+}
+function label(v) { return v === 'decline' ? 'Decline' : v === 'conditions' ? 'Proceed with conditions' : 'Proceed'; }
+
+function screenDebrief() {
+  G.phase = 'debrief';
+  var sc = score(), arch = G.arch, best = store.get('best', 0), nb = sc.total > best;
+  if (nb) store.set('best', sc.total);
+  try { HHL.submit(114, sc.total); } catch (e) {}
+  var stamp = arch.verdict === G.verdict ? 'pass' : (G.verdict === 'decline' || arch.verdict === 'decline') ? 'fail' : 'warn';
+  var stampTxt = arch.verdict === G.verdict ? 'RIGHT CALL' : (stamp === 'fail' ? (arch.verdict === 'decline' ? 'WRONG CALL' : 'LOST A GOOD ONE') : 'CLOSE');
+  var truth = AREAS.map(function (a) { var st = state(a), r = G.rating[a.id];
+    var T = { solid:'Real', paper:'Records exist, nobody uses them', staged:'Staged: hollow behind the showcase', mess:'Messy but honest', fake:'Falsified records', closed:'Refused access to the molder' }[st];
+    var tag = st === 'staged' ? (G.seen[a.id].thu ? ' (you caught it on Thursday)' : G.thu ? '' : ' (only a second visit would show it)') : '';
+    return '<div class="reveal"><b>' + a.name + ' · ' + T + '</b><span class="small">You: ' + RATINGS.filter(function (x) { return x[0] === r; })[0][1] + (G.seen[a.id].drill ? '' : ', no drill') + tag + '</span></div>'; }).join('');
+  var missed = '';
+  if (arch.red === 'sub' && G.agenda.indexOf('sub') < 0) missed = '<div class="note bad"><b>What you missed</b>You never asked for subcontractor disclosure, so the refusal never surfaced. The factory was hiding where your tool would live. Ask in the agenda.</div>';
+  if (arch.key === 'hollow' && G.desk.indexOf('fin') < 0) missed = '<div class="note bad"><b>What you missed</b>The finances were the story: a supplier suing for unpaid invoices and 120-day payment terms. Desk work disqualifies more candidates than site visits do.</div>';
+  el('<div class="card"><h3>Report submitted</h3><div class="stamp ' + stamp + '">' + stampTxt + '</div><div class="big">' + fmt(sc.total) + '</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
+   '<div class="lines">' + sc.rows.map(function (r) { return '<div><span>' + r[0] + '</span><em class="' + (r[1] >= 0 ? 'pos' : 'neg') + '">' + (r[1] >= 0 ? '+' : '') + r[1] + '</em></div>'; }).join('') + '</div>' +
+   '<div class="lesson"><b>What this factory was.</b> ' + arch.why + '</div>' + missed +
+   '<h3>What was really there</h3>' + truth +
+   HHL.next(114) +
+   '<div class="row"><button class="btn" data-a="again">Audit another</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+}
+
+/* ---------- events ---------- */
+$app.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+  var a = b.dataset.a, id = b.dataset.id;
+  switch (a) {
+    case 'start': newGame(); screenBrief(); break;
+    case 'desk': screenDesk(); break;
+    case 'deskpick': { var i = G.desk.indexOf(id); if (i >= 0) G.desk.splice(i, 1); else if (G.desk.length < 2) G.desk.push(id); screenDesk(); break; }
+    case 'agenda': screenAgenda(); break;
+    case 'agpick': { var j = G.agenda.indexOf(id); if (j >= 0) G.agenda.splice(j, 1); else if (G.agenda.length < 4) G.agenda.push(id); screenAgenda(); break; }
+    case 'send': screenReply(); break;
+    case 'arrive': case 'map': screenMap(); break;
+    case 'area': screenArea(id); break;
+    case 'walk': doWalk(); break;
+    case 'drill': doDrill(); break;
+    case 'talk': doTalk(); break;
+    case 'thread': doThread(); break;
+    case 'notebook': screenNotebook(); break;
+    case 'night': screenNight(); break;
+    case 'nextday': G.day = 2; G.today = 0; screenMap(); break;
+    case 'thursdayoffer': screenThursdayOffer(); break;
+    case 'thursday': screenThursday(); break;
+    case 'thuarea': doThuArea(id); break;
+    case 'toverdict': screenVerdict(); break;
+    case 'rate': G.rating[id] = b.dataset.r; screenVerdict(); break;
+    case 'red': G.reds[id] = !G.reds[id]; screenVerdict(); break;
+    case 'vd': G.verdict = b.dataset.v; screenVerdict(); break;
+    case 'submit': screenDebrief(); break;
+    case 'again': newGame(); screenBrief(); break;
+    case 'menu': screenTitle(); break;
+  }
+});
+// night is reached when the day's hours run out
+var _afterAction = afterAction;
+newGame(); screenTitle();
+window.__f14 = { G:function () { return G; }, score:score, AREAS:AREAS, ARCH:ARCH };
+})();
+</script>
+</body>
+</html>

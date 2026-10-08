@@ -1,5 +1,7 @@
 // Leaderboard API. Scores are client-reported, so this is a casual board: bounded, rate-limited, one row per player per chapter.
-const MAX = { 1: 100000, 2: 100000, 3: 100000, 4: 100000, 5: 100000, 6: 100000 }; // loose sanity caps; tighten once real maxima are known
+// chapters 1-6: hardware games; 101-117: factory games (100 + book chapter)
+const MAX = {};
+for (const c of [1, 2, 3, 4, 5, 6, ...Array.from({ length: 17 }, (_, i) => 101 + i)]) MAX[c] = 100000; // loose sanity cap; tighten once real maxima are known
 const ORIGINS = ['https://www.thehardesthardwarelessons.com', 'https://thehardesthardwarelessons.com'];
 
 const cors = (req) => {
