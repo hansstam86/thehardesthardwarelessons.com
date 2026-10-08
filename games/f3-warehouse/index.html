@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a1c">
+<title>Clear to Build — The Hardest Factory Lessons</title>
+<meta name="description" content="A free game: the factory says material is ready. Is it? Check the shelf against the system before the line starts, and see what the warehouse bills you later. From The Hardest Factory Lessons, Chapter 3.">
+<style>
+:root{
+  --bg:#101a1c; --ink:#eaf3f2; --muted:#93a9a8; --panel:#182427; --panel2:#1e2e31; --rule:#2c4043;
+  --acc:#3dd6c6; --red:#ff5a4e; --green:#3ddc84; --amber:#ff9f43; --gold:#f5c518;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-text-size-adjust:100%}
+body{padding:calc(env(safe-area-inset-top,0px) + 12px) 14px calc(env(safe-area-inset-bottom,0px) + 28px)}
+#app{width:min(480px,100%);margin:0 auto;display:grid;gap:12px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.back{color:var(--muted);text-decoration:none;font:600 14px/1 var(--font);padding:10px 8px;margin-left:-8px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:18px;padding:20px 18px;display:grid;gap:13px;animation:pop .28s ease both}
+@keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+h1{margin:0;font-size:34px;line-height:1.05;font-weight:800;letter-spacing:-.01em} h1 span{color:var(--acc)}
+h2{margin:0;font-size:22px;font-weight:800}
+h3{margin:0;font:700 11px/1.3 var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--acc)}
+p{margin:0;color:var(--muted);font-size:15px;line-height:1.45} p b,li b{color:var(--ink);font-weight:600}
+.small{font-size:12.5px} .plain{border-left:3px solid var(--rule);padding:2px 0 2px 10px;font-size:13px;color:#cfdddc}
+.btn{appearance:none;border:0;border-radius:14px;padding:15px 16px;font:800 16px/1.1 var(--font);background:var(--acc);color:#07201d;width:100%;min-height:50px;cursor:pointer}
+.btn:active{transform:scale(.97)} .btn:disabled{opacity:.35;pointer-events:none}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--rule);font-weight:700}
+.btn.sm{padding:10px 12px;min-height:40px;font-size:14px;border-radius:11px}
+.row{display:flex;gap:10px} .row>*{flex:1}
+.hud{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:10px 12px;position:sticky;top:6px;z-index:5}
+.hud b{font-size:14px} .bar{height:8px;background:#0e1718;border-radius:6px;overflow:hidden} .bar i{display:block;height:100%;background:var(--acc);transition:width .3s}
+.hud span{font:700 12px/1 var(--font);color:var(--muted);font-variant-numeric:tabular-nums}
+.pick{display:grid;gap:8px}
+.pick button{display:grid;gap:3px;text-align:left;border:1px solid var(--rule);background:var(--panel2);border-radius:13px;padding:12px;color:var(--ink);font:inherit;cursor:pointer}
+.pick button.on{border-color:var(--acc);background:#16363a} .pick button b{font-size:15px} .pick button span{font-size:12.5px;color:var(--muted);line-height:1.35}
+.erp{display:grid;gap:8px}
+.line{display:grid;gap:8px;background:var(--panel2);border:1px solid var(--rule);border-radius:14px;padding:12px}
+.line .h{display:flex;justify-content:space-between;gap:8px;align-items:baseline} .line .h b{font-size:15px}
+.line .h .ok{font:800 11px var(--font);letter-spacing:.06em;color:var(--green);text-transform:uppercase}
+.line .nums{display:flex;gap:14px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums} .line .nums b{color:var(--ink)}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font:700 10px/1 var(--font);letter-spacing:.04em;text-transform:uppercase;padding:5px 7px;border-radius:6px;background:#0e1718;color:var(--muted)}
+.tag.f{color:var(--amber)} .tag.v{color:var(--green)}
+.chk{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.chk button{border:1px solid var(--rule);background:var(--panel);color:var(--ink);border-radius:10px;padding:9px 4px;font:700 12px/1.2 var(--font);cursor:pointer}
+.chk button:disabled{opacity:.35;pointer-events:none}
+.chk button.done{opacity:.6;border-style:dashed}
+.res{font-size:13px;line-height:1.4;color:#d6e4e3;background:#0e1718;border-radius:10px;padding:9px 10px}
+.res.bad{color:#ffb4ac} .res.good{color:#aeeccb}
+.fix{display:flex;gap:8px} .fix button{flex:1;border:1px solid var(--amber);background:transparent;color:var(--amber);border-radius:10px;padding:9px;font:800 13px var(--font);cursor:pointer} .fix button.done{border-color:var(--green);color:var(--green);pointer-events:none}
+.fix button:disabled{opacity:.4}
+.note{display:grid;gap:3px;background:#0e1718;border-radius:12px;padding:11px 12px;font-size:13.5px;line-height:1.4;color:#d6e4e3}
+.note b{color:var(--acc);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.note.warn b{color:var(--amber)} .note.bad b{color:var(--red)} .note.good b{color:var(--green)}
+.big{font:900 56px/1 var(--font);text-align:center;color:var(--acc);font-variant-numeric:tabular-nums}
+.stamp{justify-self:center;font:900 24px/1 var(--font);letter-spacing:.06em;padding:8px 14px;border:4px solid currentColor;border-radius:8px;transform:rotate(-4deg)}
+.stamp.pass{color:var(--green)} .stamp.fail{color:var(--red)} .stamp.warn{color:var(--amber)}
+.lines{display:grid;gap:6px} .lines div{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:#d6e4e3;padding:7px 0;border-top:1px solid var(--rule)} .lines div:first-child{border-top:0}
+.lines em{font-style:normal;font-weight:800;font-variant-numeric:tabular-nums} .lines em.pos{color:var(--green)} .lines em.neg{color:var(--red)}
+.reveal{display:grid;gap:3px;padding:9px 0;border-top:1px solid var(--rule);font-size:13.5px;color:#d6e4e3} .reveal b{font-size:14px}
+.cost{font:900 30px var(--font);font-variant-numeric:tabular-nums;color:var(--red)}
+.claim{display:grid;grid-template-columns:1fr auto;gap:3px 10px;background:var(--panel2);border:1px solid var(--rule);border-radius:12px;padding:11px}
+.claim b{font-size:14px} .claim span{font-size:12.5px;color:var(--muted)} .claim em{grid-row:1/3;grid-column:2;align-self:center;font:800 15px var(--font);font-style:normal}
+.claim.struck{opacity:.45} .claim.struck em{text-decoration:line-through}
+a{color:var(--acc)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="../hhl.js?v=10"></script>
+<script>
+(function () {
+'use strict';
+var $app = document.getElementById('app');
+var BUILDS = 3, NLINES = 6, CHECKS = 4;
+
+/* ---------- content ---------- */
+var LINES = [
+ { n:'MCU module', req:5000 }, { n:'LED driver IC', req:5000 }, { n:'Li-ion cells, 18650', req:10000 }, { n:'Main PCB', req:5000 },
+ { n:'Enclosure, top', req:5000 }, { n:'Enclosure, bottom', req:5000 }, { n:'Connector, 6-pin FPC', req:10000 }, { n:'Resistor 10k, 0402', req:50000 },
+ { n:'Capacitor, 100 µF', req:20000 }, { n:'Crystal, 32.768 kHz', req:5000 }, { n:'Screws, M2', req:30000 }, { n:'Foam insert', req:5000 },
+ { n:'Printed carton', req:5000 }, { n:'Antenna cable', req:5000 }
+];
+var DEMANDS = [
+ { id:'ctb', name:'A clear-to-build report, 72 hours before every start', sub:'Physical quantities, not the ERP. Two lines per build are verified for you.' },
+ { id:'count', name:'A cycle-count programme, with count rights', sub:'Counts are continuous and discrepancies are investigated. The records are closer to the shelf.' },
+ { id:'fifo', name:'System-directed picking', sub:'The system names the lot and a scan enforces it. FIFO stops being a culture and becomes a constraint.' },
+ { id:'exposure', name:'A monthly inventory exposure report', sub:'Exposure by owner, aged. It is the fuse of the end-of-life bill.' }
+];
+// problem states: ok | phantom | robbed | misplaced | receipt | fifo
+var STATE = {
+  phantom:   { fix:10, gap:true,  label:'Phantom stock' },
+  robbed:    { fix:8,  gap:true,  label:'Kit borrowed for another order' },
+  misplaced: { fix:3,  gap:true,  label:'Wrong location' },
+  receipt:   { fix:12, gap:true,  label:'Receipt not confirmed in time' },
+  fifo:      { fix:2,  gap:false, label:'FIFO violation' }
+};
+var CHECK = { count:'Count the shelf', receipt:'Confirm the receipt', picker:'Ask the picker' };
+
+function res(kind, st, line) {
+  var req = line.req, f = fmt;
+  if (kind === 'count') {
+    if (st === 'phantom') return ['The system says ' + f(req) + '. The shelf holds ' + f(Math.round(req * 0.4)) + '. The gap is ' + f(Math.round(req * 0.6)) + '.', 'bad'];
+    if (st === 'robbed') return ['The kit was borrowed for another customer\'s build last week. ' + f(Math.round(req * 0.35)) + ' are short. "It will be repaid."', 'bad'];
+    if (st === 'misplaced') return ['The location is empty. The pallet is in aisle 7 under the wrong address: present in the building, absent from its address.', 'bad'];
+    return ['System ' + f(req) + ', shelf ' + f(req) + '. They match.', 'good'];
+  }
+  if (kind === 'receipt') {
+    if (st === 'receipt') return ['The supplier\'s confirmed ship date is Thursday, after the build starts. The ERP plans it for Monday. A probability, treated as a fact.', 'bad'];
+    return ['No receipt is involved: this line is covered by stock.', ''];
+  }
+  if (kind === 'picker') {
+    if (st === 'fifo') return ['She would pull "the front one". The front is the newest: this month\'s date code against 22 months for the boxes at the back.', 'bad'];
+    if (st === 'robbed') return ['"That one? Somebody borrowed the kit last week." She shrugs. Nobody asked her before.', 'bad'];
+    return ['She scans, and the system names the lot. The oldest goes first.', 'good'];
+  }
+  return ['', ''];
+}
+function cueFor(st) {
+  var cues = { phantom:['Last counted 13 months ago', 'f'], robbed:['Allocations moved last week', 'f'], misplaced:['Put away unscanned to B-14', 'f'], receipt:['Includes a receipt due Tuesday', 'f'], fifo:['3 lots in stock', 'f'] };
+  var good = [['Counted 3 weeks ago', 'v'], ['Counted 5 weeks ago', 'v']], g = good[Math.floor(Math.random() * good.length)];
+  if (st === 'ok') { if (Math.random() < 0.3) { var k = Object.keys(cues); return [cues[k[Math.floor(Math.random() * k.length)]]]; } return [g]; }
+  if (Math.random() < 0.35) return [g];   // the problem hides behind a reassuring status
+  return [cues[st]];
+}
+
+var G = null;
+var store = { get:function (k, d) { try { var v = localStorage.getItem('hhl.ch103.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set:function (k, v) { try { localStorage.setItem('hhl.ch103.' + k, JSON.stringify(v)); } catch (e) {} } };
+function fmt(n) { return Number(n).toLocaleString('en'); }
+function el(h) { $app.innerHTML = h; window.scrollTo(0, 0); }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function has(id) { return G.dem.indexOf(id) >= 0; }
+function ledger(label, cost) { G.ledger.push({ label:label, cost:cost }); }
+
+function makeBuild(b) {
+  var lines = shuffle(LINES).slice(0, NLINES).map(function (l) { return { n:l.n, req:l.req, st:'ok', checks:{}, fixed:false, free:false }; });
+  var nprob = [2, 3, 3][b], pool = [];
+  ['phantom','robbed','misplaced','receipt','fifo'].forEach(function (s) {
+    if (s === 'fifo' && has('fifo')) return;
+    var w = s === 'phantom' || s === 'robbed' ? (has('count') ? 1 : 2) : 2; for (var i = 0; i < w; i++) pool.push(s);
+  });
+  var picks = shuffle([0,1,2,3,4,5]).slice(0, nprob);
+  picks.forEach(function (i) { lines[i].st = shuffle(pool)[0]; });
+  if (b === 1 && !lines.some(function (l) { return l.st === 'receipt'; })) lines[picks[0]].st = 'receipt';
+  lines.forEach(function (l) { l.cues = cueFor(l.st); });
+  // the clear-to-build report physically verifies two lines for you
+  if (has('ctb')) shuffle([0,1,2,3,4,5]).slice(0, 2).forEach(function (i) { var l = lines[i]; l.free = true; l.checks.count = res('count', l.st, l); l.checks.receipt = res('receipt', l.st, l); if (l.st === 'fifo' || l.st === 'robbed') l.checks.picker = res('picker', l.st, l); });
+  return { lines:lines, checks:CHECKS };
+}
+function newGame() {
+  G = { dem:[], b:0, build:null, ledger:[], results:[], fifoLines:[], phase:'title' };
+}
+
+/* ---------- screens ---------- */
+function screenTitle() {
+  el('<div class="top"><a class="back" href="../">← Games</a></div>' +
+   '<div class="card"><h3>Chapter 3 · The Hardest Factory Lessons</h3><h1>Clear to <span>Build</span></h1>' +
+   '<p class="small"><i>From The Hardest Factory Lessons</i></p>' +
+   '<p>Nobody tours the warehouse. Its failures are not visible: they are <b>timed</b>. They detonate on Wednesday afternoon, mid-build, as a line down.</p>' +
+   '<div class="plain"><b>In plain English:</b> a factory\'s computer says the parts for your build are in stock. The shelf may disagree. <b>Goal:</b> reconcile the system against the physical shelf <i>before</i> the line starts, while a gap can still be fixed cheaply.</div>' +
+   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55">' +
+   '<li><b>Three builds.</b> The ERP says <b>ready</b> on every line.</li>' +
+   '<li><b>4 physical checks per build</b> for six lines. You cannot check everything, so read the cues.</li>' +
+   '<li><b>Fix what you find</b> now. A shortage discovered on Wednesday costs far more.</li>' +
+   '<li>Then the bill: <b>excess and obsolete</b>.</li></ul>' +
+   '<button class="btn" data-a="start">Start the first build</button>' +
+   '<p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factory is fictional.</p></div>');
+}
+
+function screenDemands() {
+  G.phase = 'dem'; var n = G.dem.length;
+  el('<div class="card"><h3>Standing demands · ' + n + ' of 2</h3><h2>What do you require?</h2>' +
+   '<p>Before the first build you can require <b>two</b> disciplines from the warehouse. A factory that resists tells you where its shortages live.</p>' +
+   '<div class="pick">' + DEMANDS.map(function (d) { var on = has(d.id);
+     return '<button data-a="dem" data-id="' + d.id + '" class="' + (on ? 'on' : '') + '"><b>' + d.name + '</b><span>' + d.sub + '</span></button>'; }).join('') + '</div>' +
+   '<button class="btn" data-a="build"' + (n !== 2 ? ' disabled' : '') + '>Begin build 1</button></div>');
+}
+
+function checksLeft() { return G.build.checks; }
+function hud() { return '<div class="hud"><b>Build ' + (G.b + 1) + ' of ' + BUILDS + '</b><div class="bar"><i style="width:' + Math.round(100 * checksLeft() / CHECKS) + '%"></i></div><span>' + checksLeft() + ' checks left</span></div>'; }
+
+function screenBuild(msg) {
+  G.phase = 'build';
+  var B = G.build;
+  el(hud() + '<div class="card"><h3>72 hours before the line starts</h3><h2>The ERP says: ready</h2>' +
+   '<p class="small">Every line shows green. Use your checks where the cues suggest the system and the shelf disagree.</p>' +
+   (has('ctb') ? '<div class="note good"><b>Clear-to-build report</b>The factory physically verified two lines for you (marked below).</div>' : '') +
+   (msg ? '<div class="note"><b>Just now</b>' + msg + '</div>' : '') +
+   '<div class="erp">' + B.lines.map(function (l, i) {
+     var tags = l.cues.map(function (c) { return '<span class="tag ' + c[1] + '">' + c[0] + '</span>'; }).join('') + (l.free ? '<span class="tag v">verified by report</span>' : '');
+     var results = Object.keys(l.checks).map(function (k) { var r = l.checks[k]; return '<div class="res ' + r[1] + '"><b>' + CHECK[k] + ':</b> ' + r[0] + '</div>'; }).join('');
+     var known = known_state(l);
+     var fixBtn = known ? '<div class="fix"><button data-a="fix" data-i="' + i + '" class="' + (l.fixed ? 'done' : '') + '">' + (l.fixed ? 'Fixed' : 'Fix it · −€' + STATE[known].fix + 'k') + '</button></div>' : '';
+     var cover = (!known && !l.fixed) ? '<div class="fix"><button data-a="cover" data-i="' + i + '">Cover it anyway · −€15k</button></div>' : '';
+     return '<div class="line"><div class="h"><b>' + l.n + '</b><span class="ok">ready</span></div><div class="nums"><span>Required <b>' + fmt(l.req) + '</b></span><span>System <b>' + fmt(Math.round(l.req * 1.2)) + '</b></span></div><div class="tags">' + tags + '</div>' + results +
+       '<div class="chk">' + ['count','receipt','picker'].map(function (k) { var done = l.checks[k]; return '<button data-a="chk" data-i="' + i + '" data-k="' + k + '" class="' + (done ? 'done' : '') + '"' + (done || B.checks <= 0 ? ' disabled' : '') + '>' + CHECK[k] + '</button>'; }).join('') + '</div>' + fixBtn + (l.fixed ? '' : cover) + '</div>'; }).join('') + '</div>' +
+   '<button class="btn" data-a="start-line">Start the line</button></div>');
+}
+// what the player has learned about a line (a problem is "known" once a check revealed it)
+function known_state(l) {
+  var st = l.st; if (st === 'ok') return null;
+  var k = l.checks;
+  if (st === 'phantom' || st === 'misplaced') return k.count ? st : null;
+  if (st === 'robbed') return (k.count || k.picker) ? st : null;
+  if (st === 'receipt') return k.receipt ? st : null;
+  if (st === 'fifo') return k.picker ? st : null;
+  return null;
+}
+
+function doCheck(i, k) {
+  var B = G.build, l = B.lines[i]; if (B.checks <= 0 || l.checks[k]) return;
+  B.checks--; l.checks[k] = res(k, l.st, l); screenBuild();
+}
+function doFix(i) {
+  var l = G.build.lines[i], st = known_state(l); if (!st || l.fixed) return;
+  l.fixed = true; ledger('Fixed before the build: ' + l.n + ' (' + STATE[st].label + ')', STATE[st].fix);
+  screenBuild('Fixed: ' + l.n + '. ' + (st === 'fifo' ? 'The picker is told to pull the oldest lot first.' : 'The gap is closed while there is still time to expedite.'));
+}
+function doCover(i) {
+  var l = G.build.lines[i]; if (l.fixed) return;
+  // paying for insurance on a line: solves any gap-type problem, but not FIFO, and wastes money if nothing was wrong
+  l.fixed = true; l.covered = true; ledger('Covered anyway: ' + l.n + (l.st === 'ok' ? ' (nothing was wrong)' : ''), 15);
+  screenBuild('Covered ' + l.n + ' with an expedite, to be safe.' + (l.st === 'ok' ? ' It did not need it.' : ''));
+}
+
+function startLine() {
+  var B = G.build, stops = [], tails = [];
+  B.lines.forEach(function (l) {
+    var gap = STATE[l.st] && STATE[l.st].gap;
+    if (gap && !l.fixed) stops.push(l);
+    if (l.st === 'fifo' && (!l.fixed || l.covered)) tails.push(l);
+  });
+  var cost = 0; stops.forEach(function (l, i) { var c = i === 0 ? 90 : 50; cost += c; ledger('Line stopped mid-build: ' + l.n + ' (' + STATE[l.st].label + ')', c); });
+  tails.forEach(function (l) { G.fifoLines.push(l.n); });
+  var found = B.lines.filter(function (l) { return l.st !== 'ok'; }).length;
+  G.results.push({ b:G.b, stops:stops.length, tails:tails.length, problems:found });
+  var story = stops.length
+    ? '<div class="note bad"><b>Wednesday afternoon</b>"Production is paused. ' + stops.map(function (l) { return l.n; }).join(' and ') + ' ' + (stops.length > 1 ? 'are' : 'is') + ' short. Replacement stock is being expedited. Revised completion date to follow." The factory did not discover this on Wednesday. The line did.</div>'
+    : '<div class="note good"><b>The line runs</b>Wednesday passes without an email. Every shortage was found, and fixed, while it was still cheap.</div>';
+  el('<div class="card"><h3>Build ' + (G.b + 1) + ' · the line starts</h3><h2>' + (stops.length ? 'The line stopped' : 'The build ran') + '</h2>' + story +
+   (tails.length ? '<div class="note warn"><b>The quiet part</b>' + tails.map(function (l) { return l.n; }).join(', ') + ' ran on the oldest stock in the building, all in one lot, because the front of the shelf was empty. You will hear about it later.</div>' : '') +
+   (cost ? '<div class="cost">−€' + cost + 'k</div>' : '') +
+   '<button class="btn" data-a="' + (G.b + 1 >= BUILDS ? 'later' : 'next') + '">' + (G.b + 1 >= BUILDS ? 'Fast-forward two years' : 'Next build') + '</button></div>');
+}
+
+/* ---------- E&O ---------- */
+var CLAIM = [
+ { n:'MOQ remainder: cells (reel of 10,000, 3,000 used)', v:18, ok:true },
+ { n:'Forecast decay: enclosure parts bought on an optimistic forecast', v:26, ok:true },
+ { n:'ECO stranded: connector v1 after the change', v:14, ok:false },
+ { n:'Reorder of material the building already owned (phantom stock)', v:22, ok:false },
+ { n:'Buyer rounded up "to be safe"', v:17, ok:false }
+];
+function screenLater() {
+  G.phase = 'later';
+  var tails = G.fifoLines.length;
+  if (tails) ledger('Field-failure tail from old stock clustered in builds (' + G.fifoLines.slice(0, 3).join(', ') + ')', 60 * Math.min(tails, 2));
+  el('<div class="card"><h3>Two years later</h3><h2>' + (tails ? 'The tail arrives' : 'End of life') + '</h2>' +
+   (tails ? '<div class="note bad"><b>Intermittent field failures</b>Solderability had decayed on the oldest reels, and FIFO violations cluster old parts into the builds that ran in a shortage. That is how a statistical nuisance becomes a recallable event. Cost €' + (60 * Math.min(tails, 2)) + 'k.</div>' : '<div class="note good"><b>Clean ageing</b>No old stock clustered into a build.</div>') +
+   '<p>The product is reaching end of life. Then a spreadsheet arrives from the factory: <b>excess and obsolete</b> material, priced and payable. It was assembled slowly, and much earlier than its discovery date.</p>' +
+   '<button class="btn" data-a="eo">Open the claim</button></div>');
+}
+function screenEo() {
+  G.phase = 'eo'; if (!G.eo) { G.eo = { struck:{}, tried:{}, left:2 }; }
+  var rep = has('exposure'), scale = rep ? 0.65 : 1;
+  var total = 0; CLAIM.forEach(function (c, i) { if (!G.eo.struck[i]) total += Math.round(c.v * scale); });
+  G.eoTotal = total;
+  el('<div class="card"><h3>The claim · ' + G.eo.left + ' dispute' + (G.eo.left === 1 ? '' : 's') + ' left</h3><h2>Excess and obsolete</h2>' +
+   (rep ? '<div class="note good"><b>You have been watching</b>The monthly exposure report kept the pile smaller, and shows whether each line has a purchase trail against your demand signal.</div>' : '<div class="note warn"><b>No exposure report</b>You see amounts and origins only. An unsubstantiated line is a withdrawn line, but you cannot see which ones are.</div>') +
+   CLAIM.map(function (c, i) { var s = G.eo.struck[i];
+     return '<button class="claim' + (s ? ' struck' : '') + '" style="text-align:left;color:var(--ink);font:inherit;cursor:pointer" data-a="dispute" data-i="' + i + '"' + (s || G.eo.tried[i] || G.eo.left <= 0 ? ' disabled' : '') + '><b>' + c.n + '</b><span>' + (rep ? (c.ok ? 'Purchase trail matches your forecast' : 'No purchase trail against your demand signal') : 'Tap to dispute') + '</span><em>€' + Math.round(c.v * scale) + 'k</em></button>'; }).join('') +
+   '<div class="lines"><div><span>Claim total</span><em class="neg">€' + total + 'k</em></div></div>' +
+   '<button class="btn" data-a="pay">Settle the claim</button></div>');
+}
+function doDispute(i) {
+  if (G.eo.left <= 0 || G.eo.struck[i] || G.eo.tried[i]) return; G.eo.left--;
+  if (!CLAIM[i].ok) G.eo.struck[i] = true; else G.eo.tried[i] = true;
+  screenEo();
+}
+function score() {
+  var costs = 0; G.ledger.forEach(function (x) { costs += x.cost; });
+  var rows = []; var base = Math.max(0, Math.round(1000 - costs * 1.25));
+  rows.push(['Total cost: €' + costs + 'k', base]);
+  return { rows:rows, total:base, costs:costs };
+}
+function screenResult() {
+  G.phase = 'result';
+  ledger('Excess and obsolete claim', G.eoTotal);
+  var sc = score(), best = store.get('best', 0), nb = sc.total > best;
+  if (nb) store.set('best', sc.total);
+  try { HHL.submit(103, sc.total); } catch (e) {}
+  var stamp = sc.total >= 700 ? 'pass' : sc.total >= 400 ? 'warn' : 'fail';
+  var txt = sc.total >= 700 ? 'THE SHELF MATCHED' : sc.total >= 400 ? 'WEDNESDAY HURT' : 'THE SYSTEM LIED';
+  var stops = 0; G.results.forEach(function (r) { stops += r.stops; });
+  el('<div class="card"><h3>Two-year result</h3><div class="stamp ' + stamp + '">' + txt + '</div><div class="big">' + fmt(sc.total) + '</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
+   '<div class="lines">' + sc.rows.map(function (r) { return '<div><span>' + r[0] + '</span><em class="pos">' + r[1] + '</em></div>'; }).join('') + '</div>' +
+   '<h3>Where the money went</h3><div class="lines">' + G.ledger.map(function (x) { return '<div><span>' + x.label + '</span><em class="neg">−€' + x.cost + 'k</em></div>'; }).join('') + '</div>' +
+   '<div class="note"><b>What the shelf held</b>Across three builds, ' + G.results.reduce(function (a, r) { return a + r.problems; }, 0) + ' lines had a problem behind a green status. The line stopped ' + stops + ' time' + (stops === 1 ? '' : 's') + '.</div>' +
+   (!has('ctb') ? '<div class="note warn"><b>No clear-to-build</b>A factory that produces one without friction shows its material house is in order. Without it, you discover the gap on Wednesday.</div>' : '') +
+   (!has('count') ? '<div class="note warn"><b>No cycle counting</b>An annual count is the least informative count in the industry. Records drift between counts.</div>' : '') +
+   (!has('fifo') ? '<div class="note warn"><b>FIFO by honour</b>The front is where everyone\'s hands are, and the front is the newest.</div>' : '') +
+   (!has('exposure') ? '<div class="note warn"><b>No exposure report</b>The monthly report is boring for a year, and is the fuse of the final bill.</div>' : '') +
+   HHL.next(103) +
+   '<div class="row"><button class="btn" data-a="again">Another factory</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+}
+
+/* ---------- events ---------- */
+$app.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+  var a = b.dataset.a, id = b.dataset.id;
+  switch (a) {
+    case 'start': newGame(); screenDemands(); break;
+    case 'dem': { var i = G.dem.indexOf(id); if (i >= 0) G.dem.splice(i, 1); else if (G.dem.length < 2) G.dem.push(id); screenDemands(); break; }
+    case 'build': G.b = 0; G.build = makeBuild(0); screenBuild(); break;
+    case 'chk': doCheck(Number(b.dataset.i), b.dataset.k); break;
+    case 'fix': doFix(Number(b.dataset.i)); break;
+    case 'cover': doCover(Number(b.dataset.i)); break;
+    case 'start-line': startLine(); break;
+    case 'next': G.b++; G.build = makeBuild(G.b); screenBuild(); break;
+    case 'later': screenLater(); break;
+    case 'eo': screenEo(); break;
+    case 'dispute': doDispute(Number(b.dataset.i)); break;
+    case 'pay': screenResult(); break;
+    case 'again': newGame(); screenDemands(); break;
+    case 'menu': screenTitle(); break;
+  }
+});
+newGame(); screenTitle();
+window.__f3 = { G:function () { return G; }, score:score };
+})();
+</script>
+</body>
+</html>
