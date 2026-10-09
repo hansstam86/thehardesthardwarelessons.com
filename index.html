@@ -108,6 +108,8 @@
     letter-spacing: 0.05em; text-transform: uppercase;
     transition: all 0.2s; box-shadow: 0 4px 24px rgba(232,197,71,0.2);
   }
+  .hero-cta.hero-ghost { background:transparent; color:var(--accent); border:2px solid var(--accent); box-shadow:none; }
+  .hero-cta.hero-ghost:hover { background:rgba(232,197,71,0.1); box-shadow:none; }
   .hero-cta:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 8px 32px rgba(232,197,71,0.3); }
   .hero-proof {
     margin-top: 2rem; font-family: sans-serif; font-size: 0.8rem;
@@ -215,6 +217,7 @@
   gtag('js', new Date());
   gtag('config', 'G-RP1MK5ZGM4');
 </script>
+<script src="/assets/nav.js" defer></script>
 </head>
 <body>
 
@@ -242,6 +245,7 @@
     <p class="hero-tagline">For everyone who has stood in a factory at 2am trying to understand why the product they spent two years building isn't working — and for everyone who would rather not.</p>
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:0">
       <a class="hero-cta" href="https://hansolo42.gumroad.com/l/thehardesthardwarelessons" target="_blank" rel="noopener">Get the Book →</a>
+      <a class="hero-cta hero-ghost" href="/games/">Play the free games</a>
     </div>
     <p class="hero-proof"><span>13 copies</span> sold in the first 24 hours. No ads. Just hardware people recognising something true.</p>
   </div>
