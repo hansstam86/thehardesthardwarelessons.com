@@ -12,13 +12,14 @@
     105: ['The Process Window', '#3dd6c6', 'f5-molding'],
     106: ['Behind the Fire Door', '#3dd6c6', 'f6-battery'],
     107: ['Read the Line', '#3dd6c6', 'f7-line'],
+    109: ['Watch the Hands', '#3dd6c6', 'f9-hands'],
     110: ['The Last Honest Report', '#3dd6c6', 'f10-test'],
     112: ['The Last Gate', '#3dd6c6', 'f12-gate'],
     114: ['The Audit', '#3dd6c6', 'f14-audit'],
     115: ['The Deal', '#3dd6c6', 'f15-deal'],
     117: ['The Long Run', '#3dd6c6', 'f17-longrun']
   };
-  var ORDER = [1, 2, 3, 4, 5, 6, 102, 103, 104, 105, 106, 107, 110, 112, 114, 115, 117];
+  var ORDER = [1, 2, 3, 4, 5, 6, 102, 103, 104, 105, 106, 107, 109, 110, 112, 114, 115, 117];
   function chLabel(n) { return n >= 100 ? 'Factory ch. ' + (n - 100) : 'Chapter ' + n; }
   var K = 'hhl.profile';
   function load() { try { return JSON.parse(localStorage.getItem(K)) || {}; } catch (e) { return {}; } }
@@ -102,6 +103,7 @@
     105: ['Five good parts is a point, not a process. Ask for the process window, and treat a window that is only a sliver as a tool problem: settings can trade one defect for another, but only steel removes it.', [['process-window', 'Process window'], ['doe', 'DOE'], ['molding-defects', 'Sink, flash, warp and short shot'], ['t1-sample', 'T1 sample'], ['mould', 'Mould']], null],
     106: ['The area with the highest risk gets the least customer attention. Safety infrastructure cannot be staged for your visit: it is bolted to the building, or it is absent.', [['thermal-runaway', 'Thermal runaway'], ['cell-aging', 'Cell aging'], ['bms', 'BMS'], ['quarantine', 'Quarantine']], null],
     107: ['A line moves only as fast as its slowest station. The line does 3,600 divided by the measured bottleneck cycle, not the quoted rate, and the pile shows where it is.', [['takt', 'Takt time'], ['bottleneck', 'Bottleneck'], ['wip', 'WIP']], null],
+    109: ['The design is on the line whether or not anyone writes it down. Operators hide awkward design inside workarounds, so the report says everything is fine. Go and watch the hands, find the flaw while the tooling is still cheap, and match the fix to the cause: design for design flaws, jigs for fixture problems, training for people.', [['dfa', 'Design for assembly'], ['poka-yoke', 'Poka-yoke'], ['jig', 'Jig and fixture'], ['gemba', 'Gemba'], ['takt', 'Takt time']], null],
     110: ['The test is the last honest report only while nobody can make it say yes. Know the gauge noise, check the fixture against a golden sample, and write the limits and the retest rule down, because a test that can be repeated until it passes measures patience, not product.', [['gage-rr', 'Gauge R&R'], ['golden-sample', 'Golden sample'], ['guardband', 'Guardband'], ['retest-loop', 'Retest loop'], ['fpy', 'First-pass yield']], null],
     112: ['Gates catch what people cannot see, and people catch what gates cannot. The label is the cheapest component in the building and carries the highest-consequence information.', [['scan-gate', 'Scan gate'], ['checkweigher', 'Checkweigher'], ['pre-ship-audit', 'Pre-ship audit right'], ['traceability', 'Traceability']], null],
     114: ['The audit is the one moment the whole relationship is still free. You see the factory on its best day, so everything you find is a floor, and every finding that matters must become a contract term, or it becomes a hope.', [['audit', 'Factory audit'], ['evidence-standard', 'Evidence standard'], ['reluctance-map', 'Reluctance map'], ['red-line', 'Red line'], ['capa', 'CAPA']], null],
