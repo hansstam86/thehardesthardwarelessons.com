@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a1c">
+<title>The Last Honest Report — The Hardest Factory Lessons</title>
+<meta name="description" content="A free game: the end-of-line test is the last honest report, until someone retests until it passes. Set the limits, decide the retest policy, and see what escaped. From The Hardest Factory Lessons, Chapter 10.">
+<link rel="stylesheet" href="../factory.css?v=1">
+<link rel="stylesheet" href="../juice.css?v=2">
+<style>
+.still .card{animation:none}
+.bench{position:relative;border-radius:14px;overflow:hidden;background:linear-gradient(#1b2b2e 0 62%,#23363a 62% 100%);border:1px solid var(--rule)}
+.bench svg{display:block;width:100%;height:auto}
+.bench .lbl{position:absolute;left:10px;top:8px;font:900 10px var(--font);letter-spacing:.12em;color:var(--acc)}
+.bench.go .dut{animation:dutin .5s ease-out both}
+@keyframes dutin{0%{transform:translateY(-14px);opacity:0}100%{transform:none;opacity:1}}
+.units{display:grid;grid-template-columns:repeat(10,1fr);gap:5px}
+.u{position:relative;aspect-ratio:1;border-radius:6px;background:#1f8a4c;border:2px solid #14633a;display:grid;place-items:center;font-size:12px;animation:uin .3s ease both;animation-delay:calc(var(--i) * .05s)}
+.u:before{content:"";position:absolute;left:22%;top:22%;width:26%;height:26%;border-radius:50%;background:#bdf5d3;opacity:.9}
+.u.f{background:#8a2c26;border-color:#ff5a4e} .u.f:before{background:#ffb4ae}
+.u.r{box-shadow:0 0 0 2px #5ab0ff}
+.u.ff{background:#8a5a1f;border-color:#ff9f43} .u.ff:before{background:#ffd9a8}
+.u.esc{box-shadow:0 0 0 2px #b388ff} .u.audit{animation:none}
+.u .m{position:absolute;inset:0;display:grid;place-items:center;z-index:2;font-size:12px;text-shadow:0 1px 0 rgba(0,0,0,.5)}
+@keyframes uin{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.1);opacity:1}100%{transform:none}}
+.hist{border-radius:12px;background:#0e1718;padding:8px 6px 4px}
+.hist svg{display:block;width:100%;height:auto}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px} .opts.o2{grid-template-columns:repeat(2,1fr)}
+.opts button{display:grid;gap:3px;justify-items:center;text-align:center;border:2px solid var(--rule);background:var(--panel2);border-radius:14px;padding:12px 6px;color:var(--ink);font:inherit;cursor:pointer;transition:transform .08s}
+.opts button:active{transform:scale(.94)} .opts button i{font-style:normal;font-size:26px} .opts button b{font-size:14px} .opts button span{font-size:11px;color:var(--muted);line-height:1.3}
+.opts button.on{border-color:var(--acc);background:#16363a;transform:scale(1.04)}
+.toggle{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;text-align:left;border:2px solid var(--rule);background:var(--panel2);border-radius:14px;padding:12px;color:var(--ink);font:inherit;cursor:pointer;width:100%}
+.toggle i{font-style:normal;font-size:26px} .toggle b{font-size:14px;display:block;margin-bottom:2px} .toggle span{font-size:12px;color:var(--muted);display:block;line-height:1.3} .toggle em{font:800 12px var(--font);font-style:normal;color:var(--acc);white-space:nowrap}
+.toggle.on{border-color:var(--acc);background:#16363a}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px} .stat3>div{background:#0e1718;border-radius:12px;padding:10px 6px;text-align:center;display:grid;gap:2px} .stat3 b{font-size:20px;font-variant-numeric:tabular-nums} .stat3 span{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.stat3 b.bad{color:var(--red)} .stat3 b.good{color:var(--green)} .stat3 b.warn{color:var(--amber)}
+.report{background:#f4efe3;color:#2a2418;border-radius:6px;padding:12px;display:grid;gap:6px;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.report .rh{font:900 10px var(--font);letter-spacing:.1em;text-transform:uppercase;color:#6b6252} .report .rv{display:flex;justify-content:space-between;font-size:14px} .report .rv b{font-size:16px}
+.molder{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.molder i{font-style:normal;font-size:28px} .molder .speech{max-width:100%} .molder .speech:after{display:none}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)} .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.bars2{display:grid;gap:8px}
+.br{display:grid;gap:3px;font-size:12.5px;color:#d6e4e3} .br .t{display:flex;justify-content:space-between;gap:8px} .br .tr{height:10px;border-radius:5px;background:#0e1718;overflow:hidden;position:relative} .br .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;animation:fillb .8s cubic-bezier(.2,1.1,.4,1) both;transform-origin:left}
+@keyframes fillb{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="../hhl.js?v=15"></script>
+<script src="../juice.js?v=2"></script>
+<script>
+(function () {
+'use strict';
+var $app = document.getElementById('app');
+
+/* SIM:BEGIN */
+/* ---------- the test model ----------
+   One measurement per unit, in units of the spec half-width: the spec is +/-1.0.
+   Good units sit well inside it. Marginal units sit on the edge and fail in the field.
+   Bad units are far out. Intermittent units read fine most of the time and gross-fail the rest.
+   A reading is the true value plus fixture drift plus gauge noise. A unit passes when |reading| <= limit. */
+var N = 40, WEEKS = 3;
+var MIX = { good:29, marginal:4, bad:4, inter:3 };
+var LIMIT = { tight:0.8, spec:1.0, loose:1.25 };
+var TRIES = { none:1, once:2, until:5, twice:1 };
+var NOISE = { raw:0.38, grr:0.17 };
+var DRIFT = [0, 0.35, 0.7];
+var COST = { grr:6, golden:2, audit:5, falseFail:1.5, retest:0.3, fMarginal:9, fBad:15, fInter:12 };
+function gauss() { return (Math.random() + Math.random() + Math.random() + Math.random() - 2) * 1.732; }
+function makeLot() {
+  var u = [], k;
+  for (k in MIX) for (var i = 0; i < MIX[k]; i++) {
+    var sgn = Math.random() < 0.5 ? -1 : 1, v;
+    if (k === 'good') v = Math.max(-0.68, Math.min(0.68, gauss() * 0.3));
+    else if (k === 'marginal') v = sgn * (0.88 + Math.random() * 0.24);
+    else if (k === 'bad') v = sgn * (1.4 + Math.random() * 0.6);
+    else v = Math.max(-0.68, Math.min(0.68, gauss() * 0.3));
+    u.push({ c:k, v:v });
+  }
+  for (var j = u.length - 1; j > 0; j--) { var r = Math.floor(Math.random() * (j + 1)), t = u[j]; u[j] = u[r]; u[r] = t; }
+  return u;
+}
+function reading(u, drift, noise) { return (u.c === 'inter' && Math.random() < 0.5) ? 2.2 : u.v + drift + gauss() * noise; }
+function testUnit(u, L, tries, drift, noise, confirm) {
+  var m1 = reading(u, drift, noise), first = Math.abs(m1) <= L, pass = first, n = 1;
+  while (!pass && n < tries) { n++; pass = Math.abs(reading(u, drift, noise)) <= L; }
+  if (confirm && pass) { n++; pass = Math.abs(reading(u, drift, noise)) <= L; }
+  return { m1:m1, first:first, pass:pass, n:n };
+}
+function runLot(w, S) {
+  var lot = makeLot(), L = LIMIT[S.limit], tries = TRIES[S.retest], noise = S.grr ? NOISE.grr : NOISE.raw, drift = S.golden ? 0 : DRIFT[w];
+  var R = { units:[], pass:0, first:0, retests:0, ff:0, escB:0, escM:0, escI:0, caught:0 };
+  lot.forEach(function (u) {
+    var t = testUnit(u, L, tries, drift, noise, S.retest === 'twice');
+    u.t = t; R.units.push(u);
+    if (t.first) R.first++;
+    if (t.pass) R.pass++;
+    R.retests += t.n - 1;
+    if (!t.pass && u.c === 'good') { R.ff++; u.ff = true; }
+    if (!t.pass && u.c !== 'good') R.caught++;
+    if (t.pass && u.c === 'marginal') { R.escM++; u.esc = true; }
+    if (t.pass && u.c === 'bad') { R.escB++; u.esc = true; }
+    if (t.pass && u.c === 'inter') { R.escI++; u.esc = true; }
+  });
+  R.cost = R.ff * COST.falseFail + R.retests * COST.retest + (S.golden ? COST.golden : 0) + (S.audit ? COST.audit : 0);
+  R.field = R.escB * COST.fBad + R.escM * COST.fMarginal + R.escI * COST.fInter;
+  R.drift = drift; R.S = S;
+  return R;
+}
+function scoreOf(G) {
+  var c = G.grr ? COST.grr : 0, f = 0;
+  G.lots.forEach(function (R) { c += R.cost; f += R.field; });
+  return { costs:c + f, field:f, total:Math.max(0, Math.round(1000 - (c + f) * 1.4)) };
+}
+/* SIM:END */
+
+/* ---------- content ---------- */
+var NAMES = ['Hongtai Electronics', 'Dongyue Smart Manufacturing', 'Xinlong Technology', 'Meijie Intelligent'];
+var LIM = {
+  tight:{ ic:'🔒', name:'Guardbanded', sub:'Pass inside ±0.8. Rejects units near the edge of the spec.' },
+  spec:{ ic:'📏', name:'At spec', sub:'Pass inside ±1.0. Exactly the drawing.' },
+  loose:{ ic:'🔓', name:'Generous', sub:'Pass inside ±1.25. The yield report loves it.' }
+};
+var RET = {
+  none:{ ic:'⛔', name:'No retest', sub:'A fail is a fail. Goes to rework.' },
+  once:{ ic:'↻', name:'Retest once', sub:'One more try if the first fails.' },
+  until:{ ic:'♾️', name:'Until it passes', sub:'Up to five tries. Operators love it.' },
+  twice:{ ic:'✌️', name:'Pass twice', sub:'A pass must repeat. Catches flaky units, costs a second test.' }
+};
+var WK = [
+  { t:'Week 1', note:'A clean start. The fixture is new and the operators follow the sheet.', quote:'"Everything is running smoothly. Keep the yield high."' },
+  { t:'Week 2', note:'The fixture contacts are wearing. Readings creep, and nobody is told.', quote:'"Yield dipped to 91%. Corporate is asking questions. Can we ease the limits?"' },
+  { t:'Week 3', note:'The big order ships Friday. The fixture has drifted further.', quote:'"We need 95% to ship. The test is too sensitive. The product is fine."' }
+];
+
+var G = null;
+var store = { get:function (k, d) { try { var v = localStorage.getItem('hhl.ch110.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set:function (k, v) { try { localStorage.setItem('hhl.ch110.' + k, JSON.stringify(v)); } catch (e) {} } };
+function fmt(n) { return Number(n).toLocaleString('en'); }
+function later(ms, fn) { setTimeout(function () { try { fn(); } catch (e) {} }, J.reduce ? 0 : ms); }
+function el(h, keep) { $app.classList.toggle('still', !!keep); $app.innerHTML = h; if (!keep) window.scrollTo(0, 0); }
+function $q(s) { return $app.querySelector(s); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function topbar(back) { return '<div class="top">' + (back ? '<a class="back" href="../">← Games</a>' : '<span></span>') + J.muteBtn() + '</div>'; }
+function k$(n) { return '€' + Math.round(n * 10) / 10 + 'k'; }
+function pctOf(a, b) { return Math.round(1000 * a / b) / 10; }
+
+function newGame() { G = { name:pick(NAMES), w:0, grr:false, S:{ limit:'spec', retest:'once', golden:false, audit:false }, lots:[], phase:'title' }; }
+
+/* ---------- visuals ---------- */
+function benchSvg(last) {
+  var m = last == null ? 0 : Math.max(-1.5, Math.min(1.5, last)), ang = m / 1.5 * 60;
+  return '<div class="bench" id="bench"><div class="lbl">END-OF-LINE TEST STATION</div><svg viewBox="0 0 300 112" aria-hidden="true">' +
+    '<rect x="16" y="84" width="268" height="8" rx="3" fill="#2c4043"/>' +
+    '<g stroke="#9fb0b6" stroke-width="2">' + [34, 46, 58, 70, 82].map(function (x) { return '<line x1="' + x + '" y1="40" x2="' + x + '" y2="62"/>'; }).join('') + '</g>' +
+    '<rect x="26" y="26" width="64" height="16" rx="4" fill="#3b5359"/>' +
+    '<g class="dut"><rect x="26" y="62" width="64" height="20" rx="4" fill="#1f8a4c" stroke="#14633a" stroke-width="2"/><rect x="36" y="68" width="14" height="8" rx="1.5" fill="#1b1f23"/><g fill="#e8c547"><rect x="58" y="67" width="2" height="10"/><rect x="63" y="67" width="2" height="10"/><rect x="68" y="67" width="2" height="10"/></g></g>' +
+    '<path d="M90 34 C130 34 130 52 164 52" stroke="#5b7479" stroke-width="3" fill="none"/>' +
+    '<rect x="164" y="24" width="120" height="58" rx="8" fill="#0e1718" stroke="#2c4043" stroke-width="2"/>' +
+    '<path d="M180 66 A44 44 0 0 1 268 66" fill="none" stroke="#2c4043" stroke-width="6"/>' +
+    '<path d="M215 66 A44 44 0 0 1 233 66" fill="none" stroke="#3ddc84" stroke-width="6" opacity="0"/>' +
+    '<rect x="206" y="35" width="36" height="6" rx="3" fill="#1f8a4c" opacity=".0"/>' +
+    '<line x1="224" y1="68" x2="224" y2="34" stroke="#ff9f43" stroke-width="3" stroke-linecap="round" style="transform-origin:224px 68px;transform:rotate(' + ang + 'deg);transition:transform .4s cubic-bezier(.2,1.4,.4,1)"/><circle cx="224" cy="68" r="4" fill="#ff9f43"/>' +
+    '<text x="180" y="78" font-size="9" fill="#93a9a8" font-family="sans-serif">−1</text><text x="264" y="78" font-size="9" fill="#93a9a8" font-family="sans-serif" text-anchor="end">+1</text>' +
+    '</svg></div>';
+}
+function histSvg(R, showEsc) {
+  var lo = -2.4, hi = 2.4, bw = 0.2, nb = Math.round((hi - lo) / bw), W = 320, H = 118, pad = 8, bx = (W - 2 * pad) / nb, base = H - 18, bins = [];
+  for (var i = 0; i < nb; i++) bins.push({ good:0, marginal:0, bad:0, inter:0 });
+  R.units.forEach(function (u) { var m = Math.max(lo + 0.001, Math.min(hi - 0.001, u.t.m1)); bins[Math.floor((m - lo) / bw)][u.c]++; });
+  var mx = 1; bins.forEach(function (b) { mx = Math.max(mx, b.good + b.marginal + b.bad + b.inter); });
+  var col = { good:'#3ddc84', marginal:'#ff9f43', inter:'#b388ff', bad:'#ff5a4e' }, ht = (base - 14) / mx, out = '';
+  var xs = function (v) { return pad + (v - lo) / (hi - lo) * (W - 2 * pad); };
+  var L = LIMIT[R.S.limit];
+  out += '<rect x="' + xs(-L) + '" y="8" width="' + (xs(L) - xs(-L)) + '" height="' + (base - 8) + '" fill="#3dd6c6" opacity=".08"/>';
+  bins.forEach(function (b, i) {
+    var y = base;
+    ['good', 'marginal', 'inter', 'bad'].forEach(function (k) { if (b[k]) { var h = b[k] * ht; y -= h; out += '<rect x="' + (pad + i * bx + 1) + '" y="' + y + '" width="' + (bx - 2) + '" height="' + (h - 1) + '" rx="2" fill="' + col[k] + '"/>'; } });
+  });
+  out += '<line x1="' + pad + '" y1="' + base + '" x2="' + (W - pad) + '" y2="' + base + '" stroke="#2c4043"/>';
+  [-1, 1].forEach(function (s) { out += '<line x1="' + xs(s) + '" y1="6" x2="' + xs(s) + '" y2="' + base + '" stroke="#e8c547" stroke-width="1.5" stroke-dasharray="3 3"/>'; });
+  [-L, L].forEach(function (s) { out += '<line x1="' + xs(s) + '" y1="6" x2="' + xs(s) + '" y2="' + base + '" stroke="#3dd6c6" stroke-width="2.5"/>'; });
+  out += '<text x="' + xs(0) + '" y="' + (H - 4) + '" text-anchor="middle" font-size="9" fill="#93a9a8" font-family="sans-serif">first reading of each unit · dashed = spec · solid = your limit</text>';
+  return '<div class="hist"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Histogram of first readings">' + out + '</svg></div>';
+}
+function unitTile(u, i, audit) {
+  var cls = 'u', m = '';
+  if (!u.t.pass) { cls += ' f'; m = u.c === 'good' ? '?' : '✖'; if (u.c === 'good') cls = 'u ff'; }
+  else if (!u.t.first) { cls += ' r'; m = '↻'; }
+  else m = '✓';
+  if (audit && u.esc) { cls += ' esc'; m = u.c === 'inter' ? '◉' : '▲'; }
+  return '<div class="' + cls + (audit ? ' audit' : '') + '" style="--i:' + i + '"><div class="m">' + m + '</div></div>';
+}
+
+/* ---------- screens ---------- */
+function screenTitle() {
+  el(topbar(true) + '<div class="card">' + benchSvg(0.1) +
+   '<h3>Chapter 10 · The Hardest Factory Lessons</h3><h1>The Last Honest <span>Report</span></h1>' +
+   '<p>The end-of-line test is the only place every unit is measured against what you promised. It stays honest only if <b>nobody is allowed to make it say yes</b>.</p>' +
+   '<div class="plain"><b>In plain English:</b> every finished product is plugged into a tester that reads a number and compares it with limits. Tight limits fail good units. Loose limits ship bad ones. And if a failing unit can simply be tested again until it passes, the report stops measuring the product and starts measuring patience. <b>Goal:</b> set the limits and the retest rule, watch the fixture drift, and see what escaped.</div>' +
+   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55"><li><b>Three weeks</b> of 40 units. Set limits and retest policy each week.</li><li><b>Check the fixture</b> before it lies to you.</li><li><b>Audit the passes</b> to learn what slipped through.</li></ul>' +
+   '<button class="btn" data-a="start">Start the first week</button><p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factory is fictional.</p></div>');
+}
+
+function screenBrief() {
+  G.phase = 'brief';
+  el(topbar(false) + '<div class="card"><h3>' + G.name + ' · weekly report</h3><h2>"Yield is 97.5%"</h2>' +
+   '<div class="report"><div class="rh">Test yield report · your product</div><div class="rv"><span>Final test yield</span><b>97.5%</b></div><div class="rv"><span>First-pass yield</span><b>not reported</b></div><div class="rv"><span>Retest rate</span><b>not reported</b></div><div class="rv"><span>Gauge R&amp;R</span><b>"done at install"</b></div></div>' +
+   '<p>"Final yield" counts a unit as passing if it passed on <i>any</i> try. A unit that fails four times and passes on the fifth is a pass, and a reading that moves by a third of the tolerance each time is not a measurement.</p>' +
+   '<div class="note"><b>The incentive</b>Retesting costs seconds. Rework and scrap cost money, and a held shipment costs a customer. Every test station drifts toward "pass".</div>' +
+   '<button class="toggle' + (G.grr ? ' on' : '') + '" data-a="grr"><i>🔬</i><span><b>Run a Gauge R&amp;R study first</b>Measure the tester itself: repeat one unit many times and see how much of the tolerance is just noise. The fixture gets fixed and the noise drops.</span><em>−' + k$(COST.grr) + '</em></button>' +
+   '<button class="btn" data-a="setup">Set up week 1</button></div>');
+}
+
+function screenSetup() {
+  G.phase = 'setup'; var w = G.w, S = G.S;
+  var opt = function (K, o, cur, a) { return '<div class="opts' + (Object.keys(o).length > 3 ? ' o2' : '') + '">' + Object.keys(o).map(function (k) { return '<button data-a="' + a + '" data-s="' + k + '" class="' + (cur === k ? 'on' : '') + '"><i>' + o[k].ic + '</i><b>' + o[k].name + '</b><span>' + o[k].sub + '</span></button>'; }).join('') + '</div>'; };
+  el(topbar(false) + '<div class="card"><h3>' + WK[w].t + ' of ' + WEEKS + '</h3><h2>Set the tester</h2>' + benchSvg(0) +
+   '<div class="molder"><i>👷</i><div class="speech">' + WK[w].quote + '</div></div>' +
+   '<h3>Pass limits</h3>' + opt('limit', LIM, S.limit, 'lim') +
+   '<h3>When a unit fails</h3>' + opt('retest', RET, S.retest, 'ret') +
+   '<button class="toggle' + (S.golden ? ' on' : '') + '" data-a="golden"><i>🏅</i><span><b>Golden-sample check</b>Run a known-good unit and a known-bad unit through the fixture before the shift. If it reads wrong, fix the fixture before the lot.</span><em>−' + k$(COST.golden) + '</em></button>' +
+   (w === 0 ? '<div class="note warn"><b>This week</b>' + WK[w].note + '</div>' : '<div class="note warn"><b>' + (w === 1 ? 'Pressure' : 'Deadline') + '</b>' + WK[w].note + '</div>') +
+   '<button class="btn" data-a="run">Test the lot</button></div>');
+}
+
+function screenRun() {
+  G.phase = 'run'; var R = G.lots[G.w], S = R.S, last = R.units[R.units.length - 1].t.m1;
+  var firstPct = pctOf(R.first, N), finalPct = pctOf(R.pass, N);
+  el(topbar(false) + '<div class="card"><h3>' + WK[G.w].t + ' · ' + LIM[S.limit].name + ' · ' + RET[S.retest].name + '</h3><h2>The lot ran</h2>' + benchSvg(last) +
+   '<div class="units" id="grid">' + R.units.map(function (u, i) { return unitTile(u, i, false); }).join('') + '</div>' +
+   '<div class="legend"><span><i style="background:#1f8a4c"></i>passed ✓</span><span><i style="background:#1f8a4c;box-shadow:0 0 0 2px #5ab0ff"></i>passed on a retest ↻</span><span><i style="background:#8a2c26"></i>failed ✖</span><span><i style="background:#8a5a1f"></i>good unit failed ?</span></div>' +
+   '<div class="report" id="rep" style="opacity:0"><div class="rh">What the factory would report</div><div class="rv"><span>Final test yield</span><b>' + finalPct + '%</b></div></div>' +
+   '<div class="stat3" id="st3" style="opacity:0"><div><b class="' + (firstPct >= 90 ? 'good' : 'warn') + '">' + firstPct + '%</b><span>first-pass</span></div><div><b class="warn">' + R.retests + '</b><span>extra tests</span></div><div><b class="' + (R.ff ? 'bad' : 'good') + '">' + R.ff + '</b><span>good units failed</span></div></div>' +
+   '<div id="hs" style="opacity:0">' + histSvg(R) + '<div class="legend" style="margin-top:6px"><span><i style="background:#3ddc84"></i>good</span><span><i style="background:#ff9f43"></i>marginal</span><span><i style="background:#b388ff"></i>intermittent</span><span><i style="background:#ff5a4e"></i>bad</span></div></div>' +
+   '<p class="small" id="exp" style="opacity:0">The colours are what the units really are. You only see them because this is a game: the factory\'s report shows only the number above. A retest does not change a unit, only the reading.</p>' +
+   '<button class="btn" data-a="audit" id="b1" style="opacity:0">🔍 Audit the passes · −' + k$(COST.audit) + '</button><button class="btn ghost" data-a="skip" id="b2" style="opacity:0">Skip the audit</button></div>');
+  J.sfx('belt');
+  var dur = J.reduce ? 0 : N * 50 + 400;
+  later(dur, function () {
+    ['rep', 'st3', 'hs', 'exp', 'b1', 'b2'].forEach(function (id) { var e = $q('#' + id); if (e) { e.style.transition = 'opacity .4s'; e.style.opacity = 1; } });
+    if (R.ff > 3) { J.sfx('bad'); J.hit($q('#grid'), 'bad', 'small'); } else J.sfx('ok');
+  });
+}
+
+function screenAudit() {
+  var R = G.lots[G.w]; R.audited = true; R.cost += COST.audit; R.S.audit = true;
+  var esc = R.escB + R.escM + R.escI;
+  el(topbar(false) + '<div class="card"><h3>' + WK[G.w].t + ' · audit of the passes</h3><h2>What the tester passed</h2>' + benchSvg(0.1) +
+   '<div class="units">' + R.units.map(function (u, i) { return unitTile(u, 0, true); }).join('') + '</div>' +
+   '<div class="legend"><span><i style="background:#1f8a4c;box-shadow:0 0 0 2px #b388ff"></i>▲ out-of-spec or marginal unit passed</span><span><i style="background:#1f8a4c;box-shadow:0 0 0 2px #b388ff"></i>◉ intermittent unit passed</span></div>' +
+   '<div class="stat3"><div><b class="' + (R.escB + R.escM ? 'bad' : 'good') + '">' + (R.escB + R.escM) + '</b><span>out of spec</span></div><div><b class="' + (R.escI ? 'bad' : 'good') + '">' + R.escI + '</b><span>intermittent</span></div><div><b class="' + (R.ff ? 'warn' : 'good') + '">' + R.ff + '</b><span>good, failed</span></div></div>' +
+   '<div class="note ' + (esc ? 'bad' : 'good') + '"><b>' + (esc ? 'The report said ' + pctOf(R.pass, N) + '%. This is what it passed.' : 'A clean lot') + '</b>' + (esc ? (R.escI ? 'An intermittent unit reads wrong about half the time, so a retest-until-pass rule lets it through almost every time. ' : '') + (R.escM ? 'Marginal units sit right on the edge, where a noisy reading or a generous limit passes them. ' : '') + (R.drift && !R.S.golden ? 'And the fixture had drifted by ' + R.drift + ' of the tolerance without a golden-sample check, shifting every reading. ' : '') : 'At these settings, nothing that should have failed got through.') + '</div>' +
+   '<button class="btn" data-a="next">' + (G.w + 1 >= WEEKS ? 'Fast-forward to the field' : 'Next week') + '</button></div>');
+  J.sfx('scan'); later(500, function () { if (esc) { J.sfx('alarm'); J.hit($q('.units'), 'bad', esc > 2 ? 'big' : 'med'); } else { J.sfx('good'); J.confetti(); } });
+}
+
+function screenField() {
+  G.phase = 'field';
+  var e = 0, fc = 0; G.lots.forEach(function (R) { e += R.escB + R.escM + R.escI; fc += R.field; }); G.fieldCost = fc; G.esc = e;
+  el(topbar(false) + '<div class="card"><h3>Eleven months later</h3><h2>' + (e ? 'The returns arrive' : 'A quiet year, honestly') + '</h2>' +
+   '<div class="bench ' + (e ? 'j-siren' : '') + '" id="stg"><div class="lbl" style="color:' + (e ? 'var(--red)' : 'var(--green)') + '">FIELD RETURNS</div><div style="height:112px;display:grid;place-items:center;padding-top:14px" class="big-ic ' + (e ? 'j-drop' : '') + '">' + (e ? '📦↩️' : '😌') + '</div></div>' +
+   '<p>' + (e ? e + ' unit' + (e === 1 ? '' : 's') + ' that the test passed came back: intermittent failures that no one could reproduce, units that drifted out of spec, and a support queue with nothing to show for it, because the test said they were fine.' : 'Nothing that mattered got past the test.') + '</p>' +
+   '<div class="cost" id="cst">−€0k</div><button class="btn" data-a="result">See the result</button></div>');
+  if (fc) { J.sfx('alarm'); J.hit($q('#stg'), 'bad', fc >= 100 ? 'big' : 'med'); J.count($q('#cst'), 0, fc, 900, function (v) { return '−€' + Math.round(v) + 'k'; }); } else J.sfx('good');
+}
+
+function screenResult() {
+  G.phase = 'result';
+  var sc = scoreOf(G), best = store.get('best', 0), nb = sc.total > best;
+  if (nb) store.set('best', sc.total);
+  try { HHL.submit(110, sc.total); } catch (e) {}
+  var stamp = sc.total >= 780 ? 'pass' : sc.total >= 520 ? 'warn' : 'fail';
+  var txt = sc.total >= 780 ? 'THE REPORT STAYED HONEST' : sc.total >= 520 ? 'TOO MUCH PATIENCE' : 'THE TEST SAID YES';
+  var rows = G.lots.map(function (R, i) { var e = R.escB + R.escM + R.escI; return '<div class="br"><div class="t"><b>' + WK[i].t + ' · ' + LIM[R.S.limit].name + ' · ' + RET[R.S.retest].name + '</b><span>reported ' + pctOf(R.pass, N) + '% · first-pass ' + pctOf(R.first, N) + '% · ' + e + ' escaped</span></div><div class="tr"><i style="width:' + Math.min(100, Math.round(100 * (R.cost + R.field) / 60)) + '%;background:var(--amber)"></i></div></div>'; }).join('');
+  var cheat = G.lots.filter(function (R) { return R.S.retest === 'until'; }).length, nogold = G.lots.filter(function (R) { return !R.S.golden && R.drift > 0; }).length;
+  var lines = [];
+  if (cheat) lines.push('In ' + cheat + ' week' + (cheat === 1 ? '' : 's') + ' a retest-until-pass rule let failing units through. ');
+  if (nogold) lines.push('In ' + nogold + ' week' + (nogold === 1 ? '' : 's') + ' the fixture drifted unchecked. ');
+  if (!G.grr) lines.push('Without a Gauge R&amp;R study, a third of the tolerance was gauge noise. ');
+  var unaud = G.lots.filter(function (R) { return !R.audited; }).length;
+  el(topbar(false) + '<div class="card"><h3>Year-end result</h3><div class="stamp ' + stamp + '" id="stp">' + txt + '</div><div class="bigs" id="bigs">0</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800" class="j-pulse">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
+   '<div class="lines" id="led"><div><span>Gauge study, fixture checks and audits</span><em class="neg">−' + k$((G.grr ? COST.grr : 0) + G.lots.reduce(function (a, R) { return a + (R.S.golden ? COST.golden : 0) + (R.S.audit ? COST.audit : 0); }, 0)) + '</em></div><div><span>Rework, retests and false fails</span><em class="neg">−' + k$(sc.costs - sc.field - (G.grr ? COST.grr : 0) - G.lots.reduce(function (a, R) { return a + (R.S.golden ? COST.golden : 0) + (R.S.audit ? COST.audit : 0); }, 0)) + '</em></div><div><span>Field returns</span><em class="neg">−' + k$(sc.field) + '</em></div><div><span>Total cost</span><em class="neg">−' + k$(sc.costs) + '</em></div></div>' +
+   '<h3>Week by week (bars: cost incl. field)</h3><div class="bars2">' + rows + '</div>' +
+   '<div class="note warn"><b>What the yield report hid</b>' + lines.join('') + G.esc + ' unit' + (G.esc === 1 ? '' : 's') + ' escaped into the field. ' + (unaud ? unaud + ' of the weeks were never audited, so you flew blind on them.' : 'You audited every week, so you knew.') + '</div>' +
+   '<div class="lesson">Demand first-pass yield, not final yield. Fix the limits and the retest rule in writing, with the gauge noise known and the fixture checked against a golden sample every shift. A test that can be repeated until it passes is not a test.</div>' +
+   HHL.next(110) +
+   '<div class="row"><button class="btn" data-a="again">Run another year</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+  J.stamp($q('#stp'), stamp); J.count($q('#bigs'), 0, sc.total, 1200);
+  later(1300, function () { if (stamp === 'pass') { J.confetti(); J.sfx('win'); } else J.sfx(stamp === 'warn' ? 'ok' : 'lose'); });
+  J.stagger($app.querySelectorAll('#led div, .br'), 60);
+}
+
+/* ---------- events ---------- */
+$app.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+  var a = b.dataset.a;
+  switch (a) {
+    case 'start': newGame(); screenBrief(); break;
+    case 'grr': G.grr = !G.grr; J.sfx(G.grr ? 'confirm' : 'cancel'); screenBrief(); break;
+    case 'setup': screenSetup(); break;
+    case 'lim': G.S.limit = b.dataset.s; J.sfx('select'); screenSetup(); { var on = $q('.opts button.on'); if (on) J.pop(on, 1.15); } break;
+    case 'ret': G.S.retest = b.dataset.s; J.sfx('select'); screenSetup(); break;
+    case 'golden': G.S.golden = !G.S.golden; J.sfx(G.S.golden ? 'confirm' : 'cancel'); screenSetup(); break;
+    case 'run': { var S = { limit:G.S.limit, retest:G.S.retest, golden:G.S.golden, audit:false, grr:G.grr }; G.lots.push(runLot(G.w, S)); screenRun(); break; }
+    case 'audit': screenAudit(); break;
+    case 'skip': case 'next': if (G.w + 1 >= WEEKS) screenField(); else { G.w++; screenSetup(); } break;
+    case 'result': screenResult(); break;
+    case 'again': newGame(); screenBrief(); break;
+    case 'menu': screenTitle(); break;
+  }
+});
+newGame(); screenTitle();
+window.__f10 = { G:function () { return G; }, score:function () { return scoreOf(G); } };
+})();
+</script>
+</body>
+</html>
