@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a1c">
+<title>Read the Line — The Hardest Factory Lessons</title>
+<meta name="description" content="A free game: the factory quotes 600 units an hour. Read the line, find the real bottleneck, and fix what is actually wrong. From The Hardest Factory Lessons, Chapter 7.">
+<link rel="stylesheet" href="../factory.css?v=1">
+<link rel="stylesheet" href="../juice.css?v=2">
+<style>
+.quote{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#f4efe3;color:#2a2418;border-radius:8px;padding:10px 12px;box-shadow:0 5px 0 rgba(0,0,0,.25)}
+.quote b{font-size:20px} .quote span{font-size:12px;color:#6b6252}
+.line{position:relative;display:grid;grid-template-columns:repeat(6,1fr) .9fr;gap:5px;padding:8px 6px 10px;border-radius:14px;background:#0e1718;border:1px solid var(--rule);overflow:hidden}
+.beltbar{position:absolute;left:0;right:0;bottom:36px;height:12px;opacity:.9}
+.stn{position:relative;display:grid;gap:4px;align-content:start;justify-items:center;text-align:center;background:var(--panel2);border:2px solid var(--rule);border-radius:10px;padding:6px 2px;color:var(--ink);font:inherit;cursor:pointer;min-height:162px;transition:border-color .2s,transform .08s;z-index:1}
+.stn:active{transform:scale(.95)} .stn.sel{border-color:var(--acc);background:#16363a} .stn.test{border-style:dashed}
+.stn .ic{font-size:20px} .stn .nm{font-size:9px;line-height:1.1;min-height:20px;color:var(--muted);display:grid;place-items:center}
+.stn .cy{font:900 12px var(--font);font-variant-numeric:tabular-nums} .stn .cy.q{color:var(--muted)} .stn .cy.hot{color:var(--red)}
+.tk{display:grid;gap:2px;width:100%} .tk div{font:700 8.5px/1.2 var(--font);background:#0e1718;border-radius:4px;padding:2px 1px;color:#cfdddc}
+.pile{display:flex;flex-wrap:wrap;gap:2px;justify-content:center;min-height:30px;align-content:flex-end}
+.pile i{width:9px;height:9px;border-radius:2px;background:#cfd8dc;border:1px solid #90a4ae;animation:jdrop .3s ease both}
+.pile.wave{animation:jblink 1.2s steps(2,end) infinite}
+.starved{font-size:8px;color:var(--muted);letter-spacing:.05em}
+.belt-u{position:absolute;bottom:40px;width:12px;height:9px;border-radius:2px;background:#cfd8dc;animation:umove var(--sp,3s) linear infinite;z-index:0}
+@keyframes umove{from{left:-4%}to{left:104%}}
+.mvr{display:flex;justify-content:space-between;width:100%;gap:2px}
+.mvr button{flex:1;border:1px solid var(--rule);background:var(--panel);color:var(--acc);border-radius:6px;font:900 11px var(--font);padding:3px 0;cursor:pointer} .mvr button:disabled{opacity:.2;pointer-events:none}
+.gauge2{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.gauge2 .bar{height:14px;border-radius:7px;background:#0e1718;overflow:hidden;position:relative}
+.gauge2 .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--amber),var(--green));transition:width .6s cubic-bezier(.2,1.1,.4,1)}
+.gauge2 .bar u{position:absolute;top:-2px;bottom:-2px;width:3px;background:#fff;text-decoration:none}
+.gauge2 b{font:900 20px var(--font);font-variant-numeric:tabular-nums}
+.watch{display:grid;gap:6px;background:#0e1718;border-radius:12px;padding:10px 12px;font-size:13px;color:#d6e4e3;animation:jrise .3s ease both} .watch b{color:var(--acc);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.mm{display:flex;gap:10px;font-variant-numeric:tabular-nums} .mm span{background:#16242a;border-radius:8px;padding:4px 8px}
+.diag{display:grid;gap:8px} .diag button{text-align:left;border:2px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:12px;padding:12px;font:inherit;cursor:pointer;font-size:14px}
+.diag button.on{border-color:var(--acc);background:#16363a}
+.hud2{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:10px 12px;position:sticky;top:6px;z-index:5;margin-right:50px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="../hhl.js?v=14"></script>
+<script src="../juice.js?v=2"></script>
+<script>
+(function () {
+'use strict';
+var $app = document.getElementById('app');
+var LEVELS = [
+ { id:'steady', title:'The quote', quote:600, ctx:'Your enclosure and battery pack get assembled on a six-station line. The factory quotes 600 units an hour: "Design rate." You have 3 watches (10 cycles each) before you commit.',
+   tasks:[['Load PCB',3],['Scan',2],['Screws',4],['Wire',2],['Connectors',3],['Fit check',3],['Battery',5],['Foam',2],['Tape',2],['Close case',3],['Seal',2],['Label',3],['Pack',2]],
+   counts:[2,2,2,3,2,2], vr:[1.2,1.2,1.2,1.2,1.2,1.2], test:{ cycle:5, seats:1 }, truth:'steady',
+   why:'A steady-slow station. The pile sat in front of it from the start, and redistributing its work was the fix. The line does 3,600 ÷ bottleneck cycle, not the quoted rate.' },
+ { id:'variation', title:'The jam', quote:600, ctx:'A second product on the same line. On paper every station is balanced at 6 s. But the pile in front of one station keeps appearing, then vanishing.',
+   tasks:[['Load PCB',3],['Scan',3],['Screws',4],['Wire',2],['Connectors',3],['Fit check',3],['Battery',4],['Foam',2],['Tape',2],['Close case',3],['Seal',1],['Label',3],['Pack',3]],
+   counts:[2,2,2,2,3,2], vr:[1.15,1.15,1.9,1.15,1.15,1.15], test:{ cycle:5, seats:1 }, truth:'variation',
+   why:'A variable station: the average was fine, the max was not. Rebalancing cannot fix variation: attack the source first (the fixture, the jam, the material), then redistribute.' },
+ { id:'test', title:'The silent constraint', quote:600, ctx:'The line is balanced and steady. The factory says: "Test is not a constraint." Finished units are waiting behind something at the end.',
+   tasks:[['Load PCB',3],['Scan',3],['Screws',4],['Wire',2],['Connectors',3],['Fit check',3],['Battery',4],['Foam',2],['Tape',2],['Close case',3],['Seal',1],['Label',3],['Pack',3]],
+   counts:[2,2,2,2,3,2], vr:[1.15,1.15,1.15,1.15,1.15,1.15], test:{ cycle:10, seats:1 }, truth:'test',
+   why:'Test was the real constraint: cycle time × positions against the line rate is arithmetic, not assurance. The line outran test, and no amount of rebalancing upstream helps.' }
+];
+var STN = [['Load','📥'], ['Fasten','🔩'], ['Connect','🔌'], ['Pack cell','🔋'], ['Close','📦'], ['Label','🏷️']];
+var FIXVAR = 12, FIXTEST = 18, RUNCOST = 5, WATCHES = 3;
+
+var G = null;
+var store = { get:function (k, d) { try { var v = localStorage.getItem('hhl.ch107.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set:function (k, v) { try { localStorage.setItem('hhl.ch107.' + k, JSON.stringify(v)); } catch (e) {} } };
+function fmt(n) { return Number(n).toLocaleString('en'); }
+function later(ms, fn) { setTimeout(function () { try { fn(); } catch (e) {} }, J.reduce ? 0 : ms); }
+function el(h) { $app.innerHTML = h; window.scrollTo(0, 0); }
+function $q(s) { return $app.querySelector(s); }
+function topbar(back) { return '<div class="top">' + (back ? '<a class="back" href="../">← Games</a>' : '<span></span>') + J.muteBtn() + '</div>'; }
+
+function newGame() { G = { lv:0, L:null, results:[], phase:'title' }; }
+function loadLevel(i) {
+  var d = LEVELS[i];
+  G.lv = i; G.L = { d:d, counts:d.counts.slice(), vr:d.vr.slice(), seats:d.test.seats, watched:{}, watches:WATCHES, sel:-1, cost:0, runs:0, lastRun:null, diag:null };
+}
+function stationTimes(L) { var out = [], k = 0; L.counts.forEach(function (c) { var s = 0; for (var j = 0; j < c; j++) s += L.d.tasks[k + j][1]; out.push(s); k += c; }); return out; }
+function eff(typ, vr) { return vr > 1.5 ? typ * (1 + (vr - 1) * 0.6) : typ; }
+function testCycle(L) { return L.d.test.cycle / L.seats; }
+function truth(L) {
+  var ts = stationTimes(L), es = ts.map(function (t, i) { return eff(t, L.vr[i]); }), tc = testCycle(L);
+  var bn = Math.max.apply(null, es.concat([tc])), idx = tc >= Math.max.apply(null, es) ? 6 : es.indexOf(Math.max.apply(null, es));
+  return { ts:ts, es:es, tc:tc, bn:bn, idx:idx, cap:3600 / bn };
+}
+function target(L) { return L.d.quote * 0.9; }
+
+/* ---------- screens ---------- */
+function lineHtml(L) {
+  var T = truth(L), cells = '', units = '', sp = Math.max(1.2, Math.min(5, T.bn * 0.55));
+  for (var u = 0; u < 7; u++) units += '<div class="belt-u" style="--sp:' + sp + 's;animation-delay:-' + (u * sp / 7).toFixed(2) + 's"></div>';
+  for (var i = 0; i < 7; i++) {
+    var isT = i === 6, w = L.watched[i], hot = T.idx === i, pile = '';
+    var n = hot ? 6 : (!isT && i + 1 === T.idx ? 0 : (T.es[i] || 0) > T.bn * 0.88 ? 2 : 0);
+    if (isT && T.idx !== 6) n = 0;
+    var variable = !isT && L.vr[i] > 1.5;
+    for (var p = 0; p < n; p++) pile += '<i></i>';
+    var typ = isT ? L.d.test.cycle : T.ts[i];
+    var tasks = '';
+    if (!isT) { var k = 0; for (var s = 0; s < i; s++) k += L.counts[s]; for (var j = 0; j < L.counts[i]; j++) tasks += '<div>' + L.d.tasks[k + j][0] + ' ' + L.d.tasks[k + j][1] + 's</div>'; }
+    var cy = w ? ('<div class="cy' + (hot ? ' hot' : '') + '">' + (isT ? testCycle(L).toFixed(1) : (T.es[i]).toFixed(1)) + 's</div>') : '<div class="cy q">? s</div>';
+    cells += '<button class="stn' + (isT ? ' test' : '') + (L.sel === i ? ' sel' : '') + '" data-a="stn" data-i="' + i + '"><div class="pile' + (variable ? ' wave' : '') + '">' + (variable ? '<i></i><i></i><i></i><i></i>' : pile) + '</div><div class="ic">' + (isT ? '🧪' : STN[i][1]) + '</div><div class="nm">' + (isT ? 'Test' + (L.seats > 1 ? ' ×' + L.seats : '') : STN[i][0]) + '</div>' + cy +
+      (isT ? '<div class="tk"><div>' + (L.d.test.cycle) + 's per seat</div></div>' : '<div class="tk">' + tasks + '</div>') + '</button>';
+  }
+  return '<div class="line"><div class="beltbar j-belt"></div>' + units + cells + '</div>';
+}
+function screenTitle() {
+  el(topbar(true) + '<div class="card"><div class="stage" style="position:relative;height:150px;border-radius:14px;overflow:hidden;background:linear-gradient(#1b2b2e 0 60%,#23363a 60% 100%);border:1px solid var(--rule)"><div class="belt j-belt" style="position:absolute;left:0;right:0;bottom:24px;height:16px"></div>' +
+   [0, 1, 2, 3, 4].map(function (i) { return '<div class="belt-u" style="--sp:2.4s;animation-delay:-' + (i * .5) + 's;bottom:42px;width:22px;height:16px"></div>'; }).join('') +
+   '<div class="j-float" style="position:absolute;left:14px;top:12px;font-size:34px">🧑‍🏭</div><div style="position:absolute;right:14px;top:12px;background:#f4efe3;color:#2a2418;font:900 12px var(--font);padding:5px 8px;border-radius:6px">600 / hour</div></div>' +
+   '<h3>Chapter 7 · The Hardest Factory Lessons</h3><h1>Read the <span>Line</span></h1>' +
+   '<p>"The line does 600 an hour." Take the quote apart: <b>3,600 divided by the slowest station</b> is the only capacity that exists.</p>' +
+   '<div class="plain"><b>In plain English:</b> a production line moves only as fast as its slowest station. The pile of units waiting in front of a station shows where it is. <b>Goal:</b> find the real bottleneck, work out what is actually wrong with it, and fix that, not something else.</div>' +
+   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55"><li><b>Three lines.</b> Each has a different problem.</li><li><b>3 watches</b> per line: ten cycles at one station.</li><li>Move tasks between stations, fix what is broken, <b>then diagnose it</b>.</li></ul>' +
+   '<button class="btn" data-a="start">Walk onto the floor</button><p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factory is fictional.</p></div>');
+}
+function screenIntro() {
+  G.phase = 'intro'; var d = G.L.d;
+  el(topbar(false) + '<div class="card"><h3>Line ' + (G.lv + 1) + ' of ' + LEVELS.length + '</h3><h2>' + d.title + '</h2>' +
+   '<div class="quote"><div><b>' + d.quote + ' / hour</b><br><span>takt ' + (3600 / d.quote).toFixed(1) + ' s · "design rate"</span></div><div style="font-size:30px">📄</div></div>' +
+   '<p>' + d.ctx + '</p>' +
+   '<div class="note"><b>The ten-minute read</b>Find the pile. Watch the station behind it. Ask: is it steady-slow, or does it vary? And is test keeping pace?</div>' +
+   '<button class="btn" data-a="play">Read the line</button></div>');
+}
+function screenPlay(msg) {
+  G.phase = 'play'; var L = G.L, T = truth(L), d = L.d, sel = L.sel;
+  var pips = ''; for (var i = 0; i < WATCHES; i++) pips += '<div class="pip' + (i < L.watches ? '' : ' off') + '"></div>';
+  var est = Object.keys(L.watched).length >= 7 ? Math.round(T.cap) : null;
+  var runBlock = L.lastRun ? '<div class="gauge2"><div class="bar"><i style="width:' + Math.min(100, Math.round(100 * L.lastRun / d.quote)) + '%"></i><u style="left:' + Math.round(100 * 0.9) + '%"></u></div><b id="out">' + L.lastRun + '/h</b></div><div class="small" style="color:var(--muted)">Last shift output vs the quote. The white line is 90% of the quote.</div>' : '';
+  var selBlock = '';
+  if (sel >= 0) {
+    var w = L.watched[sel], isT = sel === 6;
+    selBlock = '<div class="watch"><b>' + (isT ? 'Test' : STN[sel][0]) + ' station</b>' +
+      (w ? '<div class="mm"><span>min ' + w.min.toFixed(1) + 's</span><span>typ ' + w.typ.toFixed(1) + 's</span><span>max ' + w.max.toFixed(1) + 's</span></div>' + (w.max > w.typ * 1.5 ? '<div style="color:var(--amber)">Max is more than 1.5× typical: <b>attack the variation</b> before you redistribute work.</div>' : '<div>Steady: the cycle barely varies.</div>') + (isT ? '<div>One seat at ' + d.test.cycle + ' s gives ' + Math.round(3600 / d.test.cycle) + '/h per seat.</div>' : '')
+        : '<div>Ten cycles of this station would tell you its real time and how much it varies.</div>') +
+      '<div class="row"><button class="btn sm ghost" data-a="watch"' + (w || L.watches <= 0 ? ' disabled' : '') + '>👀 Watch 10 cycles</button>' +
+      (isT ? '<button class="btn sm ghost" data-a="seat"' + (L.seats >= 3 ? ' disabled' : '') + '>➕ Add a test seat · −€' + FIXTEST + 'k</button>' : (L.vr[sel] > 1.5 ? '<button class="btn sm ghost" data-a="fixvar">🛠️ Fix the source · −€' + FIXVAR + 'k</button>' : '')) + '</div></div>';
+  }
+  var startK = [], k = 0; L.counts.forEach(function (c) { startK.push(k); k += c; });
+  el('<div class="hud2">' + J.muteBtn() + '<b>Line ' + (G.lv + 1) + '/' + LEVELS.length + '</b><div class="pips" title="Watches left">' + pips + '</div><span>' + L.watches + ' watches</span></div>' +
+   '<div class="card"><h3>' + d.title + '</h3><div class="quote"><div><b>Quote: ' + d.quote + ' / hour</b><br><span>takt ' + (3600 / d.quote).toFixed(1) + ' s</span></div><div style="text-align:right"><b>' + (est ? est : '?') + '</b><br><span>measured capacity /h</span></div></div>' +
+   '<p class="small">Piles show where units wait. Tap a station to watch it. Use ◀ ▶ to move its edge tasks to a neighbour. Each shift you run costs €' + RUNCOST + 'k.</p>' +
+   lineHtml(L) + '<div class="mvr" id="mv"></div>' + (msg ? '<div class="note"><b>Just now</b>' + msg + '</div>' : '') + selBlock + runBlock +
+   '<div class="row"><button class="btn ghost" data-a="run">▶ Run a shift · −€' + RUNCOST + 'k</button><button class="btn" data-a="signoff">Sign off</button></div></div>');
+  renderMoveButtons();
+}
+function renderMoveButtons() {
+  var L = G.L, host = $q('#mv'); if (!host) return;
+  var h = '';
+  for (var i = 0; i < 6; i++) {
+    var canL = i > 0 && L.counts[i] > 1, canR = i < 5 && L.counts[i] > 1;
+    h += '<div style="flex:1;display:flex;gap:2px"><button class="btn sm ghost" style="padding:6px 0;min-height:30px;font-size:12px" data-a="mv" data-i="' + i + '" data-d="-1"' + (canL ? '' : ' disabled') + '>◀</button><button class="btn sm ghost" style="padding:6px 0;min-height:30px;font-size:12px" data-a="mv" data-i="' + i + '" data-d="1"' + (canR ? '' : ' disabled') + '>▶</button></div>';
+  }
+  host.style.display = 'flex'; host.style.gap = '5px'; host.style.padding = '0 6px'; host.innerHTML = h + '<div style="flex:.9"></div>';
+}
+
+function doWatch() {
+  var L = G.L, i = L.sel; if (i < 0 || L.watched[i] || L.watches <= 0) return;
+  var T = truth(L), isT = i === 6, typ = isT ? testCycle(L) : T.ts[i], vr = isT ? 1.1 : L.vr[i];
+  L.watched[i] = { typ:typ, min:typ * 0.85, max:typ * vr + (vr > 1.5 ? 0 : 0.3) }; L.watches--; J.sfx('scan');
+  screenPlay(); var s = $app.querySelectorAll('.stn')[i]; var bad = (!isT && vr > 1.5) || T.idx === i;
+  later(250, function () { if (bad) { J.hit(s, 'bad', 'med'); } else J.hit(s, 'good', 'small'); });
+}
+function doMove(i, d) {
+  var L = G.L; if (L.counts[i] <= 1) return; var j = i + d; if (j < 0 || j > 5) return;
+  L.counts[i]--; L.counts[j]++; J.sfx('pick'); L.lastRun = null; screenPlay(); var s = $app.querySelectorAll('.stn')[j]; J.pop(s, 1.1);
+}
+function doRun() {
+  var L = G.L, T = truth(L); L.runs++; L.cost += RUNCOST; L.lastRun = Math.round(T.cap);
+  screenPlay('You ran a shift. The line delivered ' + L.lastRun + ' units an hour' + (T.idx === 6 ? ', waiting on test.' : T.idx >= 0 && L.vr[T.idx] > 1.5 ? ', in waves.' : '.'));
+  J.sfx('belt'); var o = $q('#out'); if (o) J.count(o, 0, L.lastRun, 800, function (n) { return Math.round(n) + '/h'; });
+  later(850, function () { if (L.lastRun >= target(L)) { J.sfx('good'); J.confetti(); } else { J.sfx('bad'); J.hit($q('.gauge2'), 'bad', 'small'); } });
+}
+function doFixVar() {
+  var L = G.L, i = L.sel; if (L.vr[i] <= 1.5) return; L.vr[i] = 1.12; L.cost += FIXVAR; L.lastRun = null; J.sfx('coin');
+  screenPlay('You fixed the source of the variation at ' + STN[i][0] + '. The waves are gone.'); J.floatAt($app.querySelectorAll('.stn')[i], '−€' + FIXVAR + 'k', '#f5c518', 18);
+}
+function doSeat() {
+  var L = G.L; if (L.seats >= 3) return; L.seats++; L.cost += FIXTEST; L.lastRun = null; J.sfx('coin');
+  screenPlay('You added a test seat. Two stations now test in parallel.'); J.floatAt($app.querySelectorAll('.stn')[6], '−€' + FIXTEST + 'k', '#f5c518', 18);
+}
+
+function screenSignoff() {
+  G.phase = 'signoff'; var L = G.L;
+  el(topbar(false) + '<div class="card"><h3>Sign off line ' + (G.lv + 1) + '</h3><h2>What was the constraint?</h2>' +
+   '<p>Before you accept this line, say what was actually wrong. A wrong diagnosis is how the same problem comes back.</p>' +
+   '<div class="diag">' + [['steady', 'A steady-slow station: too much work in one place'], ['variation', 'A variable station: the average was fine, the max was not'], ['test', 'Test: the line outran its test capacity']].map(function (o) { return '<button data-a="diag" data-v="' + o[0] + '" class="' + (L.diag === o[0] ? 'on' : '') + '">' + o[1] + '</button>'; }).join('') + '</div>' +
+   '<button class="btn" data-a="levelend"' + (L.diag ? '' : ' disabled') + '>Accept the line</button></div>');
+}
+function levelScore(L) {
+  var T = truth(L), tg = target(L), ratio = Math.min(1, T.cap / tg), pts = Math.round(220 * ratio * ratio);
+  var dg = L.diag === L.d.truth ? 80 : 0, wp = L.watches * 11, cp = Math.min(40, Math.round(L.cost * 0.5));
+  return { cap:Math.round(T.cap), pts:pts, dg:dg, wp:wp, cp:cp, total:Math.max(0, pts + dg + wp - cp), ok:T.cap >= tg };
+}
+function screenLevelEnd() {
+  var L = G.L, s = levelScore(L); G.results.push({ s:s, d:L.d, cost:L.cost });
+  var last = G.lv + 1 >= LEVELS.length;
+  el(topbar(false) + '<div class="card"><h3>Line ' + (G.lv + 1) + ' · accepted</h3><h2>' + (s.ok ? 'It meets the rate' : 'It falls short of the quote') + '</h2>' +
+   '<div class="gauge2"><div class="bar"><i style="width:' + Math.min(100, Math.round(100 * s.cap / L.d.quote)) + '%"></i><u style="left:90%"></u></div><b id="out">0/h</b></div>' +
+   '<div class="lines"><div><span>Capacity delivered (quote ' + L.d.quote + ')</span><em class="' + (s.ok ? 'pos' : 'neg') + '">' + s.cap + '/h</em></div><div><span>Rate points</span><em class="pos">+' + s.pts + '</em></div><div><span>Diagnosis ' + (s.dg ? 'correct' : 'wrong') + '</span><em class="' + (s.dg ? 'pos' : 'neg') + '">+' + s.dg + '</em></div><div><span>Watches saved</span><em class="pos">+' + s.wp + '</em></div><div><span>Fixes and shifts: −€' + L.cost + 'k</span><em class="neg">−' + s.cp + '</em></div></div>' +
+   '<div class="lesson"><b>What it was.</b> ' + L.d.why + '</div>' +
+   '<button class="btn" data-a="' + (last ? 'final' : 'nextlevel') + '">' + (last ? 'See the result' : 'Next line') + '</button></div>');
+  J.count($q('#out'), 0, s.cap, 800, function (n) { return Math.round(n) + '/h'; });
+  later(850, function () { if (s.ok && s.dg) { J.sfx('win'); J.confetti(); } else if (s.ok) J.sfx('ok'); else { J.sfx('bad'); J.hit($q('.gauge2'), 'bad', 'med'); } });
+}
+function score() { var t = 0; G.results.forEach(function (r) { t += r.s.total; }); return Math.round(t * 1000 / (LEVELS.length * 340)); }
+function screenFinal() {
+  G.phase = 'final'; var total = Math.min(1000, score()), best = store.get('best', 0), nb = total > best;
+  if (nb) store.set('best', total);
+  try { HHL.submit(107, total); } catch (e) {}
+  var stamp = total >= 700 ? 'pass' : total >= 400 ? 'warn' : 'fail';
+  var txt = total >= 700 ? 'LINE READ' : total >= 400 ? 'HALF A DIAGNOSIS' : 'TAKEN AT ITS WORD';
+  el(topbar(false) + '<div class="card"><h3>Three lines read</h3><div class="stamp ' + stamp + '" id="stp">' + txt + '</div><div class="bigs" id="bigs">0</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800" class="j-pulse">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, total)) + '</p>') +
+   '<div class="lines" id="led">' + G.results.map(function (r, i) { return '<div><span>Line ' + (i + 1) + ' · ' + r.d.title + ' · ' + r.s.cap + '/h of ' + r.d.quote + '</span><em class="' + (r.s.ok ? 'pos' : 'neg') + '">' + (r.s.ok ? 'met' : 'short') + '</em></div>'; }).join('') + '</div>' +
+   '<div class="lesson">"Line does X units an hour" is checkable in a minute: 3,600 ÷ the measured bottleneck cycle. Read the pile, watch the station behind it, and diagnose before you redistribute.</div>' +
+   HHL.next(107) +
+   '<div class="row"><button class="btn" data-a="again">Read another line</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+  J.stamp($q('#stp'), stamp); J.count($q('#bigs'), 0, total, 1200);
+  later(1300, function () { if (stamp === 'pass') { J.confetti(); J.sfx('win'); } else J.sfx(stamp === 'warn' ? 'ok' : 'lose'); });
+  J.stagger($app.querySelectorAll('#led div'), 60);
+}
+
+/* ---------- events ---------- */
+$app.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+  var a = b.dataset.a;
+  switch (a) {
+    case 'start': newGame(); loadLevel(0); screenIntro(); break;
+    case 'play': screenPlay(); break;
+    case 'stn': G.L.sel = Number(b.dataset.i); J.sfx('select'); screenPlay(); break;
+    case 'watch': doWatch(); break;
+    case 'mv': doMove(Number(b.dataset.i), Number(b.dataset.d)); break;
+    case 'run': doRun(); break;
+    case 'fixvar': doFixVar(); break;
+    case 'seat': doSeat(); break;
+    case 'signoff': screenSignoff(); break;
+    case 'diag': G.L.diag = b.dataset.v; J.sfx('select'); screenSignoff(); break;
+    case 'levelend': screenLevelEnd(); break;
+    case 'nextlevel': loadLevel(G.lv + 1); screenIntro(); break;
+    case 'final': screenFinal(); break;
+    case 'again': newGame(); loadLevel(0); screenIntro(); break;
+    case 'menu': screenTitle(); break;
+  }
+});
+newGame(); screenTitle();
+window.__f7 = { G:function () { return G; }, truth:truth, target:target, score:score, stationTimes:stationTimes };
+})();
+</script>
+</body>
+</html>

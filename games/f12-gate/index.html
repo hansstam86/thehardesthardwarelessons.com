@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a1c">
+<title>The Last Gate — The Hardest Factory Lessons</title>
+<meta name="description" content="A free game: the packing belt, the scan gates and the truck. Catch the wrong label, the wrong plug and the missing manual before they ship. From The Hardest Factory Lessons, Chapter 12.">
+<link rel="stylesheet" href="../factory.css?v=1">
+<link rel="stylesheet" href="../juice.css?v=2">
+<style>
+.pack{position:relative;height:300px;border-radius:14px;overflow:hidden;background:linear-gradient(#1b2b2e 0 40%,#23363a 40% 100%);border:1px solid var(--rule);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.pack .beltb{position:absolute;left:0;right:0;top:132px;height:34px;border-radius:4px;z-index:0}
+.pack .holdbin{position:absolute;left:14px;top:10px;display:flex;gap:4px;align-items:flex-end;font-size:11px;color:var(--amber);font-weight:800;letter-spacing:.08em}
+.pack .truck{position:absolute;right:4px;top:96px;font-size:48px;z-index:3;transition:transform .15s}
+.pack .gate{position:absolute;top:70px;width:38px;height:120px;z-index:2;text-align:center}
+.pack .gate .arch{position:absolute;left:0;right:0;top:0;bottom:0;border:3px solid var(--acc);border-radius:10px 10px 0 0;border-bottom:0;opacity:.8}
+.pack .gate .ic{position:absolute;left:0;right:0;top:-24px;font-size:20px}
+.pack .gate.fire .arch{background:rgba(61,214,198,.35);border-color:#fff}
+.pack .cnt{position:absolute;right:10px;top:10px;font:900 12px var(--font);color:var(--muted);letter-spacing:.06em}
+.ct{position:absolute;top:104px;width:54px;height:56px;z-index:1;cursor:pointer;touch-action:manipulation}
+.ct .bx{position:absolute;inset:0;border-radius:8px;background:repeating-linear-gradient(90deg,#a9753f 0 14px,#9a6a38 14px 16px);border:3px solid #7a5230;box-shadow:0 5px 0 rgba(0,0,0,.25)}
+.ct .lb{position:absolute;left:5px;right:5px;top:8px;height:22px;border-radius:3px;background:#eaf3f2;border-top:6px solid #3d7bdc;display:flex;align-items:center;justify-content:space-between;padding:0 3px;font-size:12px;color:#101a1c;font-weight:900}
+.ct.revA .lb{border-top-color:#ff9f43}
+.ct .ac{position:absolute;left:5px;bottom:5px;font:900 10px var(--font);background:#101a1c;color:#fff;border-radius:3px;padding:1px 4px}
+.ct.reveal .bx{box-shadow:0 0 0 3px var(--red),0 5px 0 rgba(0,0,0,.25)}
+.ct.held{animation:hold .45s ease-in both;pointer-events:none}
+@keyframes hold{to{transform:translateY(-120px) scale(.6) rotate(18deg);opacity:0}}
+.ct.sent{animation:sent .3s ease-in both;pointer-events:none}
+@keyframes sent{to{transform:translateX(30px) scale(.5);opacity:0}}
+.ct.flagd .bx{box-shadow:0 0 0 3px var(--amber),0 5px 0 rgba(0,0,0,.25)}
+.gatesel{display:grid;gap:8px}
+.gatesel button{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;text-align:left;border:2px solid var(--rule);background:var(--panel2);border-radius:14px;padding:12px;color:var(--ink);font:inherit;cursor:pointer;transition:transform .08s}
+.gatesel button i{font-style:normal;font-size:26px} .gatesel button b{font-size:14px} .gatesel button span{font-size:12px;color:var(--muted);display:block;line-height:1.3} .gatesel button em{font:800 12px var(--font);font-style:normal;color:var(--acc)}
+.gatesel button.on{border-color:var(--acc);background:#16363a}
+.score3{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:10px;color:var(--muted);text-align:center} .score3>div{background:#0e1718;border-radius:10px;padding:6px 2px} .score3 b{display:block;font:900 17px var(--font);color:var(--ink);font-variant-numeric:tabular-nums}
+.legend2{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted)} .legend2 i{display:inline-block;width:18px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:4px}
+.hold-fx{position:absolute;left:14px;top:34px;font-size:30px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="../hhl.js?v=14"></script>
+<script src="../juice.js?v=2"></script>
+<script>
+(function () {
+'use strict';
+var $app = document.getElementById('app');
+
+/* ---------- content ---------- */
+var GATES = {
+  ver: { ic:'🏷️', name:'Label-version gate', sub:'Scans every label against the released artwork. Catches the old revision.', cost:25, x:0.34 },
+  ser: { ic:'🔗', name:'Serial-to-box gate', sub:'Marries the unit serial to the box label. Catches mismatches nobody can see.', cost:30, x:0.5 },
+  wt:  { ic:'⚖️', name:'Checkweigher', sub:'Weighs each box against its SKU. Catches missing manuals, and most wrong plugs.', cost:25, x:0.66 }
+};
+var LEVELS = [
+ { id:'day', title:'An ordinary day', n:34, gap:1.0, speed:0.17, rates:{ acc:0.08, ser:0.05, wt:0.06, rev:0 },
+   ctx:'The packing line runs two SKUs: EU and US. Defects here are mostly the plug in the wrong box, a mismatched serial and a missing manual. Two of those you can see. One you cannot.' },
+ { id:'eco', title:'The label ECO', n:36, gap:0.85, speed:0.19, rates:{ acc:0.06, ser:0.04, wt:0.05, rev:0.22 },
+   ctx:'Artwork changed by ECO, but the cabinet still holds pre-printed stock of the old revision. Label stock is inventory with revisions. Old-revision labels have an orange stripe.' },
+ { id:'month', title:'Month-end', n:40, gap:0.66, speed:0.23, rates:{ acc:0.1, ser:0.08, wt:0.08, rev:0.12 },
+   ctx:'Last week of the month. Revenue is concentrated into the final days, packing is staffed with borrowed labour and SKU changeovers are frequent. Errors cluster here. You have a pre-ship audit right: open the boxes before the truck is loaded.' }
+];
+var NAMES = ['Meijie Technology', 'Hongcheng Electronics', 'Yuanda Intelligent'];
+
+var G = null, S = null, raf = 0, last = 0;
+var store = { get:function (k, d) { try { var v = localStorage.getItem('hhl.ch112.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set:function (k, v) { try { localStorage.setItem('hhl.ch112.' + k, JSON.stringify(v)); } catch (e) {} } };
+function fmt(n) { return Number(n).toLocaleString('en'); }
+function later(ms, fn) { setTimeout(function () { try { fn(); } catch (e) {} }, J.reduce ? 0 : ms); }
+function el(h) { $app.innerHTML = h; window.scrollTo(0, 0); }
+function $q(s) { return $app.querySelector(s); }
+function topbar(back) { return '<div class="top">' + (back ? '<a class="back" href="../">← Games</a>' : '<span></span>') + J.muteBtn() + '</div>'; }
+function newGame() { G = { lv:0, gates:{}, results:[], phase:'title' }; }
+
+/* ---------- simulation (no DOM) ---------- */
+function makeCarton(L, id) {
+  var sku = Math.random() < 0.5 ? 'EU' : 'US', c = { id:id, x:-0.08, sku:sku, rev:'B', acc:sku, serialOk:true, weightOk:true, defect:null, state:'belt', gated:{}, flagged:false };
+  var r = Math.random(), a = L.rates; var t = 0;
+  if (r < (t += a.rev)) { c.rev = 'A'; c.defect = 'rev'; }
+  else if (r < (t += a.acc)) { c.acc = sku === 'EU' ? 'US' : 'EU'; c.defect = 'acc'; }
+  else if (r < (t += a.ser)) { c.serialOk = false; c.defect = 'ser'; }
+  else if (r < (t += a.wt)) { c.weightOk = false; c.defect = 'wt'; }
+  return c;
+}
+function newSim(L, gates) {
+  S = { L:L, gates:gates, cartons:[], spawned:0, spawnT:0.4, t:0, paused:0, audit:false,
+        good:0, esc:[], heldBad:0, heldGood:0, gateBad:0, gateGood:0, done:false, events:[] };
+}
+function gateCatches(g, c) {
+  if (g === 'ver') return c.defect === 'rev';
+  if (g === 'ser') return c.defect === 'ser';
+  if (g === 'wt') return c.defect === 'wt' || (c.defect === 'acc' && c.__w);
+  return false;
+}
+function stepSim(dt) {
+  if (!S || S.done) return;
+  if (S.paused > 0) { S.paused -= dt; return; }
+  S.t += dt; S.spawnT -= dt;
+  if (S.spawned < S.L.n && S.spawnT <= 0) { var c = makeCarton(S.L, S.spawned++); c.__w = Math.random() < 0.7; S.cartons.push(c); S.spawnT += S.L.gap; S.events.push({ k:'spawn', c:c }); }
+  S.cartons.forEach(function (c) {
+    if (c.state !== 'belt') return;
+    var px = c.x; c.x += S.L.speed * dt;
+    Object.keys(S.gates).forEach(function (g) {
+      if (!S.gates[g] || c.gated[g]) return; var gx = GATES[g].x;
+      if (px < gx && c.x >= gx) {
+        c.gated[g] = true; var catches = gateCatches(g, c);
+        // a little noise: the checkweigher occasionally trips on a good box
+        var fp = g === 'wt' && !c.defect && Math.random() < 0.04;
+        S.events.push({ k:'gate', g:g, c:c });
+        if (catches || fp) { c.state = 'held'; c.byGate = true; if (c.defect) S.gateBad++; else S.gateGood++; S.events.push({ k:'hold', c:c, gate:true, bad:!!c.defect }); }
+      }
+    });
+    if (c.state === 'belt' && c.x >= 1) { c.state = 'shipped'; if (c.defect) { S.esc.push(c.defect); S.events.push({ k:'esc', c:c }); } else { S.good++; S.events.push({ k:'ship', c:c }); } }
+  });
+  if (S.spawned >= S.L.n && S.cartons.every(function (c) { return c.state !== 'belt'; })) { S.done = true; S.events.push({ k:'done' }); }
+}
+function holdCarton(id) {
+  var c = S && S.cartons.filter(function (k) { return k.id === id; })[0];
+  if (!c || c.state !== 'belt' || c.x < 0.02 || c.x > 0.97) return false;
+  c.state = 'held'; if (c.defect) S.heldBad++; else S.heldGood++; S.events.push({ k:'hold', c:c, gate:false, bad:!!c.defect }); return true;
+}
+function preShipAudit() {
+  if (!S || S.audit) return false; S.audit = true; S.paused = 2.2;
+  S.cartons.forEach(function (c) { if (c.state === 'belt' && c.x > 0.55) c.flagged = true; });
+  S.events.push({ k:'audit' }); return true;
+}
+function levelScore() {
+  var gcost = 0; Object.keys(S.gates).forEach(function (g) { if (S.gates[g]) gcost += GATES[g].cost; });
+  var raw = S.good * 7 - S.esc.length * 100 - S.heldGood * 9 - gcost - (S.audit ? 20 : 0) - S.gateGood * 6;
+  var max = S.L.n * 7 * 0.62;
+  return { raw:raw, pts:Math.max(0, Math.min(333, Math.round(333 * raw / max))), gcost:gcost };
+}
+
+/* ---------- screens ---------- */
+function screenTitle() {
+  el(topbar(true) + '<div class="card"><div class="pack" style="height:170px"><div class="beltb j-belt" style="top:100px"></div>' +
+   [0, 1, 2].map(function (i) { return '<div class="ct" style="top:72px;left:' + (14 + i * 70) + 'px"><div class="bx"></div><div class="lb"><span>🇪🇺</span><span>B</span></div><div class="ac">EU</div></div>'; }).join('') +
+   '<div class="gate" style="left:46%;top:44px;height:100px"><div class="ic">🏷️</div><div class="arch"></div></div><div class="truck j-float" style="top:66px">🚚</div></div>' +
+   '<h3>Chapter 12 · The Hardest Factory Lessons</h3><h1>The Last <span>Gate</span></h1>' +
+   '<p>The label is the cheapest component in the building, carrying the highest-consequence information, applied at the least-watched station. <b>This is the last checkpoint before the truck.</b></p>' +
+   '<div class="plain"><b>In plain English:</b> packing is where the right product can still go out wrong: the wrong region\'s label or plug, a mismatched serial, a missing manual. Scan gates catch what people cannot see. People catch what gates cannot. <b>Goal:</b> choose your gates, and flick bad boxes off the belt before they reach the truck.</div>' +
+   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55"><li><b>Three shifts</b> of real-time packing. Tap a box to pull it.</li><li><b>Pick your gates</b> first. They cost money and cannot see everything.</li><li>A wrong box on the truck costs far more than a good one pulled.</li></ul>' +
+   '<button class="btn" data-a="start">Start the first shift</button><p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factory is fictional.</p></div>');
+}
+
+function screenGates() {
+  G.phase = 'gates'; var L = LEVELS[G.lv];
+  el(topbar(false) + '<div class="card"><h3>Shift ' + (G.lv + 1) + ' of ' + LEVELS.length + '</h3><h2>' + L.title + '</h2><p>' + L.ctx + '</p>' +
+   '<h3>Choose your gates</h3><div class="gatesel">' + Object.keys(GATES).map(function (g) { var d = GATES[g]; return '<button data-a="gate" data-g="' + g + '" class="' + (G.gates[g] ? 'on' : '') + '"><i>' + d.ic + '</i><span><b>' + d.name + '</b>' + d.sub + '</span><em>−' + d.cost + '</em></button>'; }).join('') + '</div>' +
+   '<div class="note"><b>What you can see</b>The label stripe (orange = old revision) and the flag against the plug tag (a 🇪🇺 box with a US plug is wrong). You cannot see serials or weights.</div>' +
+   '<button class="btn" data-a="go">Start the belt</button></div>');
+}
+
+function cartonHtml(c) { return '<div class="ct' + (c.rev === 'A' ? ' revA' : '') + '" id="c' + c.id + '" data-a="pull" data-id="' + c.id + '" style="left:-60px"><div class="bx"></div><div class="lb"><span>' + (c.sku === 'EU' ? '🇪🇺' : '🇺🇸') + '</span><span>' + c.rev + '</span></div><div class="ac">' + c.acc + '</div></div>'; }
+function screenPlay() {
+  G.phase = 'play'; var L = LEVELS[G.lv];
+  var gatesHtml = Object.keys(GATES).filter(function (g) { return G.gates[g]; }).map(function (g) { return '<div class="gate" id="g' + g + '" style="left:' + (GATES[g].x * 100) + '%"><div class="ic">' + GATES[g].ic + '</div><div class="arch"></div></div>'; }).join('');
+  el(J.muteBtn() + '<div class="hud" style="margin-right:50px"><b>Shift ' + (G.lv + 1) + '/' + LEVELS.length + '</b><div class="bar" style="height:8px;background:#0e1718;border-radius:6px;overflow:hidden"><i id="prog" style="display:block;height:100%;width:0;background:var(--acc)"></i></div><span id="left">' + L.n + ' boxes</span></div>' +
+   '<div class="card"><h3>' + L.title + '</h3>' +
+   '<div class="pack" id="pack"><div class="beltb j-belt"></div><div class="holdbin" id="hb">⏸ HOLD <span id="hc">0</span></div><div class="cnt" id="shipc">SHIPPED 0</div>' + gatesHtml + '<div class="truck" id="truck">🚚</div></div>' +
+   '<div class="score3"><div><b id="s1">0</b>shipped good</div><div><b id="s2" style="color:var(--green)">0</b>caught</div><div><b id="s3" style="color:var(--amber)">0</b>false holds</div><div><b id="s4" style="color:var(--red)">0</b>escaped</div></div>' +
+   '<div class="legend2"><span><i style="background:#3d7bdc"></i>new label</span><span><i style="background:#ff9f43"></i>OLD label</span><span>🇪🇺/🇺🇸 box vs plug tag</span></div>' +
+   '<div class="row"><button class="btn ghost" data-a="audit" id="aud">🔍 Pre-ship audit · pauses the belt · −20</button></div></div>');
+  newSim(L, G.gates); last = 0; J.sfx('belt'); cancelAnimationFrame(raf); raf = (window.requestAnimationFrame || function (f) { return setTimeout(f, 16); })(frame);
+}
+function frame(ts) {
+  if (G.phase !== 'play' || !S) return;
+  var dt = last ? Math.min(0.05, (ts - last) / 1000) : 0.016; last = ts;
+  stepSim(dt); applyEvents(); render();
+  if (S.done) { later(700, screenShift); return; }
+  raf = (window.requestAnimationFrame || function (f) { return setTimeout(f, 16); })(frame);
+}
+function render() {
+  var pack = $q('#pack'); if (!pack) return; var w = pack.clientWidth || 320;
+  S.cartons.forEach(function (c) { var n = document.getElementById('c' + c.id); if (!n) return; if (c.state === 'belt') n.style.left = Math.round(c.x * (w - 60)) + 'px'; if (c.flagged && c.defect) n.classList.add('reveal'); });
+  var prog = $q('#prog'); if (prog) prog.style.width = Math.round(100 * Math.min(1, (S.spawned - 0) / S.L.n)) + '%';
+}
+function applyEvents() {
+  var pack = $q('#pack'); if (!pack) { S.events = []; return; }
+  S.events.forEach(function (e) {
+    if (e.k === 'spawn') { pack.insertAdjacentHTML('beforeend', cartonHtml(e.c)); }
+    else if (e.k === 'gate') { var g = document.getElementById('g' + e.g); if (g) { g.classList.add('fire'); setTimeout(function () { g.classList.remove('fire'); }, 160); } J.sfx('tick'); }
+    else if (e.k === 'hold') { var n = document.getElementById('c' + e.c.id); if (n) { n.classList.add('held'); setTimeout(function () { n.remove(); }, 500); }
+      if (e.bad) { J.sfx('ok'); J.burstAt(n || pack, { n:12, pal:'good', speed:200, up:true }); J.float(J.center(pack).x - 40, J.center(pack).y - 90, 'CAUGHT', '#3ddc84', 15); } else { J.sfx('bad'); J.wiggle(pack); J.float(J.center(pack).x - 40, J.center(pack).y - 90, 'good box!', '#ff9f43', 14); }
+      var hc = $q('#hc'); if (hc) hc.textContent = (S.heldBad + S.heldGood + S.gateBad + S.gateGood); }
+    else if (e.k === 'ship') { var n2 = document.getElementById('c' + e.c.id); if (n2) { n2.classList.add('sent'); setTimeout(function () { n2.remove(); }, 320); } var tr = $q('#truck'); if (tr) J.pop(tr, 1.12); J.sfx('tick'); }
+    else if (e.k === 'esc') { var n3 = document.getElementById('c' + e.c.id); if (n3) { n3.classList.add('sent'); setTimeout(function () { n3.remove(); }, 320); } J.sfx('alarm'); J.hit($q('#truck'), 'bad', 'med'); J.float(J.center(pack).x + 60, J.center(pack).y - 70, 'WRONG BOX SHIPPED', '#ff5a4e', 15); }
+    else if (e.k === 'audit') { J.sfx('scan'); J.flash('#3dd6c6', 300, 0.15); }
+  });
+  S.events = [];
+  var set = function (id, v) { var n = $q(id); if (n) n.textContent = v; };
+  set('#s1', S.good); set('#s2', S.heldBad + S.gateBad); set('#s3', S.heldGood + S.gateGood); set('#s4', S.esc.length); set('#shipc', 'SHIPPED ' + S.good);
+  set('#left', Math.max(0, S.L.n - S.spawned) + ' to come');
+  var aud = $q('#aud'); if (aud && S.audit) aud.disabled = true;
+}
+
+function screenShift() {
+  var sc = levelScore(), L = LEVELS[G.lv]; G.results.push({ L:L, S:S, sc:sc });
+  var last = G.lv + 1 >= LEVELS.length, missed = {}; S.esc.forEach(function (d) { missed[d] = (missed[d] || 0) + 1; });
+  var names = { rev:'old-revision label', acc:'wrong plug', ser:'serial mismatch', wt:'missing manual' };
+  var gatesOn = Object.keys(S.gates).filter(function (g) { return S.gates[g]; });
+  var hint = S.esc.length ? S.esc.map(function (d, i, a) { return names[d]; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).join(', ') : '';
+  el(topbar(false) + '<div class="card"><h3>Shift ' + (G.lv + 1) + ' · done</h3><h2>' + (S.esc.length ? S.esc.length + ' wrong box' + (S.esc.length > 1 ? 'es' : '') + ' reached the truck' : 'Nothing wrong shipped') + '</h2>' +
+   '<div class="score3"><div><b>' + S.good + '</b>shipped good</div><div><b style="color:var(--green)">' + (S.heldBad + S.gateBad) + '</b>caught</div><div><b style="color:var(--amber)">' + (S.heldGood + S.gateGood) + '</b>false holds</div><div><b style="color:var(--red)">' + S.esc.length + '</b>escaped</div></div>' +
+   (S.esc.length ? '<div class="note bad"><b>What got through</b>' + hint + '. ' + (S.esc.indexOf('ser') >= 0 && !S.gates.ser ? 'Serial mismatches cannot be seen: only the marriage gate catches them. ' : '') + (S.esc.indexOf('wt') >= 0 && !S.gates.wt ? 'Missing manuals do not show: the checkweigher does. ' : '') + (S.esc.indexOf('rev') >= 0 && !S.gates.ver ? 'The orange stripe was visible, but you cannot watch every box at month-end speed. ' : '') + 'The retail system rejects the pallet on arrival, and the corrupted records poison your traceability.</div>' : '<div class="note good"><b>A clean shift</b>Every wrong box was stopped before it left the building.</div>') +
+   '<div class="lines"><div><span>Gates running: ' + (gatesOn.length ? gatesOn.map(function (g) { return GATES[g].ic; }).join(' ') : 'none') + '</span><em class="neg">−' + sc.gcost + '</em></div>' + (S.audit ? '<div><span>Pre-ship audit</span><em class="neg">−20</em></div>' : '') + '<div><span>Shift score</span><em class="pos">' + sc.pts + ' / 333</em></div></div>' +
+   '<button class="btn" data-a="' + (last ? 'final' : 'next') + '">' + (last ? 'See the result' : 'Next shift') + '</button></div>');
+  if (S.esc.length) { J.sfx('alarm'); J.hit($q('.score3'), 'bad', S.esc.length > 1 ? 'big' : 'med'); } else { J.sfx('good'); J.confetti(); }
+}
+function score() { var t = 0; G.results.forEach(function (r) { t += r.sc.pts; }); return Math.min(1000, t); }
+function screenFinal() {
+  G.phase = 'final'; var total = score(), best = store.get('best', 0), nb = total > best;
+  if (nb) store.set('best', total);
+  try { HHL.submit(112, total); } catch (e) {}
+  var stamp = total >= 700 ? 'pass' : total >= 400 ? 'warn' : 'fail';
+  var txt = total >= 700 ? 'NOTHING WRONG SHIPPED' : total >= 400 ? 'A FEW GOT OUT' : 'THE TRUCK LEFT WRONG';
+  var esc = 0; G.results.forEach(function (r) { esc += r.S.esc.length; });
+  el(topbar(false) + '<div class="card"><h3>Three shifts packed</h3><div class="stamp ' + stamp + '" id="stp">' + txt + '</div><div class="bigs" id="bigs">0</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800" class="j-pulse">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, total)) + '</p>') +
+   '<div class="lines" id="led">' + G.results.map(function (r, i) { return '<div><span>Shift ' + (i + 1) + ' · ' + r.L.title + ' · ' + r.S.esc.length + ' escaped</span><em class="' + (r.S.esc.length ? 'neg' : 'pos') + '">' + r.sc.pts + '</em></div>'; }).join('') + '</div>' +
+   '<div class="lesson">Gates catch what people cannot see, and people catch what gates cannot. Neither is enough alone at month-end, which is why the pre-ship audit right belongs in the quality agreement: the last point at which every discipline in Part One can still be verified, while the goods are inside the building.' + (esc ? ' You shipped ' + esc + ' wrong box' + (esc > 1 ? 'es' : '') + '.' : '') + '</div>' +
+   HHL.next(112) +
+   '<div class="row"><button class="btn" data-a="again">Pack another day</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+  J.stamp($q('#stp'), stamp); J.count($q('#bigs'), 0, total, 1200);
+  later(1300, function () { if (stamp === 'pass') { J.confetti(); J.sfx('win'); } else J.sfx(stamp === 'warn' ? 'ok' : 'lose'); });
+  J.stagger($app.querySelectorAll('#led div'), 60);
+}
+
+/* ---------- events ---------- */
+$app.addEventListener('pointerdown', function (e) { var c = e.target.closest('[data-a=pull]'); if (c && G.phase === 'play') { e.preventDefault(); holdCarton(Number(c.dataset.id)); } });
+$app.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+  var a = b.dataset.a;
+  switch (a) {
+    case 'start': newGame(); screenGates(); break;
+    case 'gate': { var g = b.dataset.g; G.gates[g] = !G.gates[g]; J.sfx(G.gates[g] ? 'confirm' : 'cancel'); screenGates(); break; }
+    case 'go': screenPlay(); break;
+    case 'audit': preShipAudit(); break;
+    case 'next': G.lv++; screenGates(); break;
+    case 'final': screenFinal(); break;
+    case 'again': newGame(); screenGates(); break;
+    case 'menu': screenTitle(); break;
+  }
+});
+newGame(); screenTitle();
+window.__f12 = { G:function () { return G; }, S:function () { return S; }, newSim:newSim, step:stepSim, hold:holdCarton, audit:preShipAudit, levelScore:levelScore, LEVELS:LEVELS, GATES:GATES, score:score };
+})();
+</script>
+</body>
+</html>

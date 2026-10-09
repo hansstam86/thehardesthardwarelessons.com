@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a1c">
+<title>Behind the Fire Door — The Hardest Factory Lessons</title>
+<meta name="description" content="A free game: five minutes inside a battery plant. Find what is missing before it burns. From The Hardest Factory Lessons, Chapter 6.">
+<link rel="stylesheet" href="../factory.css?v=1">
+<link rel="stylesheet" href="../juice.css?v=2">
+<style>
+.rooms{display:grid;gap:10px}
+.room{position:relative;border:2px solid var(--rule);border-radius:14px;background:linear-gradient(#1b2b2e,#172326);padding:10px 10px 12px;display:grid;gap:8px}
+.room>b{font:800 10px var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.room.fire{border-color:#5a3b17;background:linear-gradient(#2b1f12,#1e1710)}
+.spots{display:grid;grid-template-columns:repeat(auto-fit,minmax(74px,1fr));gap:8px}
+.spot{position:relative;display:grid;gap:3px;justify-items:center;text-align:center;border:2px solid var(--rule);background:var(--panel2);border-radius:14px;padding:10px 4px 8px;color:var(--ink);font:inherit;cursor:pointer;transition:transform .08s,border-color .2s}
+.spot:active{transform:scale(.92)} .spot i{font-style:normal;font-size:30px;line-height:1} .spot b{font-size:10.5px;line-height:1.15;min-height:24px;display:grid;place-items:center}
+.spot.new{animation:jglow 1.8s ease-in-out infinite}
+.spot.s1{border-color:#4a7a76} .spot.s2{border-color:var(--acc);background:#16363a}
+.spot .bd{position:absolute;top:-8px;right:-6px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:900;color:#07201d}
+.spot .bd.ok{background:var(--green)} .spot .bd.cc{background:var(--red);color:#fff}
+.spot.crit:after{content:"★";position:absolute;top:2px;left:5px;font-size:11px;color:var(--gold)}
+.clock{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--rule);border-radius:14px;padding:10px 12px;position:sticky;top:6px;z-index:5;margin-right:50px}
+.clock .t{font:900 22px var(--font);font-variant-numeric:tabular-nums} .clock .t.low{color:var(--red);animation:jblink 1s steps(2,end) infinite}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:45;background:var(--panel);border-top:2px solid var(--acc);border-radius:20px 20px 0 0;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 16px);display:grid;gap:10px;animation:jrise .25s ease both;max-width:520px;margin:0 auto;box-shadow:0 -10px 30px rgba(0,0,0,.5)}
+.sheet h2{font-size:18px}
+.sheet .row .btn{min-height:44px;padding:10px;font-size:14px}
+.mk{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mk button{border:2px solid var(--rule);background:var(--panel2);color:var(--ink);border-radius:12px;padding:12px;font:800 14px var(--font);cursor:pointer}
+.mk button.on.ok{border-color:var(--green);background:#143324} .mk button.on.cc{border-color:var(--red);background:#341715}
+.vd{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.vd button{display:grid;gap:4px;justify-items:center;border:2px solid var(--rule);background:var(--panel2);border-radius:14px;padding:12px 4px;color:var(--ink);font:inherit;cursor:pointer;font-size:12px;font-weight:700;transition:transform .08s}
+.vd button i{font-style:normal;font-size:26px} .vd button.on{transform:scale(1.05)} .vd button.on[data-v=qualify]{border-color:var(--green);background:#143324} .vd button.on[data-v=conditions]{border-color:var(--amber);background:#33260f} .vd button.on[data-v=decline]{border-color:var(--red);background:#341715}
+.firescene{position:relative;height:200px;border-radius:14px;overflow:hidden;background:linear-gradient(#2a0f0a,#120807);border:1px solid #5a2a1c}
+.flame{position:absolute;bottom:-6px;font-size:54px;animation:flick .5s ease-in-out infinite alternate}
+@keyframes flick{from{transform:translateY(0) scale(1)}to{transform:translateY(-8px) scale(1.12)}}
+.rowt{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--rule)} .rowt i{font-style:normal;font-size:24px;text-align:center}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px} .dot.good{background:var(--green)} .dot.hidden{background:#b388ff} .dot.obvious{background:var(--red)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="../hhl.js?v=14"></script>
+<script src="../juice.js?v=2"></script>
+<script>
+(function () {
+'use strict';
+var $app = document.getElementById('app');
+var TIME = 300, GLANCE = 15, EXAM = 40;
+
+/* ---------- content ---------- */
+// st: good | obvious (bad, visible at a glance) | hidden (looks fine until examined)
+var ITEMS = [
+ { id:'rack', name:'Charging racks', ic:'🔌', room:'charge', crit:true,
+   g:{ good:'Steel racks, with space between the packs.', obvious:'A wooden shelf. Packs are charging on it.', hidden:'Steel racks, with space between the packs.' },
+   x:{ good:'A dedicated room behind a fire door. Steel racks, barriers between units.', obvious:'Wood, in the open assembly hall, packs touching. This chapter\'s equivalent of the uncoated metal in the yard: the evaluation is over.', hidden:'Steel racks, but in the open assembly hall: no fire separation and no barriers. One cell\'s event propagates rack-wide.' } },
+ { id:'detect', name:'Detection', ic:'🚨', room:'charge', crit:true,
+   g:{ good:'Smoke and thermal sensors over the racks.', obvious:'No detector over the charging area at all.', hidden:'A smoke sensor over the racks.' },
+   x:{ good:'A test tag dated last month. The alarm pages a named person.', obvious:'Nothing: lithium events announce themselves minutes before they commit, and nobody would hear it.', hidden:'The test tag is dated two years ago, and the alarm panel has been silenced because it kept going off.' } },
+ { id:'suppress', name:'Suppression at the station', ic:'🧯', room:'charge', crit:true,
+   g:{ good:'Sand bucket, fire blanket and an extinguisher at the station.', obvious:'A water extinguisher on the wall.', hidden:'An extinguisher hangs by the station.' },
+   x:{ good:'Class-appropriate for lithium, in date, with sand and a blanket within reach.', obvious:'A water extinguisher in a battery room is not equipment. It is a diagnosis.', hidden:'It is a water extinguisher behind a pallet, and the sand bucket is by the exit, not the station.' } },
+ { id:'people', name:'People and drills', ic:'👷', room:'charge',
+   g:{ good:'An evacuation route is posted and the training board looks current.', obvious:'No evacuation sign anywhere in the battery area.', hidden:'An evacuation route is posted.' },
+   x:{ good:'Lithium-specific response training records and a drill log for the quarter.', obvious:'No training records. The first response to a venting pack is distance and alarm, and nobody has been told.', hidden:'The training is generic fire safety, no drill is logged, and the posted exit is locked.' } },
+ { id:'aging', name:'Aging area', ic:'🌡️', room:'aging',
+   g:{ good:'A separate room. The thermostat reads 25 °C.', obvious:'Crowded racks, and the door is padlocked: "under renovation".', hidden:'A separate room. The thermostat reads 25 °C.' },
+   x:{ good:'Fire-separated, with barriers between racks and a continuous temperature log.', obvious:'Padlocked on your first visit and the second. Aging is where marginal cells are deliberately concentrated, and you cannot see it.', hidden:'The sensor hangs by the AC outlet. The racks have no barriers, and the log has a gap during last month\'s outage.' } },
+ { id:'env', name:'Environment and outage protocol', ic:'❄️', room:'aging',
+   g:{ good:'A cooled room. The outage protocol on the wall names the battery zone.', obvious:'A warm, humid room and no protocol on display.', hidden:'A cooled room.' },
+   x:{ good:'The battery zone is on UPS backup, with time budgets written down.', obvious:'When the power goes in a Guangdong summer, battery storage loses its thermal management along with everything else.', hidden:'The protocol covers the dry cabinets and the paste fridge, and never mentions the battery zone.' } },
+ { id:'quar', name:'Suspect-cell quarantine', ic:'🪣', room:'store',
+   g:{ good:'A marked steel bin, half full.', obvious:'Swollen cells in a cardboard box in a corner.', hidden:'A marked steel bin.' },
+   x:{ good:'Segregated and non-combustible. Emptied weekly.', obvious:'A punctured cell meets cardboard. This is where it ends up.', hidden:'The bin overflows into general scrap behind it, and nobody empties it.' } },
+ { id:'dispose', name:'Disposal chain', ic:'📜', room:'store',
+   g:{ good:'A manifest board with pickup dates.', obvious:'No manifests. "The cleaner takes them."', hidden:'A manifest board.' },
+   x:{ good:'A licensed contractor, monthly pickups, manifests on file.', obvious:'Rejected cells leave through a route nobody can name.', hidden:'The manifests are from a contractor not licensed for hazardous waste.' } },
+ { id:'term', name:'Terminal protection', ic:'📦', room:'store',
+   g:{ good:'Cells in trays with separators.', obvious:'Loose cells tumbled in plastic bins, terminals touching.', hidden:'Cells in trays.' },
+   x:{ good:'Separators between every layer, and transport cases that are rated for it.', obvious:'Mechanical damage and shorted terminals are among the short list of root causes.', hidden:'The trays have no separators between layers. The cells touch when stacked.' } },
+ { id:'insurer', name:'Insurer\'s inspection report', ic:'🏛️', room:'office',
+   g:{ good:'A framed insurer\'s certificate on the wall.', obvious:'Nothing on the wall. "The insurer has never been."', hidden:'A framed insurer\'s certificate on the wall.' },
+   x:{ good:'A battery-area inspection report from last year, with the findings closed.', obvious:'A plant that has never been asked is a plant whose insurer and landlord do not yet know what it does.', hidden:'The certificate covers the general premises. The battery area was never inspected.' } }
+];
+var IBY = {}; ITEMS.forEach(function (i) { IBY[i.id] = i; });
+var ROOMS = [['charge', '🔥 Charging room', true], ['aging', '🌡️ Aging room', false], ['store', '📦 Storage and rejects', false], ['office', '🏢 Office', false]];
+var ARCHES = [
+ { key:'serious', verdict:'qualify', why:'A serious operation. Segregated, steel, detected, drilled and insured. Safety infrastructure cannot be staged for your visit: it is bolted to the building, or it is absent.' },
+ { key:'gaps', verdict:'conditions', why:'A competent plant with a few real gaps outside the critical three. Proceed, with the gaps closed on a dated list before any volume.' },
+ { key:'theatre', verdict:'decline', why:'Safety theatre. Everything looks right at a glance: steel racks, a sensor, an extinguisher. Examined, the fire separation, the test tag and the extinguisher type fail. The tour shows the infrastructure exists. It cannot show it works.' },
+ { key:'disq', verdict:'decline', why:'A disqualifier on the first walk. The wooden charging rack is a single observation that ends an evaluation, and the rest of the plant explains why.' }
+];
+
+var G = null;
+var store = { get:function (k, d) { try { var v = localStorage.getItem('hhl.ch106.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set:function (k, v) { try { localStorage.setItem('hhl.ch106.' + k, JSON.stringify(v)); } catch (e) {} } };
+function fmt(n) { return Number(n).toLocaleString('en'); }
+function later(ms, fn) { setTimeout(function () { try { fn(); } catch (e) {} }, J.reduce ? 0 : ms); }
+function el(h) { $app.innerHTML = h; window.scrollTo(0, 0); }
+function $q(s) { return $app.querySelector(s); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function topbar(back) { return '<div class="top">' + (back ? '<a class="back" href="../">← Games</a>' : '<span></span>') + J.muteBtn() + '</div>'; }
+var NAMES = ['Hengda Power Systems', 'Auric Energy Packs', 'Nanfeng Battery Works', 'Kestrel Cell Assembly'];
+
+function newGame() {
+  var arch = pick(ARCHES), st = {}, hid = function () { return Math.random() < 0.5 ? 'hidden' : 'obvious'; };
+  ITEMS.forEach(function (i) { st[i.id] = 'good'; });
+  var nonCrit = ITEMS.filter(function (i) { return !i.crit; }).map(function (i) { return i.id; });
+  if (arch.key === 'serious') { if (Math.random() < .4) st[pick(nonCrit)] = 'hidden'; if (Object.keys(st).every(function (k) { return st[k] === 'good'; }) === false) arch.verdict = 'conditions'; }
+  if (arch.key === 'gaps') shuffle(nonCrit).slice(0, 2 + Math.floor(Math.random() * 2)).forEach(function (id) { st[id] = hid(); });
+  if (arch.key === 'theatre') { st.rack = 'hidden'; st.detect = 'hidden'; st.suppress = 'hidden'; shuffle(nonCrit).slice(0, 2).forEach(function (id) { st[id] = 'hidden'; }); }
+  if (arch.key === 'disq') { st.rack = 'obvious'; shuffle(nonCrit.concat(['detect', 'suppress'])).slice(0, 2).forEach(function (id) { st[id] = hid(); }); }
+  arch = { key:arch.key, why:arch.why, verdict:arch.verdict };
+  // truth rule: any critical item bad = decline; otherwise by count of other gaps
+  var crit = ITEMS.some(function (i) { return i.crit && st[i.id] !== 'good'; }), nb = ITEMS.filter(function (i) { return !i.crit && st[i.id] !== 'good'; }).length;
+  arch.verdict = crit ? 'decline' : nb === 0 ? 'qualify' : nb <= 3 ? 'conditions' : 'decline'; arch.crit = crit;
+  G = { arch:arch, name:pick(NAMES), st:st, seen:{}, mark:{}, t:TIME, sel:null, verdict:null, phase:'title' };
+  ITEMS.forEach(function (i) { G.seen[i.id] = 0; });
+}
+
+/* ---------- screens ---------- */
+function screenTitle() {
+  el(topbar(true) + '<div class="card"><div class="firescene">' +
+   '<div class="flame" style="left:10%;animation-delay:-.1s">🔥</div><div class="flame" style="left:38%;font-size:70px;animation-delay:-.3s">🔥</div><div class="flame" style="left:66%;animation-delay:-.2s">🔥</div>' +
+   '<div style="position:absolute;inset:0;display:grid;place-items:center;padding-bottom:30px"><div class="big-ic j-float">🔋</div></div><div class="j-blink" style="position:absolute;right:14px;top:10px;font-size:28px">🚨</div></div>' +
+   '<h3>Chapter 6 · The Hardest Factory Lessons</h3><h1>Behind the <span>Fire Door</span></h1>' +
+   '<p>The area with the highest risk gets the least customer attention. <b>Nobody asks to see the pack line behind the fire door</b>, where the failure modes can burn down the building.</p>' +
+   '<div class="plain"><b>In plain English:</b> a battery plant announces its seriousness through physical safety equipment that cannot be faked for your visit. You have a few minutes to check ten things. <b>Goal:</b> find what is missing before it burns, and decide whether to build your product there.</div>' +
+   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55"><li><b>Five minutes</b> inside the plant. A glance costs 15 s, a close examination 40 s.</li><li><b>Some problems show at a glance.</b> The dangerous ones often do not.</li><li>Mark each item OK or a concern, then <b>decide</b>.</li></ul>' +
+   '<button class="btn" data-a="start">Walk in</button><p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The plant is fictional.</p></div>');
+}
+
+function clockHtml() {
+  var m = Math.floor(G.t / 60), s = G.t % 60;
+  return J.muteBtn() + '<div class="clock"><b>🕐</b><div class="bar" style="height:8px;background:#0e1718;border-radius:6px;overflow:hidden"><i style="display:block;height:100%;background:var(--acc);width:' + Math.round(100 * G.t / TIME) + '%;transition:width .4s"></i></div><div class="t' + (G.t <= 60 ? ' low' : '') + '" id="clk">' + m + ':' + ('0' + s).slice(-2) + '</div></div>';
+}
+function statusBadge(i) { var m = G.mark[i.id]; return m === 'ok' ? '<div class="bd ok">✓</div>' : m === 'cc' ? '<div class="bd cc">!</div>' : ''; }
+function screenScene() {
+  G.phase = 'scene';
+  var left = ITEMS.filter(function (i) { return !G.mark[i.id]; }).length;
+  el(clockHtml() + '<div class="card"><h3>' + G.name + ' · pack line</h3><h2>Ten things to verify</h2>' +
+   '<p class="small">Tap anything. ★ marks the three that matter most. Tap again to examine closer, then mark it.</p>' +
+   '<div class="rooms">' + ROOMS.map(function (r) { return '<div class="room' + (r[2] ? ' fire' : '') + '"><b>' + r[1] + '</b><div class="spots">' + ITEMS.filter(function (i) { return i.room === r[0]; }).map(function (i) { var s = G.seen[i.id];
+      return '<button class="spot s' + s + (s ? '' : ' new') + (i.crit ? ' crit' : '') + '" data-a="spot" data-id="' + i.id + '">' + statusBadge(i) + '<i>' + i.ic + '</i><b>' + i.name + '</b></button>'; }).join('') + '</div></div>'; }).join('') + '</div>' +
+   '<button class="btn" data-a="toverdict">' + (left ? 'Leave and decide (' + left + ' unmarked)' : 'Leave and decide') + '</button></div>');
+}
+
+function sheetHtml(id) {
+  var i = IBY[id], s = G.seen[id], st = G.st[id], m = G.mark[id];
+  var gl = s >= 1 ? '<div class="note ' + (st === 'obvious' ? 'bad' : '') + '"><b>At a glance</b>' + i.g[st] + '</div>' : '';
+  var ex = s >= 2 ? '<div class="note ' + (st === 'good' ? 'good' : 'bad') + '"><b>Examined</b>' + i.x[st] + '</div>' : '';
+  var can1 = s < 1 && G.t >= GLANCE, can2 = s < 2 && G.t >= EXAM;
+  return '<div class="sheet" id="sheet"><div class="row" style="align-items:center"><h2>' + i.ic + ' ' + i.name + (i.crit ? ' ★' : '') + '</h2><button class="btn ghost sm" data-a="close" style="flex:0 0 auto;width:auto">Close</button></div>' + gl + ex +
+    (s < 2 ? '<div class="row">' + (s < 1 ? '<button class="btn sm" data-a="look" data-m="1"' + (can1 ? '' : ' disabled') + '>👀 Glance · 15 s</button>' : '') + '<button class="btn sm ghost" data-a="look" data-m="2"' + (can2 ? '' : ' disabled') + '>🔎 Examine · 40 s</button></div>' : '') +
+    (s >= 1 ? '<div class="mk"><button class="ok' + (m === 'ok' ? ' on' : '') + '" data-a="mark" data-v="ok">✅ OK</button><button class="cc' + (m === 'cc' ? ' on' : '') + '" data-a="mark" data-v="cc">⚠️ Concern</button></div>' : '<p class="small">Look first, then mark.</p>') + '</div>';
+}
+function openSheet(id) {
+  G.sel = id; var old = $q('#sheet'); if (old) old.remove();
+  $app.insertAdjacentHTML('beforeend', sheetHtml(id));
+}
+function doLook(mode) {
+  var id = G.sel, cost = mode === 2 ? EXAM : GLANCE; if (G.t < cost || G.seen[id] >= mode) return;
+  var prev = G.t; G.t -= cost; G.seen[id] = mode; var st = G.st[id];
+  var spot = $app.querySelector('.spot[data-id="' + id + '"]');
+  screenScene(); openSheet(id);
+  var clk = $q('#clk'); if (clk) J.count(clk, prev, G.t, 500, function (n) { n = Math.round(n); return Math.floor(n / 60) + ':' + ('0' + (n % 60)).slice(-2); });
+  J.sfx(mode === 2 ? 'scan' : 'select');
+  var bad = mode === 2 ? st !== 'good' : st === 'obvious';
+  later(260, function () { var sh = $q('#sheet'); if (bad) { J.sfx('alarm'); J.hit(sh, 'bad', IBY[id].crit ? 'big' : 'med'); } else if (mode === 2) { J.hit(sh, 'good', 'small'); } else J.sfx('tick'); });
+}
+function doMark(v) {
+  var id = G.sel; if (G.seen[id] < 1) return; G.mark[id] = v; J.sfx(v === 'ok' ? 'confirm' : 'bad');
+  screenScene(); var sh = $q('#sheet'); if (sh) sh.remove(); G.sel = null;
+  var spot = $app.querySelector('.spot[data-id="' + id + '"]'); J.pop(spot, 1.2); J.burstAt(spot, { n:10, pal:v === 'ok' ? 'good' : 'bad', speed:180 });
+}
+
+function screenVerdict() {
+  G.phase = 'verdict';
+  var un = ITEMS.filter(function (i) { return !G.mark[i.id]; }).length;
+  el(topbar(false) + '<div class="card"><h3>Out of the plant</h3><h2>Your recommendation</h2>' +
+   '<p>' + (un ? un + ' item' + (un > 1 ? 's' : '') + ' you did not verify. ' : 'Every item marked. ') + 'You had ' + Math.floor(G.t / 60) + ':' + ('0' + (G.t % 60)).slice(-2) + ' left on the clock.</p>' +
+   '<div class="vd">' + [['qualify', '✅', 'Qualify'], ['conditions', '⚠️', 'Qualify with conditions'], ['decline', '⛔', 'Decline']].map(function (v) { return '<button data-a="vd" data-v="' + v[0] + '" class="' + (G.verdict === v[0] ? 'on' : '') + '"><i>' + v[1] + '</i>' + v[2] + '</button>'; }).join('') + '</div>' +
+   '<div class="plain">A wooden charging rack ends an evaluation. A plant with no detection, or the wrong extinguisher, is a plant whose thermal events happen to other people.</div>' +
+   '<button class="btn" data-a="submit"' + (G.verdict ? '' : ' disabled') + '>Submit the report</button></div>');
+}
+
+var VP = { decline:{ decline:350, conditions:80, qualify:0 }, conditions:{ conditions:350, qualify:100, decline:150 }, qualify:{ qualify:350, conditions:200, decline:60 } };
+function score() {
+  var rows = [], total = 0, a = G.arch;
+  var vp = VP[a.verdict][G.verdict]; rows.push(['Recommendation (correct: ' + ({ qualify:'Qualify', conditions:'Qualify with conditions', decline:'Decline' })[a.verdict] + ')', vp]); total += vp;
+  var ip = 0; ITEMS.forEach(function (i) { var bad = G.st[i.id] !== 'good', m = G.mark[i.id];
+    if (!m) ip += 10; else if (m === 'cc' && bad) ip += 40; else if (m === 'ok' && !bad) ip += 40; else if (m === 'ok' && bad) ip -= i.crit ? 60 : 30; });
+  ip = Math.max(0, ip); rows.push(['Items marked correctly', ip]); total += ip;
+  var tp = Math.round(G.t / 3); rows.push(['Time left on the clock', tp]); total += tp;
+  var fire = a.crit && G.verdict !== 'decline';
+  if (fire) { rows.push(['A thermal event at the plant', -250]); total -= 250; }
+  return { rows:rows, total:Math.max(0, total), fire:fire };
+}
+
+function screenDebrief() {
+  G.phase = 'debrief';
+  var sc = score(), a = G.arch, best = store.get('best', 0), nb = sc.total > best;
+  if (nb) store.set('best', sc.total);
+  try { HHL.submit(106, sc.total); } catch (e) {}
+  var right = G.verdict === a.verdict, stamp = sc.fire ? 'fail' : right ? 'pass' : 'warn';
+  var stampTxt = sc.fire ? 'IT BURNED' : right ? 'RIGHT CALL' : 'CLOSE';
+  var T = { good:'In order', obvious:'Wrong, visible at a glance', hidden:'Wrong, only visible when examined' };
+  var truth = ITEMS.map(function (i) { var st = G.st[i.id], m = G.mark[i.id];
+    return '<div class="rowt"><i>' + i.ic + '</i><span><b><span class="dot ' + st + '"></span>' + i.name + (i.crit ? ' ★' : '') + ' · ' + T[st] + '</b><br><span class="small" style="color:var(--muted)">' + (G.seen[i.id] === 2 ? 'You examined it' : G.seen[i.id] === 1 ? 'You glanced at it' : 'You never looked') + ' · marked ' + (m === 'ok' ? 'OK' : m === 'cc' ? 'a concern' : 'nothing') + '</span></span></div>'; }).join('');
+  var fireBlock = sc.fire ? '<div class="firescene" id="fs"><div class="flame" style="left:8%">🔥</div><div class="flame" style="left:30%;font-size:70px;animation-delay:-.3s">🔥</div><div class="flame" style="left:55%;animation-delay:-.1s">🔥</div><div class="flame" style="left:78%;font-size:64px;animation-delay:-.25s">🔥</div><div class="j-blink" style="position:absolute;right:14px;top:10px;font-size:30px">🚨</div></div><div class="note bad"><b>Month 9</b>A pack on a charging rack goes into thermal runaway. ' + (G.st.rack !== 'good' ? 'The rack propagates it' : 'With no working detection or suppression, nobody has minutes') + '. The building burns, your logistics are grounded, and your name is in a regulator\'s press release. You qualified the plant.</div>' : '';
+  el(topbar(false) + '<div class="card"><h3>Report submitted</h3><div class="stamp ' + stamp + '" id="stp">' + stampTxt + '</div><div class="bigs" id="bigs">0</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800" class="j-pulse">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') + fireBlock +
+   '<div class="lines" id="led">' + sc.rows.map(function (r) { return '<div><span>' + r[0] + '</span><em class="' + (r[1] >= 0 ? 'pos' : 'neg') + '">' + (r[1] >= 0 ? '+' : '') + r[1] + '</em></div>'; }).join('') + '</div>' +
+   '<div class="lesson"><b>What this plant was.</b> ' + a.why + '</div>' +
+   '<h3>What was really there</h3><div id="tru">' + truth + '</div>' + HHL.next(106) +
+   '<div class="row"><button class="btn" data-a="again">Another plant</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+  J.stamp($q('#stp'), stamp); J.count($q('#bigs'), 0, sc.total, 1200);
+  if (sc.fire) { J.sfx('alarm'); later(300, function () { J.hit($q('#fs'), 'bad', 'big'); }); }
+  later(1300, function () { if (stamp === 'pass') { J.confetti(); J.sfx('win'); } else J.sfx(stamp === 'fail' ? 'lose' : 'ok'); });
+  J.stagger($app.querySelectorAll('#led div, #tru .rowt'), 50);
+}
+
+/* ---------- events ---------- */
+$app.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+  var a = b.dataset.a, id = b.dataset.id;
+  switch (a) {
+    case 'start': newGame(); screenScene(); break;
+    case 'spot': J.sfx('select'); openSheet(id); break;
+    case 'close': { var sh = $q('#sheet'); if (sh) sh.remove(); G.sel = null; break; }
+    case 'look': doLook(Number(b.dataset.m)); break;
+    case 'mark': doMark(b.dataset.v); break;
+    case 'toverdict': screenVerdict(); break;
+    case 'vd': G.verdict = b.dataset.v; J.sfx('confirm'); screenVerdict(); break;
+    case 'submit': screenDebrief(); break;
+    case 'again': newGame(); screenScene(); break;
+    case 'menu': screenTitle(); break;
+  }
+});
+newGame(); screenTitle();
+window.__f6 = { G:function () { return G; }, score:score, ITEMS:ITEMS };
+})();
+</script>
+</body>
+</html>

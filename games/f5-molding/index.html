@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a1c">
+<title>The Process Window — The Hardest Factory Lessons</title>
+<meta name="description" content="A free game: five good parts is not a process. Dial in an injection-molding machine, find the tool problems your settings are hiding, and survive a year of drift. From The Hardest Factory Lessons, Chapter 5.">
+<link rel="stylesheet" href="../factory.css?v=1">
+<link rel="stylesheet" href="../juice.css?v=2">
+<style>
+.still .card{animation:none}
+.imm{position:relative;border-radius:14px;overflow:hidden;background:linear-gradient(#1b2b2e 0 62%,#23363a 62% 100%);border:1px solid var(--rule)}
+.imm svg{display:block;width:100%;height:auto}
+.imm .lbl{position:absolute;left:10px;top:8px;font:900 10px var(--font);letter-spacing:.12em;color:var(--acc)}
+.imm.shoot .cav{animation:cavfill .55s ease-out both}
+@keyframes cavfill{0%{fill:#2a3b3e}40%{fill:#ffb36b}100%{fill:#cfd8dc}}
+.imm.shoot .half{animation:clamp .55s ease-in-out both}
+@keyframes clamp{0%,100%{transform:translateX(0)}35%,65%{transform:translateX(var(--mv,3px))}}
+.lev{display:grid;grid-template-columns:34px 1fr auto;gap:2px 10px;align-items:center;border:1px solid var(--rule);background:var(--panel2);border-radius:14px;padding:10px 12px}
+.lev>i{grid-row:1/3;font-style:normal;font-size:26px;text-align:center}
+.lev b{font-size:14px} .lev .val{font:800 13px var(--font);color:var(--acc);font-variant-numeric:tabular-nums;text-align:right}
+.lev .pp{grid-column:2/4;display:grid;grid-template-columns:44px 1fr 44px;gap:8px;align-items:center}
+.lev .pp button{appearance:none;border:1px solid var(--rule);background:#0e1718;color:var(--ink);border-radius:10px;height:38px;font:800 20px var(--font);cursor:pointer}
+.lev .pp button:active{transform:scale(.92)} .lev .pp button:disabled{opacity:.3}
+.lev .bar{display:flex;gap:4px}
+.lev .bar s{flex:1;height:12px;border-radius:3px;background:#0e1718;text-decoration:none}
+.lev .bar s.on{background:var(--acc)} .lev .bar s.cur{background:var(--acc);box-shadow:0 0 0 2px #fff4 inset}
+.parts{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.parts.p24{grid-template-columns:repeat(8,1fr);gap:5px}
+.pt{position:relative;border-radius:8px;background:#0e1718;border:2px solid #2c4043;padding:3px;animation:ptin .3s ease both;animation-delay:calc(var(--i) * .08s)}
+.pt svg{display:block;width:100%;height:auto}
+.pt.ok{border-color:#1f8a4c} .pt.bad{border-color:#ff5a4e;background:#2a1513} .pt.sc{border-color:#ff5a4e;background:#2a1513} .pt.sc:after{content:"✖";position:absolute;inset:0;display:grid;place-items:center;font-size:16px;color:#ff5a4e;text-shadow:0 1px 0 #000}
+.pt.esc{border-color:#b388ff} .pt.esc .mk{display:block}
+.pt .mk{display:none;position:absolute;right:2px;top:0;font-size:11px}
+.pt .cap{display:block;font:800 9px var(--font);letter-spacing:.04em;text-transform:uppercase;text-align:center;color:var(--muted);margin-top:2px;min-height:11px}
+.pt.bad .cap{color:#ff9f7e}
+@keyframes ptin{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.08);opacity:1}100%{transform:none}}
+.toggle{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;text-align:left;border:2px solid var(--rule);background:var(--panel2);border-radius:14px;padding:12px;color:var(--ink);font:inherit;cursor:pointer;width:100%}
+.toggle i{font-style:normal;font-size:26px} .toggle b{font-size:14px;display:block;margin-bottom:2px} .toggle span{font-size:12px;color:var(--muted);display:block;line-height:1.3} .toggle em{font:800 12px var(--font);font-style:normal;color:var(--acc);white-space:nowrap}
+.toggle.on{border-color:var(--acc);background:#16363a}
+.toggle .seen{display:inline-block;margin-left:6px;font:800 9px var(--font);letter-spacing:.06em;text-transform:uppercase;color:#ff9f43;background:rgba(255,159,67,.16);border-radius:5px;padding:2px 5px;vertical-align:1px}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px} .stat3>div{background:#0e1718;border-radius:12px;padding:10px 6px;text-align:center;display:grid;gap:2px} .stat3 b{font-size:20px;font-variant-numeric:tabular-nums} .stat3 span{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.stat3 b.bad{color:var(--red)} .stat3 b.good{color:var(--green)} .stat3 b.warn{color:var(--amber)}
+.report{background:#f4efe3;color:#2a2418;border-radius:6px;padding:12px;display:grid;gap:6px;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.report .rh{font:900 10px var(--font);letter-spacing:.1em;text-transform:uppercase;color:#6b6252} .report .rv{display:flex;justify-content:space-between;font-size:14px} .report .rv b{font-size:16px}
+.gauge{display:grid;gap:5px;background:#0e1718;border-radius:12px;padding:10px 12px}
+.gauge .gt{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:#d6e4e3} .gauge .gt b{font-variant-numeric:tabular-nums}
+.gauge .gb{height:12px;border-radius:6px;background:#1d2a2c;overflow:hidden} .gauge .gb i{display:block;height:100%;border-radius:6px;transition:width .3s,background .3s}
+.molder{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.molder i{font-style:normal;font-size:28px} .molder .speech{max-width:100%}
+.molder .speech:after{display:none}
+.bars2{display:grid;gap:8px}
+.br{display:grid;gap:3px;font-size:12.5px;color:#d6e4e3} .br .t{display:flex;justify-content:space-between;gap:8px} .br .tr{height:10px;border-radius:5px;background:#0e1718;overflow:hidden;position:relative} .br .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;animation:fillb .8s cubic-bezier(.2,1.1,.4,1) both;transform-origin:left}
+@keyframes fillb{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)} .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="../hhl.js?v=14"></script>
+<script src="../juice.js?v=2"></script>
+<script>
+(function () {
+'use strict';
+var $app = document.getElementById('app');
+
+/* SIM:BEGIN */
+/* ---------- the molding model ----------
+   Three levers, each 0..6 steps (x = step / 6): melt temperature (t), pack pressure (p), cooling time (c).
+   Every defect is a measure that is > 0 when the defect shows. A clean setting is one where all measures are <= 0.
+   Tool problems move the thresholds. Drift (resin lot, cold morning, tool wear) shifts them again in production. */
+var STEPS = 6, SIGMA = 0.045, BATCH_N = 24;
+var DEFECT = {
+  short:{ name:'Short shot', cap:'short' }, flash:{ name:'Flash', cap:'flash' }, sink:{ name:'Sink mark', cap:'sink' },
+  warp:{ name:'Warp', cap:'warp' }, burn:{ name:'Burn mark', cap:'burn' }, splay:{ name:'Splay', cap:'splay' }
+};
+var OBVIOUS = { short:1, flash:1, burn:1, splay:1 };   // inspection catches these; sink and warp are cosmetic judgement calls
+var ISSUE = {
+  rib:     { ic:'🦴', name:'Core out the thick rib', cost:16, sym:'Sink marks at the rib that only go away with more pack pressure.', fix:'sink' },
+  parting: { ic:'✂️', name:'Re-cut the parting-line shut-off', cost:14, sym:'Flash along the split line as soon as pressure rises.', fix:'flash' },
+  cooling: { ic:'❄️', name:'Add cooling channels near the boss', cost:18, sym:'Parts warp unless they sit in the tool a very long time.', fix:'warp' },
+  vent:    { ic:'💨', name:'Add vents at the end of fill', cost:6, sym:'Burn marks and short shots in the last corner to fill.', fix:'burn' }
+};
+var ISSUES = ['rib', 'parting', 'cooling', 'vent'];
+var COST = { dry:2, doe:8, cav:10, shot:1, delay:8, scrap:2.5, escape:12, cycle:0.5 };
+
+function thr(tool, wet) {
+  return { short:tool.vent ? 0.50 : 0.42, flash:tool.parting ? 0.46 : 0.62, sink:tool.rib ? 0.62 : 0.38, warp:tool.cooling ? 0.62 : 0.30, burn:tool.vent ? 0.66 : 0.88, wet:wet };
+}
+function measures(x, th, sh) {
+  return {
+    short:th.short + sh.short - (0.55 * x.t + 0.45 * x.p),
+    flash:(0.55 * x.p + 0.25 * x.t) - (th.flash + sh.flash),
+    sink: th.sink + sh.sink - (0.55 * x.p + 0.45 * x.c),
+    warp: th.warp + sh.warp - (x.c - 0.35 * (x.t - 0.5)),
+    burn: x.t - th.burn,
+    splay:th.wet ? x.t - 0.45 : -1
+  };
+}
+var NOSH = { short:0, flash:0, sink:0, warp:0 };
+function xof(lev) { return { t:lev.t / STEPS, p:lev.p / STEPS, c:lev.c / STEPS }; }
+function worst(m) { var k = null, v = -9; for (var d in m) if (m[d] > v) { v = m[d]; k = d; } return { k:k, v:v }; }
+function margin(lev, th) { return -worst(measures(xof(lev), th, NOSH)).v; }
+function cleanCount(th) {
+  var n = 0, best = null;
+  for (var t = 0; t <= STEPS; t++) for (var p = 0; p <= STEPS; p++) for (var c = 0; c <= STEPS; c++) {
+    var l = { t:t, p:p, c:c }, m = margin(l, th);
+    if (m > 0) { n++; if (!best || m > best.m) best = { l:l, m:m }; }
+  }
+  return { n:n, total:Math.pow(STEPS + 1, 3), best:best };
+}
+function gauss() { return (Math.random() + Math.random() + Math.random() + Math.random() - 2) * 1.2; }
+function shoot(lev, th, sh) {
+  var x = xof(lev), y = { t:x.t + gauss() * SIGMA, p:x.p + gauss() * SIGMA, c:x.c + gauss() * SIGMA };
+  var m = measures(y, th, sh), d = [];
+  for (var k in m) if (m[k] > 0) d.push(k);
+  return d;
+}
+function cycleOf(lev) { return 14 + 10 + 4 * lev.c; }
+function toolNow(issues, fixed) { var t = {}; ISSUES.forEach(function (k) { t[k] = !!issues[k] && !fixed[k]; }); return t; }
+function driftFor(b, G) {
+  var f = G.prep.cav ? 0.4 : 1, tool = toolNow(G.issues, G.fixed), s = Math.random() < 0.5 ? -1 : 1, s2 = Math.random() < 0.5 ? -1 : 1;
+  if (b === 0) return { short:0.01 * s * f, flash:0, sink:0.01 * s2 * f, warp:0 };
+  if (b === 1) return { short:0.08 * s * f, flash:-0.02 * f, sink:0.07 * s2 * f, warp:0.05 * f };
+  return { short:0.03 * s * f, flash:-(tool.parting ? 0.10 : 0.04) * f, sink:0.04 * f, warp:(tool.cooling ? 0.09 : 0.04) * f };
+}
+function runBatch(b, G) {
+  var th = thr(toolNow(G.issues, G.fixed), G.wet && !G.prep.dry), sh = driftFor(b, G), parts = [], scrap = 0, esc = 0;
+  for (var i = 0; i < BATCH_N; i++) {
+    var d = shoot(G.lev, th, sh), p = { d:d, scrap:false, esc:false };
+    if (d.length) {
+      var obv = d.some(function (k) { return OBVIOUS[k]; });
+      if (obv || Math.random() < 0.75) { p.scrap = true; scrap++; } else { p.esc = true; esc++; }
+    }
+    parts.push(p);
+  }
+  var pen = Math.max(0, cycleOf(G.lev) - 26) * COST.cycle;
+  return { parts:parts, scrap:scrap, esc:esc, sh:sh, cost:scrap * COST.scrap + pen, pen:pen };
+}
+function scoreOf(G) {
+  var c = G.cost.prep + G.cost.shots + G.cost.mods + G.cost.delay, field = 0;
+  G.batches.forEach(function (B) { c += B.cost; field += B.esc * COST.escape; });
+  return { costs:c + field, field:field, total:Math.max(0, Math.round(1000 - (c + field) * 1.8)) };
+}
+/* SIM:END */
+
+/* ---------- content ---------- */
+var NAMES = ['Hongtai Precision Plastics', 'Dongyue Moulding', 'Xinlong Plastic Products', 'Meijie Injection Co.'];
+var LEV = {
+  t:{ ic:'🌡️', name:'Melt temperature', val:function (v) { return (220 + 10 * v) + ' °C'; }, lo:'cold', hi:'hot' },
+  p:{ ic:'🗜️', name:'Pack pressure', val:function (v) { return (400 + 100 * v) + ' bar'; }, lo:'light', hi:'hard' },
+  c:{ ic:'⏱️', name:'Cooling time', val:function (v) { return (10 + 4 * v) + ' s'; }, lo:'fast', hi:'slow' }
+};
+var SAY = {
+  short:['"Up the pressure a little."', '"That is the resin. We will tell purchasing."'],
+  flash:['"Flash is cosmetic. The operator trims it."', '"Tighten the clamp. Done."'],
+  sink:['"Sink marks are normal for ABS. Customers do not notice."', '"A little more hold time and it goes away."'],
+  warp:['"The part moves as it cools. Normal."', '"Put it on the fixture and it fits."'],
+  burn:['"That is a dirty shot. Purge the barrel."', '"Slow the injection down."'],
+  splay:['"Dry the resin? It was dry yesterday."', '"Lower the temperature, it goes away."'],
+  good:['"Five good parts. This is a stable process."', '"Look at that. Lock it and let us start."', '"Perfect. What else do you need?"']
+};
+
+var G = null;
+var store = { get:function (k, d) { try { var v = localStorage.getItem('hhl.ch105.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set:function (k, v) { try { localStorage.setItem('hhl.ch105.' + k, JSON.stringify(v)); } catch (e) {} } };
+function fmt(n) { return Number(n).toLocaleString('en'); }
+function later(ms, fn) { setTimeout(function () { try { fn(); } catch (e) {} }, J.reduce ? 0 : ms); }
+function el(h, keep) { $app.classList.toggle('still', !!keep); $app.innerHTML = h; if (!keep) window.scrollTo(0, 0); }
+function $q(s) { return $app.querySelector(s); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function topbar(back) { return '<div class="top">' + (back ? '<a class="back" href="../">← Games</a>' : '<span></span>') + J.muteBtn() + '</div>'; }
+function k$(n) { return '€' + Math.round(n * 10) / 10 + 'k'; }
+
+function newGame() {
+  var two = shuffle(ISSUES).slice(0, Math.random() < 0.35 ? 3 : 2), iss = {};
+  two.forEach(function (k) { iss[k] = true; });
+  G = { name:pick(NAMES), issues:iss, fixed:{}, wet:Math.random() < 0.7, prep:{ dry:false, doe:false, cav:false }, lev:{ t:3, p:3, c:2 },
+        shots:[], left:6, seen:{}, modded:false, batches:[], cost:{ prep:0, shots:0, mods:0, delay:0 }, last:null, say:null, phase:'title' };
+}
+function curTh() { return thr(toolNow(G.issues, G.fixed), G.wet && !G.prep.dry); }
+
+/* ---------- visuals ---------- */
+function heat(v) { var a = [74, 163, 200], b = [255, 122, 69], k = v / STEPS; return 'rgb(' + a.map(function (c, i) { return Math.round(c + (b[i] - c) * k); }).join(',') + ')'; }
+function machine(lev, shootNow) {
+  var ang = -120 + lev.p / STEPS * 240, dash = 2 * Math.PI * 15, off = dash * (1 - (lev.c + 1) / (STEPS + 1));
+  return '<div class="imm' + (shootNow ? ' shoot' : '') + '"><div class="lbl">INJECTION MOULDING MACHINE</div><svg viewBox="0 0 300 118" aria-hidden="true">' +
+    '<polygon points="22,14 66,14 56,38 32,38" fill="#3b5359"/><g fill="#e8c547"><circle cx="34" cy="22" r="3"/><circle cx="46" cy="26" r="3"/><circle cx="55" cy="19" r="3"/><circle cx="42" cy="18" r="2.5"/></g>' +
+    '<rect x="26" y="38" width="140" height="26" rx="8" fill="' + heat(lev.t) + '" stroke="#0e1718" stroke-width="2"/>' +
+    '<g stroke="#0e1718" stroke-opacity=".3" stroke-width="2">' + [44, 60, 76, 92, 108, 124, 140].map(function (x) { return '<line x1="' + x + '" y1="40" x2="' + (x + 8) + '" y2="62"/>'; }).join('') + '</g>' +
+    '<polygon points="166,46 184,50 184,56 166,58" fill="#5b7479"/>' +
+    '<rect class="half" style="--mv:3px" x="184" y="30" width="22" height="46" rx="4" fill="#5b7479"/><rect class="half" style="--mv:-3px" x="212" y="30" width="22" height="46" rx="4" fill="#5b7479"/>' +
+    '<rect class="cav" x="206" y="42" width="6" height="22" fill="#2a3b3e"/>' +
+    '<rect x="14" y="78" width="228" height="8" rx="3" fill="#2c4043"/>' +
+    '<circle cx="268" cy="34" r="22" fill="#0e1718" stroke="#2c4043" stroke-width="2"/><text x="268" y="52" text-anchor="middle" font-size="8" fill="#93a9a8" font-family="sans-serif">BAR</text>' +
+    '<line x1="268" y1="34" x2="268" y2="17" stroke="#ff9f43" stroke-width="3" stroke-linecap="round" style="transform-origin:268px 34px;transform:rotate(' + ang + 'deg);transition:transform .35s cubic-bezier(.2,1.4,.4,1)"/><circle cx="268" cy="34" r="3" fill="#ff9f43"/>' +
+    '<circle cx="268" cy="86" r="15" fill="none" stroke="#1d2a2c" stroke-width="6"/><circle cx="268" cy="86" r="15" fill="none" stroke="#3dd6c6" stroke-width="6" stroke-dasharray="' + dash + '" stroke-dashoffset="' + off + '" transform="rotate(-90 268 86)" style="transition:stroke-dashoffset .35s"/>' +
+    '<text x="268" y="89" text-anchor="middle" font-size="9" font-weight="800" fill="#eaf3f2" font-family="sans-serif">' + (10 + 4 * lev.c) + 's</text>' +
+    '</svg></div>';
+}
+function partSvg(d) {
+  var has = function (k) { return d.indexOf(k) >= 0; };
+  var body = '<rect x="6" y="6" width="48" height="32" rx="5" fill="#cfd8dc" stroke="#9fb0b6" stroke-width="1.5"/><line x1="30" y1="8" x2="30" y2="36" stroke="#b5c3c8" stroke-width="3"/><circle cx="14" cy="14" r="3" fill="#b5c3c8"/><circle cx="46" cy="30" r="3" fill="#b5c3c8"/>';
+  var g = has('warp') ? '<g transform="rotate(-5 30 22) skewX(-9)">' + body + '</g>' : body;
+  var x = '';
+  if (has('short')) x += '<path d="M34 40 L56 40 L56 22 Q44 25 38 38 Z" fill="#0e1718"/>';
+  if (has('flash')) x += '<g fill="#cfd8dc"><polygon points="10,6 13,1 16,6"/><polygon points="22,6 25,0 28,6"/><polygon points="36,6 39,1 42,6"/><polygon points="54,16 59,19 54,22"/></g>';
+  if (has('sink')) x += '<ellipse cx="30" cy="22" rx="9" ry="3.5" fill="#6f8087" opacity=".85"/><ellipse cx="30" cy="21" rx="6" ry="1.6" fill="#40545b"/>';
+  if (has('burn')) x += '<circle cx="48" cy="12" r="6" fill="#4a2c12" opacity=".92"/><circle cx="50" cy="10" r="3" fill="#1a0f06"/>';
+  if (has('splay')) x += '<g stroke="#fff" stroke-width="1.6" opacity=".9"><line x1="14" y1="30" x2="22" y2="22"/><line x1="20" y1="34" x2="28" y2="26"/><line x1="36" y1="18" x2="44" y2="10"/><line x1="40" y1="24" x2="46" y2="18"/></g>';
+  return '<svg viewBox="0 0 60 44" aria-hidden="true">' + g + x + '</svg>';
+}
+function partTile(p, i, reveal) {
+  var d = p.d, cls = 'pt';
+  if (reveal === 'trial') cls += d.length ? ' bad' : ' ok';
+  else cls += p.scrap ? ' sc' : (p.esc && reveal === 'field' ? ' esc' : ' ok');
+  var showD = reveal === 'trial' ? d : (reveal === 'field' ? d : (p.scrap ? d : []));
+  return '<div class="' + cls + '" style="--i:' + i + '">' + partSvg(showD) + '<span class="mk">⚠</span>' + (reveal === 'trial' ? '<span class="cap">' + (d.length ? d.map(function (k) { return DEFECT[k].cap; }).join(' + ') : 'good') + '</span>' : '') + '</div>';
+}
+
+/* ---------- screens ---------- */
+function screenTitle() {
+  el(topbar(true) + '<div class="card">' + machine({ t:3, p:3, c:2 }) +
+   '<h3>Chapter 5 · The Hardest Factory Lessons</h3><h1>The Process <span>Window</span></h1>' +
+   '<p>Your enclosure is plastic, and the molder is not "the supplier\'s problem". It is <b>the shop that decides whether your cosmetic standard exists at all</b>.</p>' +
+   '<div class="plain"><b>In plain English:</b> a molding machine melts plastic pellets and injects them into a steel tool. Three settings (temperature, pressure, cooling time) decide whether the part comes out right. Some tool flaws can be hidden by the right settings for a while, until the resin lot changes or the tool wears. <b>Goal:</b> find a setting with room to spare, fix what settings cannot fix, and get through a year of production.</div>' +
+   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55"><li><b>Tune the machine</b> and shoot test parts. Five good parts will not tell you much.</li><li><b>Read the defects</b> to find the tool flaws hiding behind them.</li><li><b>Survive three production batches</b> as the resin, the weather and the steel drift.</li></ul>' +
+   '<button class="btn" data-a="start">Start the tool trial</button><p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factory is fictional.</p></div>');
+}
+
+function screenBrief() {
+  G.phase = 'brief';
+  el(topbar(false) + '<div class="card"><h3>' + G.name + ' · T1 sample report</h3><h2>"The parts look fine"</h2>' +
+   '<div class="parts" id="p0">' + [0, 1, 2, 3, 4].map(function (i) { return partTile({ d:[] }, i, 'trial'); }).join('') + '</div>' +
+   '<div class="report"><div class="rh">T1 sample report · your enclosure</div><div class="rv"><span>Samples submitted</span><b>5 of 5 good</b></div><div class="rv"><span>Cycle time</span><b>' + cycleOf(G.lev) + ' s</b></div><div class="rv"><span>Process window</span><b>not reported</b></div><div class="rv"><span>Resin dryer log</span><b>"on file"</b></div></div>' +
+   '<p>Five good parts say the molder <i>can</i> make a good part once. They say nothing about how far the settings can wander before the part goes bad, and the molder is rewarded for fast cycles and for never stopping the press.</p>' +
+   '<div class="note"><b>The incentive</b>A tool flaw costs the molder a little scrap and costs <i>you</i> the cosmetic standard, the field returns and the tool. "The molder is our supplier\'s problem" is how that stays hidden.</div>' +
+   '<button class="btn" data-a="prep">Decide what to check</button></div>');
+  later(300, function () { J.sfx('ok'); });
+}
+
+function screenPrep() {
+  G.phase = 'prep';
+  var tog = function (k, ic, n, s, c) { return '<button class="toggle' + (G.prep[k] ? ' on' : '') + '" data-a="prep-t" data-k="' + k + '"><i>' + ic + '</i><span><b>' + n + '</b>' + s + '</span><em>−' + k$(c) + '</em></button>'; };
+  el(topbar(false) + '<div class="card"><h3>Before the trial</h3><h2>What will you verify?</h2>' +
+   '<div class="plain">Each check costs money now and buys information. Skipping a check is not free: it is a bet that the molder\'s default is good enough.</div>' +
+   tog('dry', '🌾', 'Verify the resin dryer', 'Check the dew point and dwell time. Wet resin makes silvery streaks (splay) at higher melt temperatures.', COST.dry) +
+   tog('doe', '🧪', 'Run a process-window study (DOE)', 'Map which settings stay clean. Shows how much margin each setting has, not just whether the last five parts passed.', COST.doe) +
+   tog('cav', '📈', 'Cavity-pressure monitoring in production', 'A sensor in the tool corrects for drift shot by shot. Keeps resin and weather swings from becoming scrap.', COST.cav) +
+   '<button class="btn" data-a="trial">Start the trial</button></div>');
+}
+
+function screenTrial() {
+  G.phase = 'trial';
+  var th = curTh(), mg = margin(G.lev, th), L = G.last;
+  var lv = function (k) {
+    var v = G.lev[k];
+    return '<div class="lev"><i>' + LEV[k].ic + '</i><b>' + LEV[k].name + '</b><span class="val">' + LEV[k].val(v) + '</span><div class="pp"><button data-a="lv" data-k="' + k + '" data-d="-1"' + (v <= 0 ? ' disabled' : '') + '>−</button><div class="bar">' +
+      [0, 1, 2, 3, 4, 5, 6].map(function (i) { return '<s class="' + (i < v ? 'on' : i === v ? 'cur' : '') + '"></s>'; }).join('') + '</div><button data-a="lv" data-k="' + k + '" data-d="1"' + (v >= STEPS ? ' disabled' : '') + '>+</button></div></div>';
+  };
+  var doe = '';
+  if (G.prep.doe) {
+    var cc = cleanCount(th), w = worst(measures(xof(G.lev), th, NOSH)), pct = Math.max(0, Math.min(100, Math.round(mg / 0.16 * 100)));
+    var lab = mg <= 0 ? 'outside the window' : mg < 0.03 ? 'on the edge' : mg < 0.07 ? 'thin' : 'comfortable';
+    doe = '<div class="gauge"><div class="gt"><span>Margin at this setting</span><b>' + lab + '</b></div><div class="gb"><i style="width:' + pct + '%;background:' + (mg <= 0 ? '#ff5a4e' : mg < 0.03 ? '#ff9f43' : mg < 0.07 ? '#f5c518' : '#3ddc84') + '"></i></div>' +
+      '<div class="gt"><span>Closest defect edge: <b>' + DEFECT[w.k].name.toLowerCase() + '</b></span><span>' + cc.n + ' of ' + cc.total + ' settings are clean</span></div></div>';
+  }
+  var shotHtml = '';
+  if (L) {
+    var good = L.parts.filter(function (p) { return !p.d.length; }).length;
+    shotHtml = '<div class="parts" id="shot">' + L.parts.map(function (p, i) { return partTile(p, i, 'trial'); }).join('') + '</div>' +
+      '<div class="molder"><i>👷</i><div class="speech">' + G.say + '</div></div>';
+  }
+  var th2 = G.left;
+  el(topbar(false) + '<div class="card"><h3>' + (G.modded ? 'T2 trial · after tool changes' : 'T1 trial') + ' · ' + G.left + ' shot' + (G.left === 1 ? '' : 's') + ' left</h3><h2>Dial in the process</h2>' +
+   machine(G.lev, false) + lv('t') + lv('p') + lv('c') +
+   '<div class="stat3"><div><b>' + cycleOf(G.lev) + ' s</b><span>cycle time</span></div><div><b>' + (G.shots.length) + '</b><span>shots taken</span></div><div><b class="' + (G.left ? '' : 'bad') + '">' + G.left + '</b><span>shots left</span></div></div>' +
+   doe + shotHtml +
+   '<button class="btn" data-a="shoot"' + (G.left ? '' : ' disabled') + '>Shoot 5 parts · −' + k$(COST.shot) + '</button>' +
+   '<div class="row"><button class="btn ghost" data-a="accept">Accept this setting</button>' + (G.modded ? '' : '<button class="btn ghost" data-a="mods">Change the tool</button>') + '</div>' +
+   '<p class="small">Accepting locks the setting for production. Tool changes can be requested once and cost steel, money and three weeks.</p></div>', true);
+  if (L && G.fresh) { G.fresh = false; trialFx(L); }
+}
+function trialFx(L) {
+  var bad = L.parts.filter(function (p) { return p.d.length; }).length;
+  var im = $q('.imm'); if (im) { im.classList.add('shoot'); }
+  J.sfx('thud');
+  later(450, function () {
+    if (bad) { J.sfx('bad'); J.hit($q('#shot'), 'bad', bad > 2 ? 'med' : 'small'); }
+    else { J.sfx('ok'); var s = $q('#shot'); if (s) J.burstAt(s, { n:14, pal:'good', speed:260 }); }
+  });
+}
+
+function doShoot() {
+  if (!G.left) return;
+  var th = curTh(), parts = [];
+  for (var i = 0; i < 5; i++) parts.push({ d:shoot(G.lev, th, NOSH) });
+  G.left--; G.cost.shots += COST.shot;
+  parts.forEach(function (p) { p.d.forEach(function (k) { G.seen[k] = true; }); });
+  G.shots.push({ lev:{ t:G.lev.t, p:G.lev.p, c:G.lev.c }, parts:parts }); G.last = G.shots[G.shots.length - 1];
+  var bads = parts.filter(function (p) { return p.d.length; });
+  G.say = bads.length ? pick(SAY[pick(bads[0].d)]) : pick(SAY.good);
+  G.fresh = true; screenTrial();
+}
+
+function screenMods() {
+  G.phase = 'mods'; G.sel = G.sel || {};
+  var sym = { sink:'sink', flash:'flash', warp:'warp', burn:['burn', 'short'] };
+  var row = function (k) {
+    var I = ISSUE[k], seen = (Array.isArray(sym[I.fix]) ? sym[I.fix] : [sym[I.fix]]).some(function (d) { return G.seen[d]; });
+    return '<button class="toggle' + (G.sel[k] ? ' on' : '') + '" data-a="mod-t" data-k="' + k + '"><i>' + I.ic + '</i><span><b>' + I.name + (seen ? '<em class="seen">seen in your shots</em>' : '') + '</b>' + I.sym + '</span><em>−' + k$(I.cost) + '</em></button>';
+  };
+  var sel = ISSUES.filter(function (k) { return G.sel[k]; }), c = sel.reduce(function (a, k) { return a + ISSUE[k].cost; }, 0);
+  el(topbar(false) + '<div class="card"><h3>Tool changes · one round only</h3><h2>What is the steel doing?</h2>' +
+   '<p>Settings cannot fix a tool flaw. They can only trade it for another defect. Pick the changes the evidence supports. Fixing something that is not broken costs the same as fixing something that is.</p>' +
+   '<div class="note warn"><b>Heads up</b>Every round costs ' + k$(COST.delay) + ' in delay (the tool goes back to the toolroom for about three weeks). A flaw you never provoked in your shots will not be flagged.</div>' +
+   ISSUES.map(row).join('') +
+   '<button class="btn" data-a="mod-go"' + (sel.length ? '' : ' disabled') + '>Send the tool back · −' + k$(c + (sel.length ? COST.delay : 0)) + '</button><button class="btn ghost" data-a="mod-back">Back to the trial</button></div>');
+}
+
+function screenBatch(b) {
+  G.phase = 'batch'; G.b = b;
+  var B = G.batches[b], lbl = ['Week 1', 'Month 4', 'Month 11'][b];
+  var why = [
+    'The tool is warm, the resin lot is the one you qualified, and the operators have the sheet in front of them.',
+    'New resin lot, and a cold morning. Melt flow and cooling move without anyone touching the machine.',
+    '300,000 shots on the tool. The parting line has worn and the cooling channels have scaled up.'
+  ][b];
+  var shipped = BATCH_N - B.scrap, yieldPct = Math.round(1000 * shipped / BATCH_N) / 10;
+  el(topbar(false) + '<div class="card"><h3>Production batch ' + (b + 1) + ' of 3 · ' + lbl + '</h3><h2>' + (B.scrap > 5 ? 'The press is throwing parts away' : B.scrap > 1 ? 'A bumpy batch' : 'A quiet batch') + '</h2>' +
+   machine(G.lev, true) + '<p class="small">' + why + (G.prep.cav ? ' Cavity-pressure monitoring is absorbing part of the drift.' : '') + '</p>' +
+   '<div class="parts p24" id="grid">' + B.parts.map(function (p, i) { return partTile(p, i, 'batch'); }).join('') + '</div>' +
+   '<div class="legend"><span><i style="background:#1f8a4c"></i>shipped</span><span><i style="background:#ff5a4e"></i>scrapped at inspection</span></div>' +
+   '<div class="report" id="rep" style="opacity:0"><div class="rh">What the factory would report</div><div class="rv"><span>Shipped yield</span><b>' + yieldPct + '%</b></div><div class="rv"><span>Scrapped</span><b>' + B.scrap + ' of ' + BATCH_N + '</b></div></div>' +
+   '<p class="small" id="exp" style="opacity:0">Inspection catches what it can see. Sink marks and warp are judgement calls on a line running at speed, and some of them ship. You will not hear about those in this report.</p>' +
+   '<button class="btn" data-a="batch-next" id="bn" style="opacity:0">' + (b >= 2 ? 'Fast-forward to the field' : 'Next batch') + '</button></div>');
+  J.sfx('belt');
+  var dur = J.reduce ? 0 : BATCH_N * 80 + 500;
+  later(dur, function () {
+    ['rep', 'exp', 'bn'].forEach(function (id) { var e = $q('#' + id); if (e) { e.style.transition = 'opacity .4s'; e.style.opacity = 1; } });
+    if (B.scrap > 5) { J.sfx('bad'); J.hit($q('#grid'), 'bad', 'med'); } else if (B.scrap > 1) J.sfx('ok'); else J.sfx('good');
+  });
+}
+
+function screenField() {
+  G.phase = 'field';
+  var esc = [], n = 0; G.batches.forEach(function (B) { B.parts.forEach(function (p) { if (p.esc) { esc.push(p); n++; } }); });
+  var fc = n * COST.escape; G.fieldCost = fc;
+  var show = esc.slice(0, 8);
+  el(topbar(false) + '<div class="card"><h3>Eleven months later</h3><h2>' + (n ? 'The returns arrive' : 'A quiet year, honestly') + '</h2>' +
+   '<div class="imm ' + (n ? 'j-siren' : '') + '" id="stg"><div class="lbl" style="color:' + (n ? 'var(--red)' : 'var(--green)') + '">FIELD RETURNS</div><div style="height:118px;display:grid;place-items:center;padding-top:14px" class="big-ic ' + (n ? 'j-drop' : '') + '">' + (n ? '📦↩️' : '😌') + '</div></div>' +
+   (n ? '<div class="parts">' + show.map(function (p, i) { return partTile(p, i, 'field'); }).join('') + '</div>' : '') +
+   '<p>' + (n ? n + ' part' + (n === 1 ? '' : 's') + ' passed inspection with a sink mark or warp that a customer found. Cosmetic escapes, enclosures that do not close, and a support queue to explain them.' : 'Nothing got past inspection that a customer could see.') + '</p>' +
+   '<div class="cost" id="cst">−€0k</div><button class="btn" data-a="result">See the result</button></div>');
+  if (fc) { J.sfx('alarm'); J.hit($q('#stg'), 'bad', fc >= 60 ? 'big' : 'med'); J.count($q('#cst'), 0, fc, 900, function (v) { return '−€' + Math.round(v) + 'k'; }); } else J.sfx('good');
+}
+
+function screenResult() {
+  G.phase = 'result';
+  var sc = scoreOf(G), best = store.get('best', 0), nb = sc.total > best;
+  if (nb) store.set('best', sc.total);
+  try { HHL.submit(105, sc.total); } catch (e) {}
+  var stamp = sc.total >= 700 ? 'pass' : sc.total >= 400 ? 'warn' : 'fail';
+  var txt = sc.total >= 700 ? 'A WINDOW YOU CAN LIVE IN' : sc.total >= 400 ? 'ON THE EDGE' : 'THE WINDOW SHUT';
+  var prepC = G.cost.prep, toolC = G.cost.mods + G.cost.delay, prodC = 0; G.batches.forEach(function (B) { prodC += B.cost; });
+  var mg = margin(G.lev, curTh()), cc = cleanCount(curTh());
+  var rows = G.batches.map(function (B, i) { return '<div class="br"><div class="t"><b>' + ['Week 1', 'Month 4', 'Month 11'][i] + '</b><span>' + B.scrap + ' scrapped · ' + B.esc + ' escaped</span></div><div class="tr"><i style="width:' + Math.min(100, Math.round(100 * B.cost / 30)) + '%;background:var(--amber)"></i></div></div>'; }).join('');
+  var fixedN = Object.keys(G.fixed).length, active = ISSUES.filter(function (k) { return G.issues[k]; }), missed = active.filter(function (k) { return !G.fixed[k]; });
+  var wasted = Object.keys(G.fixed).filter(function (k) { return !G.issues[k]; });
+  var tell = 'The tool had ' + active.length + ' real flaw' + (active.length === 1 ? '' : 's') + ': ' + active.map(function (k) { return ISSUE[k].name.toLowerCase(); }).join(', ') + '. ' +
+    (!fixedN ? 'You never changed the steel, so the process ran on a window of ' + (mg > 0 ? (mg < 0.03 ? 'almost nothing' : 'about ' + Math.round(mg * 100) + ' points') : 'nothing') + '.' :
+     (missed.length ? 'You fixed ' + (fixedN - wasted.length) + ' of them and left ' + missed.length + '.' : 'You fixed all of them.') + (wasted.length ? ' ' + wasted.length + ' change' + (wasted.length === 1 ? '' : 's') + ' fixed something that was not broken.' : ''));
+  el(topbar(false) + '<div class="card"><h3>Year-end result</h3><div class="stamp ' + stamp + '" id="stp">' + txt + '</div><div class="bigs" id="bigs">0</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800" class="j-pulse">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
+   '<div class="lines" id="led"><div><span>Checks and trial shots</span><em class="neg">−' + k$(prepC + G.cost.shots) + '</em></div><div><span>Tool changes and delay</span><em class="neg">−' + k$(toolC) + '</em></div><div><span>Scrap and slow cycles</span><em class="neg">−' + k$(prodC) + '</em></div><div><span>Field returns</span><em class="neg">−' + k$(G.fieldCost) + '</em></div><div><span>Total cost</span><em class="neg">−' + k$(sc.costs) + '</em></div></div>' +
+   '<h3>Batch by batch (bars: scrap + cycle cost)</h3><div class="bars2">' + rows + '</div>' +
+   '<div class="note warn"><b>What the T1 report hid</b>' + tell + ' Your final setting was clean on ' + cc.n + ' of ' + cc.total + ' possible settings, and ' + (mg > 0 ? 'its margin was ' + (mg < 0.03 ? 'on the edge' : mg < 0.07 ? 'thin' : 'comfortable') + '.' : 'it sat outside the window.') + '</div>' +
+   '<div class="lesson">Ask for the process window, not the sample. A setting that makes five good parts is a point; a process is a region. When the only clean region is a sliver, the cause is in the steel, and the time to say so is the tool trial, before the tool is "approved".</div>' +
+   HHL.next(105) +
+   '<div class="row"><button class="btn" data-a="again">Mould another part</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+  J.stamp($q('#stp'), stamp); J.count($q('#bigs'), 0, sc.total, 1200);
+  later(1300, function () { if (stamp === 'pass') { J.confetti(); J.sfx('win'); } else J.sfx(stamp === 'warn' ? 'ok' : 'lose'); });
+  J.stagger($app.querySelectorAll('#led div, .br'), 60);
+}
+
+/* ---------- events ---------- */
+function startProduction() {
+  G.batches = [0, 1, 2].map(function (b) { return runBatch(b, G); });
+  screenBatch(0);
+}
+$app.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+  var a = b.dataset.a;
+  switch (a) {
+    case 'start': newGame(); screenBrief(); break;
+    case 'prep': screenPrep(); break;
+    case 'prep-t': G.prep[b.dataset.k] = !G.prep[b.dataset.k]; J.sfx(G.prep[b.dataset.k] ? 'confirm' : 'cancel'); screenPrep(); break;
+    case 'trial':
+      G.cost.prep = (G.prep.dry ? COST.dry : 0) + (G.prep.doe ? COST.doe : 0) + (G.prep.cav ? COST.cav : 0);
+      screenTrial(); break;
+    case 'lv': { var k = b.dataset.k, v = G.lev[k] + Number(b.dataset.d); if (v < 0 || v > STEPS) break; G.lev[k] = v; J.sfx('select'); screenTrial(); break; }
+    case 'shoot': doShoot(); break;
+    case 'accept': J.sfx('confirm'); startProduction(); break;
+    case 'mods': G.sel = {}; screenMods(); break;
+    case 'mod-t': G.sel[b.dataset.k] = !G.sel[b.dataset.k]; J.sfx(G.sel[b.dataset.k] ? 'confirm' : 'cancel'); screenMods(); break;
+    case 'mod-go': {
+      var picked = ISSUES.filter(function (k) { return G.sel[k]; }); if (!picked.length) break;
+      picked.forEach(function (k) { G.fixed[k] = true; G.cost.mods += ISSUE[k].cost; });
+      G.cost.delay += COST.delay; G.modded = true; G.left += 3; G.last = null; G.say = null; J.sfx('cash'); screenTrial(); break;
+    }
+    case 'mod-back': screenTrial(); break;
+    case 'batch-next': if (G.b >= 2) screenField(); else screenBatch(G.b + 1); break;
+    case 'result': screenResult(); break;
+    case 'again': newGame(); screenBrief(); break;
+    case 'menu': screenTitle(); break;
+  }
+});
+newGame(); screenTitle();
+window.__f5 = { G:function () { return G; }, score:function () { return scoreOf(G); } };
+})();
+</script>
+</body>
+</html>
