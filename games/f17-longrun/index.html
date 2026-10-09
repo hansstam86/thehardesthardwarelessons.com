@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a1c">
+<title>The Long Run — The Hardest Factory Lessons</title>
+<meta name="description" content="A free game: five years of production with one factory. Spend your attention on yield, change control, capacity and an exit, then make the hardest call in manufacturing: stay and fix, dual-source, or leave. From The Hardest Factory Lessons, Chapter 17.">
+<link rel="stylesheet" href="../factory.css?v=1">
+<link rel="stylesheet" href="../juice.css?v=2">
+<style>
+.still .card{animation:none}
+.plant{position:relative;border-radius:14px;overflow:hidden;background:linear-gradient(#1b2b2e 0 66%,#23363a 66% 100%);border:1px solid var(--rule)}
+.plant svg{display:block;width:100%;height:auto}
+.plant .lbl{position:absolute;left:10px;top:8px;font:900 10px var(--font);letter-spacing:.12em;color:var(--acc)}
+.smoke{animation:smoke 3s ease-in infinite;transform-origin:50% 100%}
+.smoke.b{animation-delay:1.4s}
+@keyframes smoke{0%{transform:translateY(0) scale(.6);opacity:.7}100%{transform:translateY(-26px) scale(1.4);opacity:0}}
+.truck{animation:truck 6s linear infinite}
+@keyframes truck{0%{transform:translateX(-60px)}100%{transform:translateX(330px)}}
+@media (prefers-reduced-motion: reduce){.smoke,.truck{animation:none}}
+.tl{display:flex;align-items:center;gap:0;padding:6px 2px}
+.tl .n{width:22px;height:22px;border-radius:50%;background:#0e1718;border:2px solid var(--rule);flex:none;display:grid;place-items:center;font:800 10px var(--font);color:var(--muted);transition:background .3s,border-color .3s}
+.tl .n.done{background:var(--acc);border-color:var(--acc);color:#07201d} .tl .n.cur{border-color:var(--gold);color:var(--gold)}
+.tl .l{height:3px;flex:1;background:var(--rule)} .tl .l.done{background:var(--acc)}
+.pts{display:flex;gap:6px;align-items:center;justify-content:space-between;background:#0e1718;border-radius:12px;padding:10px 12px}
+.pts .pp{display:flex;gap:6px} .pts .pp i{width:22px;height:22px;border-radius:50%;background:var(--acc);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25);transition:transform .15s,background .15s} .pts .pp i.off{background:#1d2a2c;box-shadow:none;transform:scale(.7)}
+.pts b{font-size:13px} .pts span{font:700 12px var(--font);color:var(--muted)}
+.act2{display:grid;grid-template-columns:34px 1fr auto;gap:2px 10px;align-items:center;border:1px solid var(--rule);background:var(--panel2);border-radius:14px;padding:10px 12px}
+.act2.on{border-color:var(--acc);background:#16363a}
+.act2>i{grid-row:1/3;font-style:normal;font-size:26px;text-align:center}
+.act2 b{font-size:14px} .act2 .d{grid-column:2;font-size:12px;color:var(--muted);line-height:1.35}
+.act2 .st{grid-row:1/3;grid-column:3;display:grid;grid-template-columns:34px 22px 34px;align-items:center;text-align:center;gap:2px}
+.act2 .st button{appearance:none;border:1px solid var(--rule);background:#0e1718;color:var(--ink);border-radius:9px;height:34px;font:800 18px var(--font);cursor:pointer}
+.act2 .st button:active{transform:scale(.9)} .act2 .st button:disabled{opacity:.3}
+.act2 .st b{font-size:15px;font-variant-numeric:tabular-nums}
+.act2 .c{font:800 11px var(--font);color:var(--acc)}
+.report{background:#f4efe3;color:#2a2418;border-radius:6px;padding:12px;display:grid;gap:6px;box-shadow:0 6px 0 rgba(0,0,0,.25)}
+.report .rh{font:900 10px var(--font);letter-spacing:.1em;text-transform:uppercase;color:#6b6252} .report .rv{display:flex;justify-content:space-between;font-size:14px} .report .rv b{font-size:16px}
+.ev{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;background:#0e1718;border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.4;color:#d6e4e3}
+.ev>i{font-style:normal;font-size:22px;text-align:center} .ev b{color:var(--ink)} .ev .t{display:block;font:800 10px var(--font);letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:2px}
+.ev.bad .t{color:var(--red)} .ev.warn .t{color:var(--amber)} .ev.good .t{color:var(--green)} .ev.hid{opacity:.8;border:1px dashed var(--rule)}
+.meter{display:grid;gap:3px;font-size:12.5px;color:#d6e4e3} .meter .t{display:flex;justify-content:space-between} .meter .tr{height:10px;border-radius:5px;background:#0e1718;overflow:hidden} .meter .tr i{display:block;height:100%;border-radius:5px;transition:width .5s}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px} .stat3>div{background:#0e1718;border-radius:12px;padding:10px 6px;text-align:center;display:grid;gap:2px} .stat3 b{font-size:20px;font-variant-numeric:tabular-nums} .stat3 span{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.stat3 b.bad{color:var(--red)} .stat3 b.good{color:var(--green)} .stat3 b.warn{color:var(--amber)}
+.dec{display:grid;gap:8px}
+.dec button{display:grid;grid-template-columns:36px 1fr;gap:2px 12px;text-align:left;border:2px solid var(--rule);background:var(--panel2);border-radius:14px;padding:13px;color:var(--ink);font:inherit;cursor:pointer;transition:transform .08s}
+.dec button:active{transform:scale(.97)} .dec button i{grid-row:1/4;font-style:normal;font-size:28px;align-self:center;text-align:center}
+.dec button b{font-size:15px} .dec button span{font-size:12.5px;color:var(--muted);line-height:1.35} .dec button em{font:800 11px var(--font);font-style:normal;color:var(--amber)}
+.chart{border-radius:12px;background:#0e1718;padding:8px 6px 4px} .chart svg{display:block;width:100%;height:auto}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)} .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.bars2{display:grid;gap:8px}
+.br{display:grid;gap:3px;font-size:12.5px;color:#d6e4e3} .br .t{display:flex;justify-content:space-between;gap:8px} .br .tr{height:10px;border-radius:5px;background:#0e1718;overflow:hidden;position:relative} .br .tr i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;animation:fillb .8s cubic-bezier(.2,1.1,.4,1) both;transform-origin:left}
+@keyframes fillb{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="../hhl.js?v=16"></script>
+<script src="../juice.js?v=2"></script>
+<script>
+(function () {
+'use strict';
+var $app = document.getElementById('app');
+
+/* SIM:BEGIN */
+/* ---------- the five-year model ----------
+   Hidden state: Y real yield, T truth (how much of the real picture reaches you), P priority at the factory,
+   X exit readiness (a qualified second source), L latent unapproved changes that have not surfaced yet.
+   Each year you spend four attention points. Neglect is not neutral: every area drifts the wrong way on its own. */
+var YEARS = 5, POINTS = 4, MAXPER = 2;
+var VOL = [100, 120, 144, 173, 207];
+var ACT = {
+  review:  { ic:'📊', name:'Yield review', cost:2,  d:'Read the primary data: first-pass yield by stage, rework by defect. Shows the real yield and drives corrective action.' },
+  audit:   { ic:'🧾', name:'Change audit', cost:3,  d:'Check the BOM, process and supplier against the approved baseline. Catches unapproved changes before they become field issues.' },
+  present: { ic:'🧑‍🔧', name:'Resident engineer', cost:6, d:'Someone of yours on the floor. Raises your priority, makes the reports truthful, and sees problems early.' },
+  forecast:{ ic:'📆', name:'Share the forecast', cost:1, d:'A rolling forecast and honest volumes. Secures capacity and priority when the factory is allocating.' },
+  cost:    { ic:'✂️', name:'Push the price down', cost:0, d:'A cost-down round. Saves money now, and spends goodwill you may need later.' },
+  second:  { ic:'🧭', name:'Qualify a second source', cost:8, d:'Build the exit option while you do not need it. A qualified second source cannot be built in a month.' }
+};
+var KEYS = ['review', 'audit', 'present', 'forecast', 'cost', 'second'];
+var INC = 18, FIXC = 1, SAVE = 8;
+function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+function binom(n, p) { var k = 0; for (var i = 0; i < n; i++) if (Math.random() < p) k++; return k; }
+function newState() { return { Y:96, T:60, P:60, X:0, L:1 }; }
+function newRun() { return { crunch:2 + (Math.random() < 0.5 ? 1 : 0), years:[], st:newState() }; }
+function resolveYear(y, plan, run) {
+  var st = run.st, n = function (k) { return plan[k] || 0; }, R = { y:y, plan:plan };
+  // priority and truth drift on their own
+  st.P = clamp(st.P - 5 + 8 * n('present') + 10 * n('forecast') - 6 * n('cost') + st.X / 20, 0, 100);
+  st.T = clamp(st.T - 6 + 10 * n('present') + 3 * (n('review') + n('audit')), 0, 100);
+  st.X = clamp(st.X + 30 * n('second'), 0, 100);
+  // latent changes surface as field incidents
+  R.incidents = binom(st.L, 0.3); st.L -= R.incidents;
+  // new changes: some are caught by an audit or by someone on the floor
+  R.newCh = 1 + (Math.random() < 0.7 ? 1 : 0) + Math.floor(Math.random() * 2) + (st.T < 40 ? 1 : 0);
+  var q = Math.min(0.95, 0.45 * n('audit') + 0.15 * n('present'));
+  R.caught = binom(R.newCh, q); R.missed = R.newCh - R.caught; st.L += R.missed;
+  // yield
+  R.shock = Math.random() < 0.25 * (1 - 0.5 * Math.min(1, n('present') / 2));
+  var eros = 2.0 + (st.P < 40 ? 0.8 : 0);
+  st.Y = clamp(st.Y - eros - (R.shock ? 3 : 0) - R.incidents * 1 + 1.8 * n('review') + 0.6 * n('present'), 80, 98);
+  R.Y = st.Y; R.T = st.T; R.P = st.P; R.X = st.X; R.L = st.L;
+  R.rep = Math.min(99.5, st.Y + (100 - st.T) * 0.04);
+  // capacity
+  R.crunch = y === run.crunch; R.s = R.crunch ? Math.min(1, 0.4 + st.P / 90) : 1;
+  var cost = 0; KEYS.forEach(function (k) { cost += ACT[k].cost * n(k); });
+  if (y === 3) run.ult = st.X < 30 ? 0.15 : st.X < 60 ? 0.07 : 0;
+  R.ult = y >= 3 ? run.ult : 0; R.ultNew = y === 3;
+  var gross = 0.6 * VOL[y] * R.s * st.Y / 100 * (1 - R.ult);
+  R.cost = cost + R.incidents * INC + R.caught * FIXC - SAVE * n('cost');
+  R.gross = gross; R.profit = gross - R.cost;
+  run.years.push(R);
+  return R;
+}
+function health(st) { return clamp(0.35 * (st.Y - 88) / 10 + 0.25 * st.T / 100 + 0.25 * st.P / 100 + 0.15 * (1 - Math.min(1, st.L / 4)), 0, 1); }
+function options(st) {
+  var H = health(st), base = 1.5 * 0.6 * VOL[YEARS - 1] * 0.96, X = st.X;
+  return {
+    H:H,
+    stay:base * (0.50 + 0.65 * H) - 30 * (1 - H) - 0.12 * base * (1 - X / 100),
+    dual:base * (0.49 + 0.50 * H + 0.20 * X / 100) - 12 - (X < 40 ? 15 : 0),
+    leave:base * (0.80 + 0.20 * X / 100) - (70 - 55 * X / 100)
+  };
+}
+function scoreOf(run, choice) {
+  var o = options(run.st), tot = 0; run.years.forEach(function (R) { tot += R.profit; });
+  var best = Math.max(o.stay, o.dual, o.leave), future = o[choice];
+  var raw = tot + future;
+  return { o:o, tot:tot, future:future, raw:raw, best:best, regret:best - future, total:Math.max(0, Math.min(1000, Math.round((raw - SCL.lo) / (SCL.hi - SCL.lo) * 1000))) };
+}
+var SCL = { lo:250, hi:470 };
+/* SIM:END */
+
+/* ---------- content ---------- */
+var NAMES = ['Hongtai Electronics', 'Dongyue Smart Manufacturing', 'Xinlong Technology', 'Meijie Intelligent'];
+var CH = {
+  stay:{ ic:'🔧', name:'Stay and fix', sub:'Keep all production here and rebuild the weak points. Cheapest if the factory is basically sound.', need:'Works when the relationship is healthy.' },
+  dual:{ ic:'⚖️', name:'Dual-source', sub:'Keep this factory and move part of the volume to a second one. Leverage, and insurance.', need:'Smoother with a qualified second source.' },
+  leave:{ ic:'🚪', name:'Leave', sub:'Transfer production to a new factory and start clean.', need:'Brutal without a qualified second source.' }
+};
+var G = null;
+var store = { get:function (k, d) { try { var v = localStorage.getItem('hhl.ch117.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } }, set:function (k, v) { try { localStorage.setItem('hhl.ch117.' + k, JSON.stringify(v)); } catch (e) {} } };
+function fmt(n) { return Number(n).toLocaleString('en'); }
+function later(ms, fn) { setTimeout(function () { try { fn(); } catch (e) {} }, J.reduce ? 0 : ms); }
+function el(h, keep) { $app.classList.toggle('still', !!keep); $app.innerHTML = h; if (!keep) window.scrollTo(0, 0); }
+function $q(s) { return $app.querySelector(s); }
+function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+function topbar(back) { return '<div class="top">' + (back ? '<a class="back" href="../">← Games</a>' : '<span></span>') + J.muteBtn() + '</div>'; }
+function k$(n) { return '€' + Math.round(n) + 'k'; }
+function r1(n) { return Math.round(n * 10) / 10; }
+function newGame() { G = { name:pick(NAMES), y:0, run:newRun(), plan:{}, choice:null, phase:'title' }; }
+function spent() { var s = 0; KEYS.forEach(function (k) { s += G.plan[k] || 0; }); return s; }
+
+/* ---------- visuals ---------- */
+function plantSvg(y) {
+  return '<div class="plant"><div class="lbl">' + G.name.toUpperCase() + ' · YEAR ' + (y + 1) + '</div><svg viewBox="0 0 300 112" aria-hidden="true">' +
+    '<rect x="0" y="86" width="300" height="26" fill="#2c4043"/><g stroke="#e8c547" stroke-width="2" stroke-dasharray="14 12" opacity=".5"><line x1="0" y1="100" x2="300" y2="100"/></g>' +
+    '<rect x="40" y="38" width="150" height="48" fill="#3b5359"/><polygon points="40,38 74,18 74,38" fill="#4a666d"/><polygon points="74,38 108,18 108,38" fill="#4a666d"/><polygon points="108,38 142,18 142,38" fill="#4a666d"/><polygon points="142,38 176,18 176,38" fill="#4a666d"/>' +
+    '<rect x="196" y="22" width="16" height="64" fill="#4a666d"/><g fill="#9fb0b6" opacity=".7"><circle class="smoke" cx="204" cy="20" r="7"/><circle class="smoke b" cx="204" cy="20" r="6"/></g>' +
+    '<g fill="#e8c547" opacity=".85">' + [52, 72, 92, 112, 132, 152].map(function (x) { return '<rect x="' + x + '" y="50" width="10" height="9" rx="1.5"/>'; }).join('') + '</g>' +
+    '<rect x="150" y="62" width="30" height="24" fill="#1b2b2e"/>' +
+    '<g class="truck"><rect x="-40" y="86" width="26" height="12" rx="2" fill="#3ddc84"/><rect x="-14" y="90" width="12" height="8" rx="2" fill="#5ab0ff"/><circle cx="-34" cy="99" r="3.5" fill="#0e1718"/><circle cx="-8" cy="99" r="3.5" fill="#0e1718"/></g>' +
+    '</svg></div>';
+}
+function timeline(done, cur) {
+  var h = '<div class="tl">';
+  for (var i = 0; i < YEARS; i++) { h += (i ? '<div class="l' + (i <= done ? ' done' : '') + '"></div>' : '') + '<div class="n' + (i < done ? ' done' : i === cur ? ' cur' : '') + '">' + (i + 1) + '</div>'; }
+  return h + '</div>';
+}
+function meter(label, v, col, txt) { return '<div class="meter"><div class="t"><span>' + label + '</span><b>' + txt + '</b></div><div class="tr"><i style="width:' + Math.round(v) + '%;background:' + col + '"></i></div></div>'; }
+function chartSvg(years) {
+  var W = 320, H = 130, px = 28, py = 12, lo = 82, hi = 100, n = years.length + 1;
+  var xs = function (i) { return px + i * (W - px - 10) / YEARS; }, ys = function (v) { return py + (hi - v) / (hi - lo) * (H - py - 22); };
+  var real = [96], rep = [96]; years.forEach(function (R) { real.push(R.Y); rep.push(R.rep); });
+  var path = function (a) { return a.map(function (v, i) { return (i ? 'L' : 'M') + xs(i) + ' ' + ys(v); }).join(' '); };
+  var out = '';
+  [84, 88, 92, 96, 100].forEach(function (v) { out += '<line x1="' + px + '" y1="' + ys(v) + '" x2="' + (W - 10) + '" y2="' + ys(v) + '" stroke="#1d2a2c"/><text x="' + (px - 4) + '" y="' + (ys(v) + 3) + '" text-anchor="end" font-size="8" fill="#93a9a8" font-family="sans-serif">' + v + '</text>'; });
+  for (var i = 0; i < n; i++) out += '<text x="' + xs(i) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="8" fill="#93a9a8" font-family="sans-serif">' + (i === 0 ? 'start' : 'Y' + i) + '</text>';
+  out += '<path d="' + path(rep) + '" fill="none" stroke="#e8c547" stroke-width="2.5" stroke-dasharray="5 4"/><path d="' + path(real) + '" fill="none" stroke="#ff5a4e" stroke-width="3"/>';
+  real.forEach(function (v, i) { out += '<circle cx="' + xs(i) + '" cy="' + ys(v) + '" r="3.5" fill="#ff5a4e"/>'; });
+  return '<div class="chart"><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Real yield against reported yield, by year">' + out + '</svg></div>' +
+    '<div class="legend"><span><i style="background:#ff5a4e"></i>real yield</span><span><i style="background:#e8c547"></i>what the factory reported</span></div>';
+}
+
+/* ---------- screens ---------- */
+function screenTitle() {
+  el(topbar(true) + '<div class="card">' + plantSvg(0) +
+   '<h3>Chapter 17 · The Hardest Factory Lessons</h3><h1>The Long <span>Run</span></h1>' +
+   '<p>The contract is signed and the product is shipping. <b>Nothing stays as it was</b>: the yield erodes, the factory makes changes you did not approve, your priority slides, and the exit gets harder to build every year.</p>' +
+   '<div class="plain"><b>In plain English:</b> most manufacturing damage does not happen in a crisis. It happens quietly over years while nobody is looking. You have four attention points a year to spend on the areas that drift. Then comes the hardest call in manufacturing: stay and fix, split the volume, or leave. <b>Goal:</b> make five good years, and make that call on evidence.</div>' +
+   '<ul style="margin:0;padding-left:18px;color:var(--muted);font-size:14px;line-height:1.55"><li><b>Five years</b>, four attention points each.</li><li><b>Read the reports with suspicion.</b> What you do not measure, you do not see.</li><li><b>Build an exit option</b> while you do not need one.</li></ul>' +
+   '<button class="btn" data-a="start">Begin year 1</button><p class="small" style="text-align:center">Best ' + fmt(store.get('best', 0)) + ' · The factory is fictional.</p></div>');
+}
+
+function screenBrief() {
+  G.phase = 'brief';
+  el(topbar(false) + '<div class="card"><h3>' + G.name + ' · handover</h3><h2>"We are a great fit"</h2>' + plantSvg(0) +
+   '<div class="report"><div class="rh">Account review · your product</div><div class="rv"><span>Reported yield</span><b>97.6%</b></div><div class="rv"><span>On-time delivery</span><b>98%</b></div><div class="rv"><span>Change notices received</span><b>2</b></div><div class="rv"><span>Second source</span><b>none</b></div></div>' +
+   '<p>Production is stable and the factory is attentive. Everything in this report comes from the factory, and the factory is the only one measuring.</p>' +
+   '<div class="note"><b>What changes</b>Your volume grows by about 20% a year, so you matter less to a factory that is also growing with bigger customers. Each year you pick where to spend your attention. Areas you ignore do not stay as they were. They drift.</div>' +
+   '<button class="btn" data-a="plan">Plan year 1</button></div>');
+}
+
+function actRow(k) {
+  var A = ACT[k], v = G.plan[k] || 0, left = POINTS - spent();
+  return '<div class="act2' + (v ? ' on' : '') + '"><i>' + A.ic + '</i><b>' + A.name + ' <span class="c">' + (k === 'cost' ? 'saves ' + k$(SAVE) : '−' + k$(A.cost)) + '</span></b><div class="st"><button data-a="act" data-k="' + k + '" data-d="-1"' + (v <= 0 ? ' disabled' : '') + '>−</button><b>' + v + '</b><button data-a="act" data-k="' + k + '" data-d="1"' + (v >= MAXPER || left <= 0 ? ' disabled' : '') + '>+</button></div><div class="d">' + A.d + '</div></div>';
+}
+function lastKnown() {
+  var Ys = G.run.years, last = Ys[Ys.length - 1], h = '';
+  if (!last) return '';
+  var known = null; for (var i = Ys.length - 1; i >= 0; i--) if (Ys[i].plan.review) { known = Ys[i]; break; }
+  h += '<div class="stat3"><div><b>' + r1(last.rep) + '%</b><span>factory says</span></div><div><b class="' + (known ? (known.Y < 93 ? 'bad' : 'warn') : '') + '">' + (known ? r1(known.Y) + '%' : '?') + '</b><span>' + (known ? 'you measured (Y' + (known.y + 1) + ')' : 'real yield') + '</span></div><div><b>' + (G.run.st.X >= 100 ? '100' : Math.round(G.run.st.X)) + '%</b><span>exit readiness</span></div></div>';
+  return h;
+}
+function screenPlan() {
+  G.phase = 'plan'; var y = G.y, left = POINTS - spent();
+  el(topbar(false) + '<div class="card"><h3>Year ' + (y + 1) + ' of ' + YEARS + '</h3><h2>Where does your attention go?</h2>' + timeline(y, y) +
+   lastKnown() +
+   '<div class="pts"><b>Attention</b><div class="pp">' + Array.apply(null, Array(POINTS)).map(function (_, i) { return '<i class="' + (i < left ? '' : 'off') + '"></i>'; }).join('') + '</div><span>' + left + ' left</span></div>' +
+   KEYS.map(actRow).join('') +
+   (y === 0 ? '<div class="note warn"><b>Heads up</b>Whatever you leave alone, drifts: yield erodes, priority slides, and the reports get rosier. You can spend up to 2 points on one area.</div>' : '') +
+   '<button class="btn" data-a="run">Run year ' + (y + 1) + (left ? ' · ' + left + ' point' + (left === 1 ? '' : 's') + ' unspent' : '') + '</button></div>', true);
+}
+
+function screenYear() {
+  G.phase = 'year'; var y = G.y, R = G.run.years[y], pl = R.plan, n = function (k) { return pl[k] || 0; }, ev = [];
+  ev.push('<div class="ev"><i>📑</i><div><span class="t">Factory report</span>Yield <b>' + r1(R.rep) + '%</b>, on-time <b>' + (R.crunch && R.s < 1 ? Math.round(R.s * 100) : 98) + '%</b>. ' + (R.incidents ? 'Field issues: ' + R.incidents + '.' : 'No field issues.') + '</div></div>');
+  if (n('review')) ev.push('<div class="ev ' + (R.Y < 93 ? 'bad' : 'good') + '"><i>📊</i><div><span class="t">Your yield review</span>Real yield is <b>' + r1(R.Y) + '%</b> against a reported <b>' + r1(R.rep) + '%</b>. ' + (R.rep - R.Y > 1.5 ? 'The report is flattering the number.' : 'The report is close to the data.') + ' Corrective action recovered about ' + r1(1.8 * n('review')) + ' points.</div></div>');
+  else ev.push('<div class="ev hid"><i>📊</i><div><span class="t">Not measured</span>You did not read the primary data, so the only yield you know is the one the factory chose to report.</div></div>');
+  if (n('audit')) ev.push('<div class="ev ' + (R.caught ? 'warn' : 'good') + '"><i>🧾</i><div><span class="t">Your change audit</span>' + (R.caught ? 'Found <b>' + R.caught + '</b> unapproved change' + (R.caught === 1 ? '' : 's') + ' (a cheaper resistor lot, a new solder paste, a relocated test step) and sent them through approval. ' : 'Nothing found this year. ') + 'An audit only tells you what it found, not what it missed.</div></div>');
+  else ev.push('<div class="ev hid"><i>🧾</i><div><span class="t">Not checked</span>Nobody compared the build against the approved baseline this year. Changes happen anyway.</div></div>');
+  if (R.incidents) ev.push('<div class="ev bad"><i>📦</i><div><span class="t">Field incidents</span><b>' + R.incidents + '</b> field issue' + (R.incidents === 1 ? '' : 's') + ' traced to a change nobody approved earlier. −' + k$(R.incidents * INC) + ' and a dent in the yield.</div></div>');
+  if (R.shock) ev.push(n('present') ? '<div class="ev warn"><i>🧑‍🔧</i><div><span class="t">Seen early</span>The line leader quit and the replacement was untrained. Your resident engineer caught it within the week.</div></div>' : '<div class="ev bad"><i>📉</i><div><span class="t">Nobody told you</span>The best line leader quit, and yield dipped by about 3 points for months before anyone mentioned it.</div></div>');
+  if (R.crunch) ev.push('<div class="ev ' + (R.s < 1 ? 'bad' : 'good') + '"><i>🚛</i><div><span class="t">Capacity crunch</span>The factory allocated scarce capacity to its biggest customers. ' + (R.s < 1 ? 'You received <b>' + Math.round(R.s * 100) + '%</b> of your order.' : 'Your priority held and you received your full order.') + '</div></div>');
+  if (R.ultNew) ev.push('<div class="ev ' + (R.ult ? 'bad' : 'good') + '"><i>✉️</i><div><span class="t">The price letter</span>' + (R.ult ? 'The factory demands <b>+' + Math.round(R.ult * 100) + '%</b> from next quarter, or it reallocates your lines. ' + (R.ult < 0.1 ? 'You have a partial second source, so you negotiate it down.' : 'You have nowhere else to go, so you pay.') : 'The factory demands a price rise. Your qualified second source lets you say no, and they back down.') + '</div></div>');
+  if (n('cost')) ev.push('<div class="ev warn"><i>✂️</i><div><span class="t">Cost-down round</span>Saved ' + k$(SAVE * n('cost')) + ', and the account manager stopped returning calls as fast.</div></div>');
+  if (n('second')) ev.push('<div class="ev good"><i>🧭</i><div><span class="t">Second source</span>A second factory is ' + Math.round(R.X) + '% qualified.</div></div>');
+  el(topbar(false) + '<div class="card"><h3>Year ' + (y + 1) + ' · review</h3><h2>' + (R.profit >= 0.6 * VOL[y] * 0.9 * 0.75 ? 'A quiet year' : R.incidents || R.s < 1 ? 'A year that cost you' : 'A middling year') + '</h2>' + timeline(y + 1, y + 1) +
+   ev.join('') +
+   '<div class="stat3"><div><b>' + k$(R.gross) + '</b><span>gross</span></div><div><b class="bad">−' + k$(Math.max(0, R.cost)) + '</b><span>costs</span></div><div><b class="' + (R.profit > 0 ? 'good' : 'bad') + '" id="pf">' + k$(R.profit) + '</b><span>profit</span></div></div>' +
+   '<button class="btn" data-a="next">' + (y + 1 >= YEARS ? 'Review the evidence' : 'Plan year ' + (y + 2)) + '</button></div>');
+  J.sfx(R.incidents || R.s < 1 ? 'bad' : 'ok');
+  if (R.incidents || R.s < 1) J.hit($q('#pf'), 'bad', 'small');
+}
+
+function screenDecision() {
+  G.phase = 'decision'; var ys = G.run.years, st = G.run.st, rv = ys.filter(function (R) { return R.plan.review; }), last = ys[ys.length - 1];
+  var knownY = rv.length ? rv[rv.length - 1] : null, inc = 0, crunchHit = null, flat = 0; ys.forEach(function (R) { inc += R.incidents; if (R.crunch && R.s < 1) crunchHit = R; if (R.rep - R.Y > 1.5 && R.plan.review) flat++; });
+  var audits = ys.filter(function (R) { return R.plan.audit; }).length, pres = ys.filter(function (R) { return R.plan.present; }).length;
+  var rows = [];
+  rows.push(['📊', 'Yield', knownY ? 'Your last measurement (year ' + (knownY.y + 1) + ') was <b>' + r1(knownY.Y) + '%</b> against a reported <b>' + r1(knownY.rep) + '%</b>.' + (ys.length - rv.length ? ' You never measured ' + (ys.length - rv.length) + ' of ' + ys.length + ' years.' : '') : 'You never read the primary data. The only number you have is the factory\'s: <b>' + r1(last.rep) + '%</b>.']);
+  rows.push(['📦', 'Field issues', '<b>' + inc + '</b> field issue' + (inc === 1 ? '' : 's') + ' over five years' + (audits ? ', with change audits in ' + audits + ' of 5 years.' : ', and no change audit at all.')]);
+  rows.push(['🚛', 'Capacity', crunchHit ? 'In the crunch you were cut to <b>' + Math.round(crunchHit.s * 100) + '%</b>: you are not a priority customer.' : 'In the crunch you kept your full allocation.']);
+  rows.push(['🧑‍🔧', 'Presence', pres ? 'You had a resident engineer in ' + pres + ' of 5 years.' : 'You never had anyone on the floor, so most of what you believe is secondhand.']);
+  rows.push(['✉️', 'Price', ys[3] && ys[3].ult ? 'In year 4 the factory demanded a price rise and you ended up paying <b>+' + Math.round(ys[3].ult * 100) + '%</b>.' : 'In year 4 the factory tried a price rise and backed down.']);
+  rows.push(['🧭', 'Exit option', st.X >= 70 ? 'A second source is <b>' + Math.round(st.X) + '%</b> qualified. You could move.' : st.X >= 30 ? 'A second source is partly qualified (<b>' + Math.round(st.X) + '%</b>). It could take some volume.' : 'There is <b>no qualified second source</b>. Leaving would mean starting from zero.']);
+  el(topbar(false) + '<div class="card"><h3>Year 5 · the hardest call</h3><h2>Stay, split, or leave?</h2>' + timeline(YEARS, YEARS) +
+   '<p>Every option can be right. The evidence below is what you actually know. The decision should follow it, not the sunk cost, and not the factory\'s latest apology.</p>' +
+   rows.map(function (r) { return '<div class="ev"><i>' + r[0] + '</i><div><span class="t">' + r[1] + '</span>' + r[2] + '</div></div>'; }).join('') +
+   '<div class="dec">' + ['stay', 'dual', 'leave'].map(function (k) { return '<button data-a="choose" data-k="' + k + '"><i>' + CH[k].ic + '</i><b>' + CH[k].name + '</b><span>' + CH[k].sub + '</span><em>' + CH[k].need + '</em></button>'; }).join('') + '</div></div>');
+}
+
+function screenResult() {
+  G.phase = 'result';
+  var sc = scoreOf(G.run, G.choice), o = sc.o, st = G.run.st;
+  var best = store.get('best', 0), nb = sc.total > best; if (nb) store.set('best', sc.total);
+  try { HHL.submit(117, sc.total); } catch (e) {}
+  var stamp = sc.total >= 800 ? 'pass' : sc.total >= 500 ? 'warn' : 'fail';
+  var txt = sc.total >= 800 ? 'A LONG PARTNERSHIP, WELL KEPT' : sc.total >= 500 ? 'DRIFTED, THEN DECIDED' : 'THE QUIET YEARS WON';
+  var top = ['stay', 'dual', 'leave'].sort(function (a, b) { return o[b] - o[a]; })[0];
+  var missed = 0, inc = 0; G.run.years.forEach(function (R) { missed += R.missed; inc += R.incidents; });
+  var rows = G.run.years.map(function (R, i) { return '<div class="br"><div class="t"><b>Year ' + (i + 1) + '</b><span>real ' + r1(R.Y) + '% · reported ' + r1(R.rep) + '% · ' + R.incidents + ' incidents' + (R.crunch ? ' · ' + Math.round(R.s * 100) + '% supply' : '') + '</span></div><div class="tr"><i style="width:' + Math.max(4, Math.min(100, Math.round(100 * R.profit / 130))) + '%;background:var(--acc)"></i></div></div>'; }).join('');
+  el(topbar(false) + '<div class="card"><h3>The final accounts</h3><div class="stamp ' + stamp + '" id="stp">' + txt + '</div><div class="bigs" id="bigs">0</div>' +
+   (nb ? '<p style="text-align:center;color:var(--acc);font-weight:800" class="j-pulse">New best!</p>' : '<p class="small" style="text-align:center">Best ' + fmt(Math.max(best, sc.total)) + '</p>') +
+   '<div class="lines" id="led"><div><span>Five years of profit</span><em class="pos">' + k$(sc.tot) + '</em></div><div><span>Next 18 months: ' + CH[G.choice].name.toLowerCase() + '</span><em class="pos">' + k$(sc.future) + '</em></div><div><span>Best available option (' + CH[top].name.toLowerCase() + ')</span><em class="pos">' + k$(sc.best) + '</em></div><div><span>Cost of the call you made</span><em class="' + (sc.regret > 1 ? 'neg' : 'pos') + '">' + (sc.regret > 1 ? '−' + k$(sc.regret) : 'none') + '</em></div></div>' +
+   '<h3>What you could not see</h3>' + chartSvg(G.run.years) +
+   '<div class="stat3"><div><b class="' + (missed ? 'bad' : 'good') + '">' + missed + '</b><span>changes missed</span></div><div><b class="' + (inc ? 'bad' : 'good') + '">' + inc + '</b><span>field incidents</span></div><div><b class="' + (o.H > 0.6 ? 'good' : o.H > 0.4 ? 'warn' : 'bad') + '">' + Math.round(o.H * 100) + '</b><span>factory health</span></div></div>' +
+   '<h3>Year by year (bars: profit)</h3><div class="bars2">' + rows + '</div>' +
+   '<div class="note ' + (sc.regret > 1 ? 'warn' : 'good') + '"><b>' + (sc.regret > 1 ? 'The call' : 'The call, made well') + '</b>' + (G.choice === top ? 'You chose the best option available. ' : CH[top].name + ' was the better option on the facts. ') +
+   (top === 'leave' && st.X < 40 ? 'Leaving was still tempting, but without a qualified second source it would have been brutal. The exit option has to be built while you do not need it. ' : '') +
+   (top === 'stay' && G.choice === 'leave' ? 'The factory was healthy enough to repair. Leaving it burned a working relationship and years of qualified process. ' : '') +
+   (G.choice === 'stay' && o.H < 0.45 ? 'The evidence said the factory was not recovering, and staying meant paying for the same problems again. ' : '') + '</div>' +
+   '<div class="lesson">The factory\'s numbers get rosier as your attention drops, and your priority slides as your share of its business shrinks. Measure first-pass yield yourself, control every change, keep someone on the floor, and build the second source while you still have a choice.</div>' +
+   HHL.next(117) +
+   '<div class="row"><button class="btn" data-a="again">Another five years</button><button class="btn ghost" data-a="menu">Menu</button></div></div>');
+  J.stamp($q('#stp'), stamp); J.count($q('#bigs'), 0, sc.total, 1200);
+  later(1300, function () { if (stamp === 'pass') { J.confetti(); J.sfx('win'); } else J.sfx(stamp === 'warn' ? 'ok' : 'lose'); });
+  J.stagger($app.querySelectorAll('#led div, .br'), 60);
+}
+
+/* ---------- events ---------- */
+$app.addEventListener('click', function (e) {
+  var b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+  var a = b.dataset.a;
+  switch (a) {
+    case 'start': newGame(); screenBrief(); break;
+    case 'plan': screenPlan(); break;
+    case 'act': { var k = b.dataset.k, d = Number(b.dataset.d), v = (G.plan[k] || 0) + d; if (v < 0 || v > MAXPER || (d > 0 && spent() >= POINTS)) break; G.plan[k] = v; J.sfx(d > 0 ? 'select' : 'cancel'); screenPlan(); break; }
+    case 'run': { var pl = {}; KEYS.forEach(function (k2) { if (G.plan[k2]) pl[k2] = G.plan[k2]; }); resolveYear(G.y, pl, G.run); G.plan = {}; screenYear(); break; }
+    case 'next': if (G.y + 1 >= YEARS) screenDecision(); else { G.y++; screenPlan(); } break;
+    case 'choose': G.choice = b.dataset.k; J.sfx('confirm'); screenResult(); break;
+    case 'again': newGame(); screenBrief(); break;
+    case 'menu': screenTitle(); break;
+  }
+});
+newGame(); screenTitle();
+window.__f17 = { G:function () { return G; } };
+})();
+</script>
+</body>
+</html>

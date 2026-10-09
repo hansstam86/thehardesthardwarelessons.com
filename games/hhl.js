@@ -15,9 +15,10 @@
     110: ['The Last Honest Report', '#3dd6c6', 'f10-test'],
     112: ['The Last Gate', '#3dd6c6', 'f12-gate'],
     114: ['The Audit', '#3dd6c6', 'f14-audit'],
-    115: ['The Deal', '#3dd6c6', 'f15-deal']
+    115: ['The Deal', '#3dd6c6', 'f15-deal'],
+    117: ['The Long Run', '#3dd6c6', 'f17-longrun']
   };
-  var ORDER = [1, 2, 3, 4, 5, 6, 102, 103, 104, 105, 106, 107, 110, 112, 114, 115];
+  var ORDER = [1, 2, 3, 4, 5, 6, 102, 103, 104, 105, 106, 107, 110, 112, 114, 115, 117];
   function chLabel(n) { return n >= 100 ? 'Factory ch. ' + (n - 100) : 'Chapter ' + n; }
   var K = 'hhl.profile';
   function load() { try { return JSON.parse(localStorage.getItem(K)) || {}; } catch (e) { return {}; } }
@@ -104,7 +105,8 @@
     110: ['The test is the last honest report only while nobody can make it say yes. Know the gauge noise, check the fixture against a golden sample, and write the limits and the retest rule down, because a test that can be repeated until it passes measures patience, not product.', [['gage-rr', 'Gauge R&R'], ['golden-sample', 'Golden sample'], ['guardband', 'Guardband'], ['retest-loop', 'Retest loop'], ['fpy', 'First-pass yield']], null],
     112: ['Gates catch what people cannot see, and people catch what gates cannot. The label is the cheapest component in the building and carries the highest-consequence information.', [['scan-gate', 'Scan gate'], ['checkweigher', 'Checkweigher'], ['pre-ship-audit', 'Pre-ship audit right'], ['traceability', 'Traceability']], null],
     114: ['The audit is the one moment the whole relationship is still free. You see the factory on its best day, so everything you find is a floor, and every finding that matters must become a contract term, or it becomes a hope.', [['audit', 'Factory audit'], ['evidence-standard', 'Evidence standard'], ['reluctance-map', 'Reluctance map'], ['red-line', 'Red line'], ['capa', 'CAPA']], null],
-    115: ['Everything is negotiable exactly once. A term deferred "until we are up and running" is a concession with a delayed invoice, and the exit is cheapest to buy at signature.', [['thin-quote', 'Thin quote'], ['nre', 'NRE'], ['lien', 'Lien'], ['epidemic-failure', 'Epidemic-failure clause'], ['eo-liability', 'E&O'], ['last-buy', 'Last buy']], null]
+    115: ['Everything is negotiable exactly once. A term deferred "until we are up and running" is a concession with a delayed invoice, and the exit is cheapest to buy at signature.', [['thin-quote', 'Thin quote'], ['nre', 'NRE'], ['lien', 'Lien'], ['epidemic-failure', 'Epidemic-failure clause'], ['eo-liability', 'E&O'], ['last-buy', 'Last buy']], null],
+    117: ['Most damage is quiet. The yield erodes, changes slip in, and your priority slides while the factory\'s reports get rosier. Measure the primary data yourself, control every change, keep someone on the floor, and build the second source while you still have a choice, because the exit cannot be built in the month you need it.', [['pcn', 'Change notice (PCN)'], ['dual-sourcing', 'Dual-sourcing'], ['resident-engineer', 'Resident engineer'], ['stay-or-go', 'Stay or go'], ['fpy', 'First-pass yield']], null]
   };
   var A = 'style="color:#e8c547" target="_blank" rel="noopener"';
   HHL.next = function (ch) {
