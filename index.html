@@ -204,6 +204,26 @@
     font-family: sans-serif; font-size: 0.75rem; color: var(--muted);
   }
 
+
+  /* in-page navigation */
+  html { scroll-behavior: smooth; }
+  section[id] { scroll-margin-top: 7.5rem; }
+  .jump { position: sticky; top: var(--navh, 64px); z-index: 90; background: rgba(15,15,15,0.96); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
+  .jump-in { max-width: 960px; margin: 0 auto; padding: 0.55rem 1rem; display: flex; gap: 0.4rem; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; justify-content: center; }
+  .jump-in::-webkit-scrollbar { display: none; }
+  .jump a { flex: none; font-family: sans-serif; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.04em; color: var(--muted); text-decoration: none; padding: 0.55rem 0.85rem; border-radius: 999px; min-height: 38px; display: inline-flex; align-items: center; }
+  .jump a:hover { color: var(--text); }
+  .jump a.on { color: #000; background: var(--accent); }
+  .jump a.jb { color: var(--accent); border: 1px solid var(--accent); }
+  .swipe { display: none; }
+  @media (max-width: 760px) {
+    .hero .hero-cta { width: 100%; text-align: center; padding-left: 1rem; padding-right: 1rem; }
+    .jump-in { justify-content: flex-start; }
+    .parts-grid, .testimonials-grid, .pq-row { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 0.9rem; margin-left: -1.25rem; margin-right: -1.25rem; padding: 0.25rem 1.25rem 0.8rem; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+    .parts-grid::-webkit-scrollbar, .testimonials-grid::-webkit-scrollbar, .pq-row::-webkit-scrollbar { display: none; }
+    .parts-grid > *, .testimonials-grid > *, .pq-row > * { flex: 0 0 84%; scroll-snap-align: center; margin: 0 !important; }
+    .swipe { display: block; text-align: center; font-family: sans-serif; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0.2rem 0 0; }
+  }
   @media (max-width: 600px) {
     .author-inner { flex-direction: column; gap: 1.5rem; }
     nav .logo { font-size: 0.7rem; }
@@ -251,8 +271,12 @@
   </div>
 </section>
 
+<div class="jump" id="jump"><div class="jump-in">
+  <a href="#about">About</a><a href="#inside">What's inside</a><a href="#excerpts">Excerpts</a><a href="#reviews">Reviews</a><a href="#author">Author</a><a href="#factory-book">Factory book</a><a href="/games/">Free games</a><a href="#buy" class="jb">Get the book</a>
+</div></div>
+
 <!-- ABOUT -->
-<section class="about">
+<section class="about" id="about">
   <div class="container">
     <div class="section-label">About the book</div>
     <h2>The unpublished version of hardware development — written down.</h2>
@@ -263,7 +287,7 @@
 </section>
 
 <!-- WHAT'S INSIDE -->
-<section class="inside">
+<section class="inside" id="inside">
   <div class="container">
     <div class="section-label">What's inside</div>
     <h2>Five parts. Every phase of a product's life.</h2>
@@ -299,15 +323,17 @@
         <p class="part-desc">Every major section ends with a lesson — the specific mistake most teams make, the cost of making it, and what to do instead. Blunt, direct, and cheaper to learn from a book than from a product.</p>
       </div>
     </div>
+    <p class="swipe">Swipe for more →</p>
   </div>
 </section>
 
 <!-- SAMPLE -->
-<section class="sample">
+<section class="sample" id="excerpts">
   <div class="container">
     <div class="section-label">From the book</div>
     <h2>The first lesson is also the last.</h2>
 
+    <div class="pq-row">
     <div class="pullquote">
       <p>"Hardware is hard because it is a discipline of progressive commitment. Every phase of development commits more capital, more time, and more organisational energy than the phase before it — and makes the decisions of every previous phase harder and more expensive to change."</p>
       <cite>— Introduction: The Lessons Nobody Teaches</cite>
@@ -322,11 +348,13 @@
       <p>"The hardest hardware lessons are not the technically complex ones. They are the ones about discipline: the specific moments when the rational decision is to hold the gate, and the pressure to move forward is at its highest. These are the lessons that are not in the textbooks, because they are not technical. They are human."</p>
       <cite>— Introduction: The Pressure That Defeats Discipline</cite>
     </div>
+    </div>
+    <p class="swipe">Swipe for more →</p>
   </div>
 </section>
 
 <!-- TESTIMONIALS -->
-<section class="testimonials">
+<section class="testimonials" id="reviews">
   <div class="container">
     <div class="section-label">What readers say</div>
     <h2>Hardware people recognising something true.</h2>
@@ -344,12 +372,13 @@
         <div class="author"><strong>Early reader</strong>Senior hardware engineer</div>
       </div>
     </div>
+    <p class="swipe">Swipe for more →</p>
     <p class="testimonials-note">* Testimonials from early readers. More reviews coming as the book reaches more hands.</p>
   </div>
 </section>
 
 <!-- AUTHOR -->
-<section class="author-section">
+<section class="author-section" id="author">
   <div class="container">
     <div class="section-label">About the author</div>
     <div class="author-inner">
@@ -367,7 +396,7 @@
 </section>
 
 <!-- ALSO BY -->
-<section style="padding:3rem 2rem;border-top:1px solid var(--border);background:var(--bg2)">
+<section id="factory-book" style="padding:3rem 2rem;border-top:1px solid var(--border);background:var(--bg2)">
   <div class="container" style="text-align:center">
     <div class="section-label">Book two in the series</div>
     <h2 style="font-weight:normal;color:#fff;font-size:1.8rem;margin:.5rem 0 .8rem">The Hardest <em style="color:var(--accent)">Factory</em> Lessons</h2>
@@ -398,7 +427,7 @@
 </section>
 
 <!-- FINAL CTA -->
-<section class="cta-section">
+<section class="cta-section" id="buy">
   <div class="container">
     <div class="section-label">Get the book</div>
     <h2>Learn it from a book.<br>Not from a product.</h2>
@@ -415,5 +444,21 @@
 </footer>
 
 <script src="https://www.dfminsights.com/ecosystem.js"></script>
+<script>
+(function () {
+  var jump = document.getElementById('jump'); if (!jump) return;
+  function navh() { var n = document.querySelector('nav'); if (n) document.documentElement.style.setProperty('--navh', n.offsetHeight + 'px'); }
+  navh(); window.addEventListener('resize', navh); window.addEventListener('load', navh); setTimeout(navh, 300);
+  var links = [].slice.call(jump.querySelectorAll('a[href^="#"]:not(.jb)')), ids = links.map(function (a) { return a.getAttribute('href').slice(1); });
+  if (!('IntersectionObserver' in window)) return;
+  var vis = {};
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { vis[e.target.id] = e.isIntersecting; });
+    var cur = ids.filter(function (id) { return vis[id]; })[0];
+    links.forEach(function (a) { var on = a.getAttribute('href') === '#' + cur; a.classList.toggle('on', on); if (on) { var box = jump.firstElementChild, x = a.offsetLeft - 16; if (box.scrollTo) box.scrollTo({ left: x, behavior: 'smooth' }); } });
+  }, { rootMargin: '-35% 0px -55% 0px' });
+  ids.forEach(function (id) { var el = document.getElementById(id); if (el) io.observe(el); });
+})();
+</script>
 </body>
 </html>

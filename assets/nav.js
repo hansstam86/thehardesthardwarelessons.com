@@ -61,4 +61,16 @@
   document.addEventListener('click', function (e) { if (!nav.contains(e.target)) { toggle(burger, panel, false); toggle(moreBtn, drop, false); } });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { toggle(burger, panel, false); toggle(moreBtn, drop, false); } });
   window.addEventListener('resize', function () { toggle(burger, panel, false); });
+
+  // Back to top, for the long pages
+  var top = document.createElement('button');
+  top.type = 'button'; top.setAttribute('aria-label', 'Back to top'); top.textContent = '↑';
+  top.style.cssText = 'position:fixed;right:14px;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);z-index:90;width:46px;height:46px;border-radius:50%;border:1px solid var(--border,#2a2a2a);background:rgba(22,22,22,.95);color:var(--accent,#e8c547);font:700 20px sans-serif;cursor:pointer;display:none;box-shadow:0 6px 20px rgba(0,0,0,.5)';
+  document.body.appendChild(top);
+  top.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  var tick = false;
+  window.addEventListener('scroll', function () {
+    if (tick) return; tick = true;
+    requestAnimationFrame(function () { top.style.display = window.scrollY > 1400 ? 'block' : 'none'; tick = false; });
+  }, { passive: true });
 })();
