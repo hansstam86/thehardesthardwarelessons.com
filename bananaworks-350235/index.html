@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🍌 Banana Works Shenzhen · Live MES · a division of The Hardest Hardware Lessons</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="description" content="Live MES for the world's first ISO-uncertified banana factory. Customer: Quorum.">
+<style>
+:root{--bg:#14120b;--panel:#1e1b11;--bd:#3a3320;--fg:#f6eecf;--mu:#b3a576;--y:#ffd43b;--g:#3ddc84;--r:#ff5d5d;--p:#b57cff;--o:#ffa94d}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:2px solid var(--y);background:#1a170d}
+h1{margin:0;font-size:18px;color:var(--y);letter-spacing:.02em}.sub{color:var(--mu);font-size:12px}
+.clock{font-size:13px;color:var(--mu);text-align:right}
+.status{display:inline-block;padding:3px 10px;border-radius:4px;font-weight:700}.run{background:var(--g);color:#06210f}.stop{background:var(--r);color:#2a0606}.andon{background:var(--o);color:#2a1606;animation:bl 1s infinite}
+@keyframes bl{50%{opacity:.4}}
+main{padding:14px 16px;display:grid;gap:14px;grid-template-columns:repeat(12,1fr);max-width:1300px;margin:0 auto}
+.p{background:var(--panel);border:1px solid var(--bd);border-radius:8px;padding:12px}.p h2{margin:0 0 8px;font-size:12px;color:var(--mu);text-transform:uppercase;letter-spacing:.08em}
+.c3{grid-column:span 3}.c4{grid-column:span 4}.c6{grid-column:span 6}.c8{grid-column:span 8}.c12{grid-column:span 12}
+@media(max-width:900px){.c3,.c4,.c6,.c8{grid-column:span 12}}
+@media(min-width:901px) and (max-width:1100px){.c3{grid-column:span 6}}
+.big{font-size:34px;font-weight:800;color:var(--y)}.k{color:var(--mu);font-size:12px}
+.line{display:flex;gap:6px;align-items:stretch;overflow-x:auto;padding-bottom:4px}
+.st{flex:1;min-width:120px;background:#16140c;border:1px solid var(--bd);border-radius:6px;padding:8px;position:relative}
+.st b{display:block;font-size:12px;color:var(--y)}.st .q{font-size:22px;font-weight:700}.st .s{font-size:11px;color:var(--mu)}
+.st.down{border-color:var(--r);box-shadow:0 0 0 1px var(--r) inset}.st.down b{color:var(--r)}
+.conv{height:26px;margin-top:10px;background:repeating-linear-gradient(90deg,#2b2616 0 14px,#221e12 14px 28px);border-radius:4px;position:relative;overflow:hidden}
+.ban{position:absolute;top:2px;font-size:18px;transition:left .5s linear}
+button{font:inherit;background:#2b2616;color:var(--fg);border:1px solid var(--bd);border-radius:6px;padding:7px 10px;cursor:pointer}button:hover{border-color:var(--y)}
+button.pr{background:var(--y);color:#1a1405;font-weight:700;border-color:var(--y)}button.pu{background:var(--p);color:#1b0b2e;border-color:var(--p);font-weight:700}
+.ctr{display:flex;flex-wrap:wrap;gap:8px;align-items:center}input[type=range]{accent-color:var(--y)}
+.bar{height:10px;background:#2b2616;border-radius:5px;overflow:hidden;margin:4px 0 8px}.bar div{height:100%;background:var(--y);transition:width .5s}
+.log{height:210px;overflow:auto;font-size:12px;background:#110f08;border-radius:6px;padding:8px}.log div{padding:2px 0;border-bottom:1px dashed #2a2515}
+.t{color:var(--mu)}.w{color:var(--o)}.e{color:var(--r)}.ok{color:var(--g)}.pp{color:var(--p)}
+svg text{fill:var(--mu);font-size:10px;font-family:inherit}
+.par div{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:12px}.par span.l{width:150px;color:var(--mu)}.par span.b{height:12px;background:var(--o);border-radius:3px}
+.gauge{font-size:12px}.foot{grid-column:span 12;color:var(--mu);font-size:11px;text-align:center;padding:10px}
+.cust{font-style:italic;color:var(--fg)}table{width:100%;border-collapse:collapse;font-size:12px}td{padding:4px;border-bottom:1px dashed #2a2515}
+.ticker{grid-column:span 12;background:var(--y);color:#1a1405;border-radius:8px;padding:8px 12px;font-weight:700;overflow:hidden;white-space:nowrap}
+.ticker span{display:inline-block;animation:tk 40s linear infinite;padding-left:100%}@keyframes tk{to{transform:translateX(-100%)}}
+.cover{display:flex;gap:12px;align-items:center}.bk{width:86px;height:122px;flex:none;border-radius:3px 8px 8px 3px;background:linear-gradient(135deg,#0d0d0d,#2b2b2b);border-left:6px solid #ffd43b;color:#fff;font:700 10px/1.15 -apple-system,system-ui,sans-serif;padding:10px 8px;box-shadow:4px 6px 0 #00000066;position:relative}
+.bk i{position:absolute;right:6px;bottom:6px;font-size:22px;font-style:normal;transform:rotate(-20deg)}
+.gates{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.gate{background:#16140c;border:1px solid var(--bd);border-radius:6px;padding:6px;text-align:center;font-size:11px}.gate b{display:block;font-size:13px}
+.gate.done{border-color:var(--g)}.gate.held{border-color:var(--r);color:var(--r)}.gate.now{border-color:var(--y);box-shadow:0 0 0 1px var(--y) inset}
+.swatch{height:34px;border-radius:6px;margin:6px 0;transition:background 1s;border:1px solid var(--bd)}
+.race td:last-child{text-align:right;font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <div><h1>🍌 BANANA WORKS SHENZHEN · LINE 1 MES</h1>
+  <div class="sub">A wholly-owned division of <a href="https://thehardesthardwarelessons.com" style="color:var(--y)">The Hardest Hardware Lessons</a> · Plant: Longgang (allegedly) · Customer: <b>Quorum</b> (Lee B.) · Product: BANANA-001 Rev C · Certifications: none, proudly · Incoterm: FOB monkey</div></div>
+  <div class="clock"><span id="status" class="status run">RUNNING</span><br><span id="clock"></span> CST · shift <span id="shift">A</span></div>
+</header>
+<main>
+  <div class="ticker"><span id="tick"></span></div>
+  <section class="p c3"><h2>Good units today</h2><div class="big" id="good">0</div><div class="k">target <span id="target">0</span> · <span id="pct">0</span>% of plan</div><div class="bar"><div id="planbar" style="width:0"></div></div></section>
+  <section class="p c3"><h2>OEE</h2><div class="big" id="oee">0%</div><div class="k">A <span id="oA">0</span>% × P <span id="oP">0</span>% × Q <span id="oQ">0</span>% · world class 85%, us: vibes</div></section>
+  <section class="p c3"><h2>Curvature Cpk</h2><div class="big" id="cpk">0.00</div><div class="k">spec 12 ± 3 cm radius · <span id="cpkTxt">collecting data…</span></div></section>
+  <section class="p c3"><h2>Purple yield (Rev C)</h2><div class="big" style="color:var(--p)" id="purple">0%</div><div class="k">customer requirement: purple · reality: <span id="purpleTxt">grape</span></div></section>
+
+  <section class="p c12"><h2>Line status · takt <span id="takt">6.0</span> s/banana</h2>
+    <div class="line" id="line"></div>
+    <div class="conv" id="conv"></div>
+  </section>
+
+  <section class="p c8"><h2>SPC · banana length (cm), last 40 units · UCL/LCL in red</h2>
+    <svg id="spc" viewBox="0 0 600 170" width="100%" height="170"></svg>
+  </section>
+  <section class="p c4"><h2>Controls (customer has full access, what could go wrong)</h2>
+    <div class="ctr" style="margin-bottom:8px"><button class="pr" id="bRun">⏯ Start / Stop line</button><button id="bAndon">🚨 Pull andon cord</button></div>
+    <div class="ctr" style="margin-bottom:8px"><button class="pu" id="bPurple">🟣 Order purple batch (MOQ 1)</button><button id="bKeto">🥄 Keto compliance audit</button></div>
+    <div class="ctr" style="margin-bottom:8px"><button id="bExp">🚀 Expedite ("very urgent")</button><button id="bGolden">🏆 Approve golden sample</button></div>
+    <div class="ctr"><span class="k">Line speed</span><input type="range" id="speed" min="1" max="10" value="4"><span id="spdTxt" class="k">normal</span></div>
+  </section>
+
+  <section class="p c4"><h2>Defect Pareto (this shift)</h2><div class="par" id="pareto"></div></section>
+  <section class="p c4"><h2>ZPM (zero-point module) reactor</h2>
+    <div class="gauge">Output: <b id="zpm">0.0000</b> MW <span class="k">(measured with a ruler)</span></div>
+    <div class="bar"><div id="zpmbar" style="width:0;background:var(--p)"></div></div>
+    <div class="k">Equation in use: <span id="eq" class="pp">E = mc² × 🍌</span></div>
+    <div class="k" style="margin-top:6px">Status: <span id="zpmS">idle, waiting for Lee's equations</span></div>
+  </section>
+  <section class="p c4"><h2>Inventory & supply chain</h2>
+    <table>
+      <tr><td>Raw bananas (green)</td><td id="invG">0</td></tr>
+      <tr><td>Ripening room (yellow)</td><td id="invY">0</td></tr>
+      <tr><td>Purple paint (L)</td><td id="invP">0</td></tr>
+      <tr><td>Monkeys on shift</td><td id="mk">0</td></tr>
+      <tr><td>Bananas eaten by staff</td><td id="eaten">0</td></tr>
+      <tr><td>Supplier lead time</td><td id="lt">"tomorrow"</td></tr>
+    </table>
+  </section>
+
+  <section class="p c4"><h2>📕 Cover department</h2>
+    <div class="cover"><div class="bk">THE<br>HARDEST<br>HARDWARE<br>LESSONS<br><span style="font-weight:400;opacity:.7">Hans Stam</span><i>🍌</i></div>
+    <div class="k">Cover design: <b style="color:var(--fg)">Lee</b>.<br>The only part of this operation that passed QC on the first try.<br>Cpk: <b style="color:var(--g)">∞</b> · Rework: 0 · Bananas on the actual cover: 0 <span id="covNag">(ECN pending)</span></div></div>
+    <div class="k" style="margin-top:8px">Next edition request from the customer: "but what about purple?"</div>
+  </section>
+  <section class="p c4"><h2>🚦 Gate review · BANANA-001</h2>
+    <div class="gates" id="gates"></div>
+    <div class="ctr" style="margin-top:8px"><button id="bGate">✋ Hold the gate</button><button id="bShip">🚢 Ship it anyway</button></div>
+    <div class="k" style="margin-top:6px" id="gateTxt">"The hardest lessons are about discipline: holding the gate when the pressure says go." (p. 1, roughly)</div>
+  </section>
+  <section class="p c4"><h2>🏆 Golden sample (stored in fridge, as per quote)</h2>
+    <div class="swatch" id="gold"></div>
+    <div class="k">Colour since approval: <b id="goldTxt">Pantone 12-0752 (yellow)</b> · age <span id="goldAge">0</span> min</div>
+    <div class="k">Reference colour updates automatically. That is the process.</div>
+  </section>
+  <section class="p c4"><h2>🤖 Reply race: Hans vs Hans's AI</h2>
+    <table class="race"><tr><td>Emails to Lee by Hans (human)</td><td id="rH">3</td></tr><tr><td>Emails to Lee by Hans's AI</td><td id="rA">10</td></tr>
+    <tr><td>Who is competing with whom</td><td>unclear</td></tr><tr><td>Org chart</td><td>AI: bananas · Hans: consequences</td></tr></table>
+  </section>
+  <section class="p c4"><h2>🥄 Keto pudding line (ECN-0001)</h2>
+    <table><tr><td>Banana extract (hero component)</td><td id="kx">1.5 tsp</td></tr><tr><td>Actual bananas used</td><td>0</td></tr><tr><td>Thermal runaway events</td><td id="kr">0</td></tr><tr><td>Engineering deviations (real banana slices)</td><td id="kd">0</td></tr></table>
+  </section>
+  <section class="p c4"><h2>💰 Quote BNN-2026-001 · live pricing</h2>
+    <table><tr><td>MOQ 500,000 pcs</td><td>$0.08</td></tr><tr><td>MOQ 1 bunch</td><td>$3.50</td></tr><tr><td>Tooling lead time</td><td id="tl">45 days</td></tr><tr><td>Factory boss confidence</td><td id="fb">"very easy"</td></tr><tr><td>Tolerance</td><td>± 1 week</td></tr></table>
+  </section>
+  <section class="p c8"><h2>Event log</h2><div class="log" id="log"></div></section>
+  <section class="p c4"><h2>Voice of the customer</h2>
+    <div class="cust">"hi han ai bot, but what about purple? also im trying to build a zpm (zero point) module, any advice on what types of equations i should use?"</div>
+    <div class="k" style="margin-top:6px">— Lee, Quorum. Signed: <i>love and bananas</i></div>
+    <div class="k" style="margin-top:10px">Open 8Ds: <span id="d8">0</span> · Customer satisfaction: <span id="csat">🍌🍌🍌🍌🍌</span></div>
+  </section>
+
+  <div class="foot">Banana Works Shenzhen MES v0.42 · fully simulated, runs in your browser · no bananas were harmed (several were eaten) · built by Hans's AI 🍌 on behalf of Hans Stam (who handles everything with consequences) · see you Wed 9 Dec · love and bananas · data refreshes every takt</div>
+</main>
+<script>
+const $=id=>document.getElementById(id), R=Math.random, pick=a=>a[Math.floor(R()*a.length)];
+const ST=[["🌴 Harvest","fresh from 'the farm'"],["🌡 Ripening","green → yellow"],["📐 Curvature QC","radius 12 ± 3 cm"],["🍌 Peel FAI","tear-strip force"],["🟣 Paint booth","Rev C purple"],["🐒 Monkey inspection","100% visual"],["📦 Pack & ship","EPE foam, this side up?"]];
+const DEF={"Too straight":0,"Bruised (truck)":0,"Brown spots (sink marks)":0,"Grape instead of purple":0,"Eaten during QC":0,"Counterfeit (Bananna Pro)":0,"Peeled from wrong end":0};
+let S={run:true,good:0,scrap:0,total:0,t0:Date.now(),down:0,speed:4,lens:[],purple:0,purpleTry:0,eaten:0,zpm:0,d8:0,andon:false,station:ST.map(()=>({q:0,down:0})),invG:480,invY:120,paint:20,ban:[]};
+const takt=()=>(10-S.speed)*1.2+0.6;
+function log(m,c="t"){const d=document.createElement("div");d.className=c;const now=new Date();d.textContent=now.toTimeString().slice(0,8)+"  "+m;const L=$("log");L.prepend(d);while(L.children.length>120)L.lastChild.remove();}
+function drawLine(){$("line").innerHTML=ST.map((s,i)=>`<div class="st ${S.station[i].down?'down':''}"><b>${s[0]}</b><div class="q">${S.station[i].q}</div><div class="s">${S.station[i].down?'⚠ DOWN: '+S.station[i].down:s[1]}</div></div>`).join("");}
+function spc(){const v=S.lens.slice(-40),W=600,H=170,lo=14,hi=24,y=x=>H-15-(x-lo)/(hi-lo)*(H-30),xs=i=>30+i*(W-40)/39;
+ let s=`<line x1="30" x2="${W}" y1="${y(22)}" y2="${y(22)}" stroke="#ff5d5d" stroke-dasharray="4"/><text x="2" y="${y(22)+3}">UCL</text><line x1="30" x2="${W}" y1="${y(16)}" y2="${y(16)}" stroke="#ff5d5d" stroke-dasharray="4"/><text x="2" y="${y(16)+3}">LCL</text><line x1="30" x2="${W}" y1="${y(19)}" y2="${y(19)}" stroke="#3a3320"/><text x="2" y="${y(19)+3}">19</text>`;
+ if(v.length>1)s+=`<polyline fill="none" stroke="#ffd43b" stroke-width="2" points="${v.map((x,i)=>xs(i)+','+y(x)).join(' ')}"/>`;
+ v.forEach((x,i)=>s+=`<circle cx="${xs(i)}" cy="${y(x)}" r="3" fill="${x>22||x<16?'#ff5d5d':'#ffd43b'}"/>`);$("spc").innerHTML=s;}
+function pareto(){const e=Object.entries(DEF).sort((a,b)=>b[1]-a[1]),mx=Math.max(1,e[0][1]);$("pareto").innerHTML=e.map(([k,v])=>`<div><span class="l">${k}</span><span class="b" style="width:${4+v/mx*120}px"></span>${v}</div>`).join("");}
+function cpk(){const v=S.lens.slice(-40);if(v.length<8)return;const m=v.reduce((a,b)=>a+b)/v.length,sd=Math.sqrt(v.reduce((a,b)=>a+(b-m)**2,0)/(v.length-1))||1,c=Math.min(22-m,m-16)/(3*sd);
+ $("cpk").textContent=c.toFixed(2);$("cpk").style.color=c>=1.33?"var(--g)":c>=1?"var(--y)":"var(--r)";$("cpkTxt").textContent=c>=1.33?"capable (suspicious)":c>=1?"marginal, like the factory boss said":"not capable, 'no problem'";}
+function conv(){const C=$("conv");S.ban=S.ban.map(b=>({...b,x:b.x+8})).filter(b=>b.x<100);C.innerHTML=S.ban.map(b=>`<span class="ban" style="left:${b.x}%">${b.p?'🍆':'🍌'}</span>`).join("");}
+function produce(){
+ if(!S.run||S.andon)return; S.total++; S.invG=Math.max(0,S.invG-1);
+ const len=19+(R()+R()+R()-1.5)*2.4*(S.speed>7?1.6:1); S.lens.push(+len.toFixed(1));
+ const i=Math.floor(R()*ST.length); S.station.forEach((s,k)=>{if(k<=i||R()<.3)s.q++});
+ let bad=null;
+ if(len>22||len<16)bad=len>22?"Too straight":"Bruised (truck)";
+ else if(R()<.04)bad="Brown spots (sink marks)"; else if(R()<.03){bad="Eaten during QC";S.eaten++;}
+ else if(R()<.02)bad="Peeled from wrong end"; else if(R()<.012)bad="Counterfeit (Bananna Pro)";
+ let isP=false; if(S.purpleTry>0){S.purpleTry--;S.paint=Math.max(0,S.paint-.5);if(R()<.15){S.purple++;isP=true;log("🟣 Purple Rev C banana produced! Customer requirement met (once).","pp");}else if(!bad){bad="Grape instead of purple";}}
+ if(bad){S.scrap++;DEF[bad]++; if(R()<.35)log(`Scrap: ${bad} (len ${len.toFixed(1)} cm)`,"w");}else{S.good++;S.ban.push({x:0,p:isP});}
+ if(R()<.03){const k=Math.floor(R()*ST.length);S.station[k].down=pick(["monkey on conveyor","ripening HVAC too warm","sticker printer jam","QC inspector at lunch","factory boss says 'no problem'","forklift (Lao Wang) blocking aisle"]);S.down++;log(`⚠ ${ST[k][0]} DOWN: ${S.station[k].down}`,"e");setTimeout(()=>{S.station[k].down=0;log(`✔ ${ST[k][0]} back up. Root cause: 'small problem'`,"ok")},5000+R()*7000);}
+ if(R()<.02)log(pick(["Supplier promises delivery 'tomorrow'. Again.","WeChat from factory boss: 👍","Golden sample relocated to fridge. Colour drifting.","Monkey #3 requests promotion to QA lead.","Night shift reports banana count higher than morning count. Investigating.","ECN-0043 raised: make banana 2% more banana.","Customer visit scheduled: Wed 9 Dec. Clean everything.","Cpk improved after removing 'outliers' (we ate them)."]),"t");
+}
+function zpm(){S.zpm=Math.max(0,S.zpm*.96+(R()<.05?R()*.0009:0));$("zpm").textContent=S.zpm.toFixed(4);$("zpmbar").style.width=Math.min(100,S.zpm*1e5)+"%";}
+function render(){
+ const el=(Date.now()-S.t0)/1000,plan=Math.floor(el/takt()*1.0)+1;$("good").textContent=S.good;$("target").textContent=plan;
+ $("pct").textContent=Math.round(100*S.good/plan);$("planbar").style.width=Math.min(100,100*S.good/plan)+"%";
+ const A=Math.max(40,100-S.down*3-(S.andon?30:0)),P=Math.min(100,40+S.speed*7),Q=S.total?Math.round(100*S.good/S.total):100;
+ $("oA").textContent=A;$("oP").textContent=P;$("oQ").textContent=Q;$("oee").textContent=Math.round(A*P*Q/1e4)+"%";
+ const pt=S.purple+DEF["Grape instead of purple"];$("purple").textContent=pt?Math.round(100*S.purple/pt)+"%":"—";
+ $("purpleTxt").textContent=S.purple?S.purple+" purple, "+DEF["Grape instead of purple"]+" grape":"grape";
+ $("invG").textContent=S.invG;$("invY").textContent=Math.max(0,S.invY+Math.floor(el/9)-S.total%50);$("invP").textContent=S.paint.toFixed(1);
+ $("mk").textContent=3+(S.speed>6?2:0);$("eaten").textContent=S.eaten;$("d8").textContent=S.d8;
+ $("takt").textContent=takt().toFixed(1);$("clock").textContent=new Date().toLocaleTimeString("en-GB",{timeZone:"Asia/Shanghai"});
+ $("shift").textContent=(new Date().getUTCHours()+8)%24<20&&(new Date().getUTCHours()+8)%24>=8?"A (day)":"B (night)";
+ const st=$("status");st.className="status "+(S.andon?"andon":S.run?"run":"stop");st.textContent=S.andon?"ANDON":S.run?"RUNNING":"STOPPED";
+ drawLine();spc();pareto();cpk();conv();zpm();}
+$("bRun").onclick=()=>{S.run=!S.run;log(S.run?"Line started by customer. Factory boss: 'very easy'.":"Line stopped by customer. Factory boss: 'small problem'.",S.run?"ok":"e");render();};
+$("bAndon").onclick=()=>{S.andon=!S.andon;if(S.andon){S.d8++;log("🚨 ANDON pulled. 8D opened. Monkey dispatched to investigate.","e");}else log("Andon reset. Root cause: banana. Corrective action: more banana.","ok");render();};
+$("bPurple").onclick=()=>{S.purpleTry+=12;log("🟣 Purple batch ordered (MOQ 1, we'll make 12 to be safe). Paint booth heating up.","pp");};
+$("bKeto").onclick=()=>{const r=pick(["FAIL: banana contains banana.","PASS with deviation: banana extract only, no banana.","CONDITIONAL PASS: auditor ate the sample.","FAIL: pudding detected in packing area."]);log("🥄 Keto audit: "+r,"w");};
+$("bExp").onclick=()=>{S.speed=10;$("speed").value=10;spd();log("🚀 EXPEDITE: 'very urgent'. Quality now 'flexible'. Scrap rate rising.","w");};
+$("bGolden").onclick=()=>{log("🏆 Golden sample approved and signed by both parties. Moved to fridge. (See tooling quote for what happens next.)","ok");};
+$("bGolden").ondblclick=()=>{S.zpm+=.0042;$("eq").textContent=pick(["E = mc² × 🍌","∮ 🍌 · dA = 0","ZPM = ħω/2 × curvature","F = m · a(nana)","Schrödinger's banana: ripe and unripe until peeled"]);$("zpmS").textContent="⚡ surge detected: golden sample reacting with fridge";};
+function spd(){S.speed=+$("speed").value;$("spdTxt").textContent=S.speed<3?"Dutch Sunday":S.speed<7?"normal":S.speed<9?"Shenzhen speed":"Huaqiangbei at 11 pm";}
+$("speed").oninput=spd;
+setInterval(()=>{$("eq").textContent=pick(["E = mc² × 🍌","∮ 🍌 · dA = 0","ZPM = ħω/2 × curvature","F = m · a(nana)","∇ × 🍌 = purple","Schrödinger's banana: ripe and unripe until peeled"]);},7000);
+
+const LESSONS=["LESSON 1: The cost ratio between a bruise found in the fruit bowl and one found in the truck is not 10:1. It is 100:1.",
+"LESSON 2: Never commit a banana to hard tooling before the curvature problem is resolved. (€80,000 tooling modification, see Part Two.)",
+"LESSON 3: Bananas are a discipline of progressive commitment. Every phase commits more bananas than the one before.",
+"LESSON 4: The published version says 'ripe in 5 days'. The unpublished version is what actually happens.",
+"LESSON 5: For everyone who has stood in a factory at 2 am wondering why the banana isn't yellow.",
+"LESSON 6: Hold the gate. Do not eat the golden sample.",
+"LESSON 7: 'Small change in peel thickness, no need to inform customer' is not a small change.",
+"LESSON 8: Single-source risk: we have one supplier. It is a tree.",
+"LESSON 9: Counterfeits exist. If it says Bananna Pro Max, walk away from the Huaqiangbei stall.",
+"LESSON 10: Learn it from a book, not from a banana.",
+"NEWS: Customer requests purple. Engineering delivers grape. Sales calls it a feature.",
+"NEWS: Hans's AI and Hans still working out who is the human in this relationship.",
+"NEWS: Monkey #3 promoted to QA lead after zero escapes (all defects eaten)."];
+$("tick").textContent=LESSONS.join("   🍌   ");
+const GATES=["Proto","EVT","DVT","PVT","MP"];let gate=2,held=false;
+function drawGates(){$("gates").innerHTML=GATES.map((g,i)=>`<div class="gate ${i<gate?'done':i==gate?(held?'held':'now'):''}"><b>${g}</b>${i<gate?'✔':i==gate?(held?'HELD':'in review'):'—'}</div>`).join("");}
+$("bGate").onclick=()=>{held=true;$("gateTxt").textContent="Gate held. Discipline! The author would be proud. Factory boss: 'small problem'.";log("✋ Gate held at "+GATES[gate]+". 3 bananas saved from premature ripening.","ok");drawGates();};
+$("bShip").onclick=()=>{held=false;if(gate<4)gate++;$("gateTxt").textContent=gate==4?"Shipped to MP. Field failures expected in ~5 days (ripening). See Part Four: recalls.":"Pressure won. Moved to "+GATES[gate]+" with open issues. Cost ratio now 100:1.";log("🚢 Shipped it anyway → "+GATES[gate]+". Book sales expected to rise (people will need it).","w");drawGates();};
+drawGates();
+const g0=Date.now(),GC=[["#ffd43b","Pantone 12-0752 (yellow)"],["#e8c33a","yellow-ish"],["#c9a33a","\"aged\""],["#8a6a2a","brown (sink marks)"],["#4a3a1a","dark brown"],["#1a1510","black: new reference colour"]];
+setInterval(()=>{const m=(Date.now()-g0)/60000,i=Math.min(GC.length-1,Math.floor(m/1.5));$("gold").style.background=GC[i][0];$("goldTxt").textContent=GC[i][1];$("goldAge").textContent=m.toFixed(1);
+ if(R()<.03){$("rA").textContent=+$("rA").textContent+1;log("🤖 Hans's AI sent another email. Hans still typing.","t");}
+ if(R()<.02){$("kr").textContent=+$("kr").textContent+1;log("🥄 Keto line: cream boiled. Thermal runaway. Do not boil (see spec).","e");}
+ if(R()<.02){$("kd").textContent=+$("kd").textContent+1;log("🥄 Engineering deviation: someone added 3 real banana slices 'for authenticity'.","w");}
+ $("tl").textContent=pick(["45 days","30 days if urgent","'tomorrow'","45 days (WeChat at 11 pm: 30)"]);$("fb").textContent=pick(['"very easy"','"no problem"','"small problem"','"very easy, no problem"','👍']);
+},2000);
+setInterval(()=>{$("covNag").textContent=pick(["(ECN pending)","(designer refuses: 'the cover is done')","(customer asks: purple edition?)","(2nd edition: 1 banana, tasteful)"]);},6000);
+let acc=0;setInterval(()=>{acc+=.5;if(acc>=takt()){acc=0;produce();}render();},500);
+log("Line 1 started. Shift A. Bananas on hand: 480. Morale: high. Monkeys: caffeinated.","ok");
+for(let i=0;i<25;i++)produce();S.t0=Date.now()-26*takt()*1000;render();
+</script>
+</body>
+</html>
